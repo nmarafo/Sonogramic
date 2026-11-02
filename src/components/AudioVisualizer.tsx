@@ -3109,24 +3109,6 @@ export const AudioVisualizer = forwardRef<
                         <LayoutGrid className="w-3.5 h-3.5" />
                       </button>
 
-                      <label
-                        className="p-1.5 text-purple-300 hover:bg-slate-800 rounded transition-colors cursor-pointer"
-                        title={`Subir archivo SVG personalizado para el Segmento ${i + 1}`}
-                      >
-                        <Upload className="w-3.5 h-3.5" />
-                        <input
-                          type="file"
-                          accept=".svg,image/svg+xml,image/*,video/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            if (e.target.files && e.target.files[0]) {
-                              replaceSlice(i, e.target.files[0]);
-                            }
-                            e.target.value = "";
-                          }}
-                        />
-                      </label>
-
                       {isReady && (
                         <button
                           onClick={() => downloadSlice(i)}

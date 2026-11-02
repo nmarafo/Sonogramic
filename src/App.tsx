@@ -720,24 +720,13 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => batchImagesInputRef.current?.click()}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-200 border border-emerald-500/40 text-xs font-medium transition-all cursor-pointer"
-              title="Subir uno o varios archivos .svg personalizados para los tramos del musicograma"
-            >
-              <ImageIcon className="w-4 h-4 text-emerald-400" />
-              <span>
-                2. Subir SVGs ({readySlicesCount}/{totalSlicesCount})
-              </span>
-            </button>
-
-            <button
               onClick={() => audioInputRef.current?.click()}
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-sky-600/20 hover:bg-sky-600/35 text-sky-200 border border-sky-500/40 text-xs font-medium transition-all cursor-pointer"
               title="Subir archivo de audio (.mp3, .wav, .ogg) para sincronizar con el musicograma"
             >
               <Upload className="w-4 h-4 text-sky-400" />
               <span>
-                {audioFile ? "Cambiar Audio" : "3. Subir Audio (Opcional)"}
+                {audioFile ? "Cambiar Audio" : "2. Subir Audio (Opcional)"}
               </span>
             </button>
           </div>
@@ -1112,13 +1101,6 @@ export default function App() {
                     >
                       ✨ Recompilar SVGs OKF
                     </button>
-                    <button
-                      onClick={() => batchImagesInputRef.current?.click()}
-                      className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>Subir SVGs</span>
-                    </button>
                   </div>
                 </div>
 
@@ -1186,27 +1168,6 @@ export default function App() {
                       )}
 
                       <div className="flex flex-wrap items-center gap-2 pt-1">
-                        <label className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-purple-600/25 hover:bg-purple-600/40 text-purple-200 border border-purple-500/40 text-xs font-medium cursor-pointer transition-colors">
-                          <Upload className="w-3.5 h-3.5" />
-                          <span>
-                            {isReady ? "Sustituir SVG" : "Subir SVG"}
-                          </span>
-                          <input
-                            type="file"
-                            accept=".svg,image/svg+xml,image/*,video/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              if (e.target.files?.[0]) {
-                                visualizerRef.current?.replaceSlice(
-                                  idx,
-                                  e.target.files[0],
-                                );
-                              }
-                              e.target.value = "";
-                            }}
-                          />
-                        </label>
-
                         <button
                           onClick={() =>
                             visualizerRef.current?.downloadSliceLayout(idx)
