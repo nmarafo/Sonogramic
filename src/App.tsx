@@ -169,6 +169,7 @@ export default function App() {
     currentTime?: number;
     duration?: number;
     zoom: number;
+    zoomVariation: number;
     platformOpacity: number;
     bgOffsetY: number;
     cameraSmoothness: number;
@@ -200,6 +201,7 @@ export default function App() {
     hasRecording: false,
     isAnalyzing: false,
     zoom: EXAMPLE_OKF_PROJECTS[0].project.config.zoom ?? 0.85,
+    zoomVariation: 0.65,
     platformOpacity:
       EXAMPLE_OKF_PROJECTS[0].project.config.platformOpacity ?? 0.85,
     bgOffsetY: EXAMPLE_OKF_PROJECTS[0].project.config.bgOffsetY ?? 0.0,
@@ -945,10 +947,10 @@ export default function App() {
                 Cámara, Plataformas y Esferas (Sin IA)
               </h3>
 
-              {/* Zoom */}
+              {/* Zoom Base */}
               <div className="flex justify-between items-center gap-3">
-                <span className="text-xs font-medium text-slate-400 w-28">
-                  Zoom ({vState.zoom.toFixed(2)}x)
+                <span className="text-xs font-medium text-slate-400 w-32">
+                  Zoom Base ({vState.zoom.toFixed(2)}x)
                 </span>
                 <input
                   type="range"
@@ -961,6 +963,27 @@ export default function App() {
                     visualizerRef.current?.setZoom(val);
                     setVState((prev) => ({ ...prev, zoom: val }));
                   }}
+                  className="flex-1 accent-purple-500"
+                />
+              </div>
+
+              {/* Smooth Dynamic Zoom Changes */}
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-xs font-medium text-slate-400 w-32">
+                  Cambios de Zoom ({Math.round(vState.zoomVariation * 100)}%)
+                </span>
+                <input
+                  type="range"
+                  min="0.0"
+                  max="1.0"
+                  step="0.05"
+                  value={vState.zoomVariation}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    visualizerRef.current?.setZoomVariation(val);
+                    setVState((prev) => ({ ...prev, zoomVariation: val }));
+                  }}
+                  title="Regula la intensidad de los acercamientos y alejamientos suaves de cámara según la dinámica y altura musical (0% = zoom fijo)"
                   className="flex-1 accent-purple-500"
                 />
               </div>
