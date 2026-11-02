@@ -304,6 +304,10 @@ export const AudioVisualizer = forwardRef<
   const animationFrameIdRef = useRef<number>(0);
   const lastFrameIdxRef = useRef<number>(-1);
   const renderFrameRef = useRef<() => void>(() => {});
+  const audioClockSyncRef = useRef<{
+    lastElemTime: number;
+    lastPerfTime: number;
+  }>({ lastElemTime: -1, lastPerfTime: 0 });
 
   const audioFileRef = useRef<File | null>(audioFile);
   const audioUrlRef = useRef<string>("");
@@ -929,48 +933,227 @@ export const AudioVisualizer = forwardRef<
       const sampleRate = audioBuffer.sampleRate || 44100;
       const fps = 60;
       const chunkSize = Math.max(1, Math.floor(sampleRate / fps));
-      const rawData = audioBuffer.getChannelData(0);
+      const ch0 = audioBuffer.getChannelData(0);
+      const ch1 =
+        audioBuffer.numberOfChannels > 1 ? audioBuffer.getChannelData(1) : null;
 
-      // Fast single-pass time-domain 1-pole RC filtering (150 Hz Lowpass & 800 Hz Highpass)
+      // 3-Band time-domain filtering (< 180 Hz Bass, 180-1200 Hz Mid/Body, > 1200 Hz High/Transients)
       const dt = 1 / sampleRate;
-      const rcLow = 1 / (2 * Math.PI * 150);
+      const rcLow = 1 / (2 * Math.PI * 180);
       const alphaLow = dt / (rcLow + dt);
-      const rcHigh = 1 / (2 * Math.PI * 800);
+      const rcMidLow = 1 / (2 * Math.PI * 1200);
+      const alphaMidLow = dt / (rcMidLow + dt);
+      const rcHigh = 1 / (2 * Math.PI * 1200);
       const alphaHigh = rcHigh / (rcHigh + dt);
 
       const bassEnergies: number[] = [];
+      const midEnergies: number[] = [];
+      const highEnergies: number[] = [];
       const melodyEnergies: number[] = [];
       let sumB = 0,
+        sumMid = 0,
+        sumH = 0,
         sumM = 0;
 
       let lowVal = 0;
+      let midLowVal = 0;
       let highVal = 0;
       let prevSample = 0;
 
-      for (let i = 0; i < rawData.length; i += chunkSize) {
-        const end = Math.min(i + chunkSize, rawData.length);
+      for (let i = 0; i < ch0.length; i += chunkSize) {
+        const end = Math.min(i + chunkSize, ch0.length);
         let eB = 0,
-          eM = 0;
+          eMid = 0,
+          eH = 0;
         for (let j = i; j < end; j++) {
-          const s = rawData[j];
+          const s = ch1 ? 0.5 * (ch0[j] + ch1[j]) : ch0[j];
           lowVal = lowVal + alphaLow * (s - lowVal);
+          midLowVal = midLowVal + alphaMidLow * (s - midLowVal);
+          const bandMid = midLowVal - lowVal;
           highVal = alphaHigh * (highVal + s - prevSample);
           prevSample = s;
           eB += Math.abs(lowVal);
-          eM += Math.abs(highVal);
+          eMid += Math.abs(bandMid);
+          eH += Math.abs(highVal);
         }
         const count = Math.max(1, end - i);
         eB /= count;
-        eM /= count;
+        eMid /= count;
+        eH /= count;
+        const eMel = eMid * 0.65 + eH * 0.35;
         bassEnergies.push(eB);
-        melodyEnergies.push(eM);
+        midEnergies.push(eMid);
+        highEnergies.push(eH);
+        melodyEnergies.push(eMel);
         sumB += eB;
-        sumM += eM;
+        sumMid += eMid;
+        sumH += eH;
+        sumM += eMel;
       }
 
-      const avgB = sumB / Math.max(1, bassEnergies.length) || 0.0001;
-      const avgM = sumM / Math.max(1, melodyEnergies.length) || 0.0001;
-      const duration = audioBuffer.duration || project?.metadata?.durationSeconds || 90;
+      const totalFrames = bassEnergies.length;
+      const avgB = sumB / Math.max(1, totalFrames) || 0.0001;
+      const avgMid = sumMid / Math.max(1, totalFrames) || 0.0001;
+      const avgH = sumH / Math.max(1, totalFrames) || 0.0001;
+      const avgM = sumM / Math.max(1, totalFrames) || 0.0001;
+      const duration =
+        audioBuffer.duration || project?.metadata?.durationSeconds || 90;
+
+      // Compute Positive Onset Spectral Flux (attack derivative) so beats lock to note/percussion attacks rather than sustain midpoints
+      const fluxBass = new Float32Array(totalFrames);
+      const fluxMelody = new Float32Array(totalFrames);
+      const fluxTotal = new Float32Array(totalFrames);
+      let sumFluxB = 0,
+        sumFluxM = 0,
+        sumFluxT = 0;
+
+      for (let i = 2; i < totalFrames; i++) {
+        const nb0 = bassEnergies[i] / avgB;
+        const nbPrev = Math.min(
+          bassEnergies[i - 1] / avgB,
+          bassEnergies[i - 2] / avgB,
+        );
+        const nm0 = midEnergies[i] / avgMid;
+        const nmPrev = Math.min(
+          midEnergies[i - 1] / avgMid,
+          midEnergies[i - 2] / avgMid,
+        );
+        const nh0 = highEnergies[i] / avgH;
+        const nhPrev = Math.min(
+          highEnergies[i - 1] / avgH,
+          highEnergies[i - 2] / avgH,
+        );
+
+        const fb = Math.max(0, nb0 - nbPrev);
+        const fm = Math.max(0, nm0 - nmPrev) * 0.65 + Math.max(0, nh0 - nhPrev) * 0.35;
+        const ft = fb * 0.45 + fm * 0.55;
+
+        fluxBass[i] = fb;
+        fluxMelody[i] = fm;
+        fluxTotal[i] = ft;
+        sumFluxB += fb;
+        sumFluxM += fm;
+        sumFluxT += ft;
+      }
+
+      const avgFluxB = sumFluxB / Math.max(1, totalFrames) || 0.0001;
+      const avgFluxM = sumFluxM / Math.max(1, totalFrames) || 0.0001;
+      const avgFluxT = sumFluxT / Math.max(1, totalFrames) || 0.0001;
+
+      // Local adaptive onset score (normalized over a ±0.75s sliding window so quiet & loud passages detect onsets equally well)
+      const normOnsetBass = new Float32Array(totalFrames);
+      const normOnsetMelody = new Float32Array(totalFrames);
+      const normOnsetTotal = new Float32Array(totalFrames);
+      const winRadius = 45; // 0.75s at 60fps
+
+      for (let i = 0; i < totalFrames; i++) {
+        const w0 = Math.max(0, i - winRadius);
+        const w1 = Math.min(totalFrames - 1, i + winRadius);
+        let locB = 0,
+          locM = 0,
+          locT = 0;
+        for (let k = w0; k <= w1; k++) {
+          locB += fluxBass[k];
+          locM += fluxMelody[k];
+          locT += fluxTotal[k];
+        }
+        const wCount = Math.max(1, w1 - w0 + 1);
+        const denomB = Math.max(avgFluxB * 0.35, locB / wCount);
+        const denomM = Math.max(avgFluxM * 0.35, locM / wCount);
+        const denomT = Math.max(avgFluxT * 0.35, locT / wCount);
+
+        normOnsetBass[i] = fluxBass[i] / denomB;
+        normOnsetMelody[i] = fluxMelody[i] / denomM;
+        normOnsetTotal[i] = fluxTotal[i] / denomT;
+      }
+
+      // Scale sliceSpecs to match real audio duration and clear stale pre-audio backgroundSvg so SVGs recompile 1:1 with real audio
+      if (project?.sliceSpecs && project.sliceSpecs.length > 0) {
+        const rawSpecs = project.sliceSpecs;
+        const lastSpecEnd =
+          rawSpecs[rawSpecs.length - 1]?.endTime ||
+          project.metadata?.durationSeconds ||
+          duration;
+        const specScale =
+          lastSpecEnd > 0 && Math.abs(duration - lastSpecEnd) > 0.25
+            ? duration / lastSpecEnd
+            : 1.0;
+
+        sliceSpecsRef.current = rawSpecs.map((sp) => ({
+          ...sp,
+          startTime: sp.startTime * specScale,
+          endTime: sp.endTime * specScale,
+          // Clear static pre-audio SVG so compileAndAssignAlignedSvgs builds fresh vector art matching the real audio trajectory
+          backgroundSvg: undefined,
+          trajectoryWaypoints: sp.trajectoryWaypoints?.map((wp) => ({
+            ...wp,
+            time: wp.time * specScale,
+          })),
+        }));
+      }
+
+      // Helper to snap a target timestamp to the strongest real acoustic onset transient in [target - tol, target + tol]
+      const snapToAudioOnset = (
+        targetSec: number,
+        tolSec: number,
+        focusMode: "bass" | "melody" | "auto",
+      ): { time: number; energy: number; zcr: number; isPeak: boolean } => {
+        const centerIdx = Math.min(
+          totalFrames - 1,
+          Math.max(0, Math.round(targetSec * fps)),
+        );
+        const tolFrames = Math.max(2, Math.round(tolSec * fps));
+        const i0 = Math.max(2, centerIdx - tolFrames);
+        const i1 = Math.min(totalFrames - 3, centerIdx + tolFrames);
+
+        let bestIdx = centerIdx;
+        let bestScore = -1;
+
+        for (let idx = i0; idx <= i1; idx++) {
+          const onsetVal =
+            focusMode === "bass"
+              ? normOnsetBass[idx] * 0.7 + normOnsetTotal[idx] * 0.3
+              : focusMode === "melody"
+                ? normOnsetMelody[idx] * 0.7 + normOnsetTotal[idx] * 0.3
+                : normOnsetTotal[idx];
+
+          const isLocalMax =
+            onsetVal >=
+              (focusMode === "bass"
+                ? normOnsetBass[idx - 1]
+                : normOnsetTotal[idx - 1]) &&
+            onsetVal >=
+              (focusMode === "bass"
+                ? normOnsetBass[idx + 1]
+                : normOnsetTotal[idx + 1]);
+
+          const distNorm = Math.abs(idx - centerIdx) / Math.max(1, tolFrames);
+          const proximityWeight = 1.0 - distNorm * 0.35;
+          const score =
+            onsetVal * proximityWeight * (isLocalMax ? 1.25 : 0.85);
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestIdx = idx;
+          }
+        }
+
+        const useSnapped = bestScore >= 0.85;
+        const finalIdx = useSnapped ? bestIdx : centerIdx;
+        const rawE =
+          focusMode === "bass"
+            ? (bassEnergies[finalIdx] || 0) / avgB
+            : (melodyEnergies[finalIdx] || 0) / avgM;
+        const fluxBoost = Math.min(2.5, Math.max(0, bestScore * 0.45));
+        const zcrProxy = (highEnergies[finalIdx] || 0) / avgH;
+
+        return {
+          time: parseFloat((finalIdx / fps).toFixed(3)),
+          energy: Math.min(3.6, Math.max(0.55, rawE * 0.65 + fluxBoost * 0.55)),
+          zcr: zcrProxy,
+          isPeak: useSnapped,
+        };
+      };
 
       let beats: {
         time: number;
@@ -989,30 +1172,36 @@ export const AudioVisualizer = forwardRef<
         project?.musicalStructure?.sections &&
         project.musicalStructure.sections.length > 0;
 
-      // If OKF JSON defines musicalStructure, preserve its pedagogical beat grid & contours while enriching with real audio energy
+      // Synchronize OKF musicalStructure to real audio onset transients
       if (hasOkfCustomBeats) {
         const projDur = project!.metadata?.durationSeconds || duration;
         const timeScale = projDur > 0 ? duration / projDur : 1;
+        let lastT = -1;
         for (const cb of project!.musicalStructure!.customBeats!) {
-          const t = Math.min(duration, cb.time * timeScale);
-          const fIdx = Math.min(
-            bassEnergies.length - 1,
-            Math.max(0, Math.floor(t * fps)),
+          const scaledT = Math.min(duration - 0.05, cb.time * timeScale);
+          if (scaledT <= 0.12) continue;
+          const snapped = snapToAudioOnset(
+            scaledT,
+            0.18,
+            cb.focus || "melody",
           );
-          const localAudioE =
-            fIdx >= 0
-              ? ((bassEnergies[fIdx] || 0) / avgB +
-                  (melodyEnergies[fIdx] || 0) / avgM) *
-                0.5
-              : 1.0;
+          const finalT =
+            snapped.time - lastT >= 0.18
+              ? snapped.time
+              : Math.max(lastT + 0.18, scaledT);
+          if (finalT >= duration - 0.02) continue;
           beats.push({
-            time: parseFloat(t.toFixed(3)),
+            time: parseFloat(finalT.toFixed(3)),
             isMajorSectionShift: !!cb.isMajorSectionShift,
             focus: cb.focus || "melody",
-            energy: Math.max(0.4, ((cb.energy || 1.2) * 0.7 + localAudioE * 0.3)),
-            zcr: 1.5,
+            energy: Math.max(
+              0.45,
+              (cb.energy || 1.2) * 0.55 + snapped.energy * 0.45,
+            ),
+            zcr: snapped.zcr,
             explicitType: cb.type,
           });
+          lastT = finalT;
         }
       } else if (hasOkfSections) {
         const baseBpm = project!.metadata?.bpm || 116;
@@ -1022,56 +1211,135 @@ export const AudioVisualizer = forwardRef<
           project!.metadata?.durationSeconds ||
           duration;
         const timeScale =
-          lastSecEnd > 0 && Math.abs(duration - lastSecEnd) > 1.5
+          lastSecEnd > 0 && Math.abs(duration - lastSecEnd) > 0.25
             ? duration / lastSecEnd
             : 1.0;
 
-        for (const sec of sections) {
-          const secStart = sec.startTime * timeScale;
-          const secEnd = Math.min(duration, sec.endTime * timeScale);
+        let lastBeatTime = 0.08;
+
+        for (let sIdx = 0; sIdx < sections.length; sIdx++) {
+          const sec = sections[sIdx];
+          const secStart = Math.max(0.15, sec.startTime * timeScale);
+          const secEnd = Math.min(duration - 0.05, sec.endTime * timeScale);
+          if (secEnd <= secStart) continue;
+
           const secBpm = sec.bpmOverride || baseBpm;
           const sub = sec.subdivision || 1;
-          const beatInterval = Math.max(0.28, 60 / (secBpm * sub));
-          let isFirstInSec = true;
+          const beatInterval = Math.max(0.26, 60 / (secBpm * sub));
+          const minGap = Math.max(0.2, beatInterval * 0.58);
+          const maxGap = Math.min(0.68, beatInterval * 1.38);
 
-          for (let t = secStart; t < secEnd; t += beatInterval) {
-            if (t <= 0.15) continue;
-            const measurePulse = Math.round((t - secStart) / beatInterval);
-            const accentBoost = measurePulse % 4 === 0 ? 1.25 : 0.95;
+          // Snap the section's opening downbeat to the nearest real audio transient
+          let cursorT = Math.max(secStart, lastBeatTime + minGap);
+          const firstSnap = snapToAudioOnset(
+            cursorT,
+            Math.min(0.22, beatInterval * 0.45),
+            sec.focus === "bass" ? "bass" : "melody",
+          );
+          if (
+            firstSnap.time >= lastBeatTime + minGap * 0.8 &&
+            firstSnap.time < secEnd
+          ) {
+            cursorT = firstSnap.time;
+          }
 
-            const fIdx = Math.min(
-              bassEnergies.length - 1,
-              Math.max(0, Math.floor(t * fps)),
+          let pulseIdx = 0;
+          while (cursorT < secEnd) {
+            const isFirstInSec = pulseIdx === 0;
+            const snapped =
+              pulseIdx === 0
+                ? firstSnap
+                : snapToAudioOnset(
+                    cursorT,
+                    Math.min(0.2, beatInterval * 0.42),
+                    sec.focus === "bass" ? "bass" : "melody",
+                  );
+
+            const chosenT = Math.min(
+              secEnd,
+              Math.max(
+                lastBeatTime + minGap,
+                snapped.isPeak ? snapped.time : cursorT,
+              ),
             );
-            const audioE =
-              fIdx >= 0
-                ? sec.focus === "bass"
-                  ? (bassEnergies[fIdx] || 0) / avgB
-                  : (melodyEnergies[fIdx] || 0) / avgM
-                : sec.energy;
+            if (chosenT <= 0.14 || chosenT >= duration - 0.02) break;
+
+            const accentBoost = pulseIdx % 4 === 0 ? 1.22 : 0.96;
             const blendedEnergy =
-              sec.energy * accentBoost * 0.75 +
-              Math.min(3.5, Math.max(0.5, audioE)) * 0.25;
+              sec.energy * accentBoost * 0.55 + snapped.energy * 0.45;
 
             beats.push({
-              time: parseFloat(t.toFixed(3)),
+              time: parseFloat(chosenT.toFixed(3)),
               isMajorSectionShift: isFirstInSec,
               focus: sec.focus === "bass" ? "bass" : "melody",
               energy: blendedEnergy,
-              zcr: sec.platformStyle === "friction" ? 3.2 : 1.4,
+              zcr:
+                sec.platformStyle === "friction"
+                  ? Math.max(2.9, snapped.zcr)
+                  : snapped.zcr,
               explicitType: isFirstInSec ? "major" : sec.platformStyle,
               contour: sec.melodicContour,
             });
-            isFirstInSec = false;
+
+            lastBeatTime = chosenT;
+            pulseIdx++;
+
+            // Look ahead for the next real onset peak around chosenT + beatInterval
+            const nextExpected = chosenT + beatInterval;
+            if (nextExpected >= secEnd) break;
+
+            const searchStartIdx = Math.min(
+              totalFrames - 3,
+              Math.max(2, Math.round((chosenT + minGap) * fps)),
+            );
+            const searchEndIdx = Math.min(
+              totalFrames - 3,
+              Math.max(
+                searchStartIdx,
+                Math.round(Math.min(secEnd, chosenT + maxGap) * fps),
+              ),
+            );
+            const expectedIdx = Math.round(nextExpected * fps);
+
+            let bestNextIdx = -1;
+            let bestNextScore = 0.95; // Adaptive onset threshold
+
+            for (let k = searchStartIdx; k <= searchEndIdx; k++) {
+              const oVal =
+                sec.focus === "bass"
+                  ? normOnsetBass[k] * 0.65 + normOnsetTotal[k] * 0.35
+                  : normOnsetMelody[k] * 0.65 + normOnsetTotal[k] * 0.35;
+              if (
+                oVal >= normOnsetTotal[k - 1] &&
+                oVal >= normOnsetTotal[k + 1]
+              ) {
+                const phaseBias =
+                  1.0 -
+                  0.28 *
+                    Math.min(
+                      1,
+                      Math.abs(k - expectedIdx) /
+                        Math.max(1, (maxGap - minGap) * fps),
+                    );
+                const candidateScore = oVal * phaseBias;
+                if (candidateScore > bestNextScore) {
+                  bestNextScore = candidateScore;
+                  bestNextIdx = k;
+                }
+              }
+            }
+
+            cursorT =
+              bestNextIdx > 0 ? bestNextIdx / fps : nextExpected;
           }
         }
       } else {
-        // Standalone audio file analysis without OKF sections
+        // Standalone audio file analysis using 3-Band Adaptive Onset Flux
         const sectionFrames = fps * 6;
-        let lastBeatTime = -1;
+        let lastBeatTime = 0.1;
 
-        for (let s = 0; s < bassEnergies.length; s += sectionFrames) {
-          const endS = Math.min(s + sectionFrames, bassEnergies.length);
+        for (let s = 0; s < totalFrames; s += sectionFrames) {
+          const endS = Math.min(s + sectionFrames, totalFrames);
           let secB = 0,
             secM = 0;
           for (let i = s; i < endS; i++) {
@@ -1079,28 +1347,33 @@ export const AudioVisualizer = forwardRef<
             secM += melodyEnergies[i] / avgM;
           }
 
-          const isMelodyFocus = secM > secB * 0.2;
-          const focus = isMelodyFocus ? melodyEnergies : bassEnergies;
-          const focusAvg = isMelodyFocus ? avgM : avgB;
-          const threshold = focusAvg * 1.25;
+          const isMelodyFocus = secM > secB * 0.85;
+          const onsetArr = isMelodyFocus ? normOnsetMelody : normOnsetBass;
 
           let sectionFirstBeat = true;
 
-          for (let i = s + 2; i < endS - 2; i++) {
+          for (let i = Math.max(2, s); i < Math.min(totalFrames - 2, endS); i++) {
+            const score = onsetArr[i] * 0.7 + normOnsetTotal[i] * 0.3;
             if (
-              focus[i] > threshold &&
-              focus[i] > focus[i - 1] &&
-              focus[i] > focus[i - 2] &&
-              focus[i] > focus[i + 1] &&
-              focus[i] > focus[i + 2]
+              score > 1.15 &&
+              score >= onsetArr[i - 1] &&
+              score >= onsetArr[i - 2] &&
+              score >= onsetArr[i + 1] &&
+              score >= onsetArr[i + 2]
             ) {
               const time = i / fps;
-              if (time - lastBeatTime > 0.3) {
-                const localEnergy = focus[i] / focusAvg;
-                const zcrProxy = melodyEnergies[i] / avgM;
+              if (time - lastBeatTime >= 0.24) {
+                const rawE = isMelodyFocus
+                  ? melodyEnergies[i] / avgM
+                  : bassEnergies[i] / avgB;
+                const localEnergy = Math.min(
+                  3.5,
+                  Math.max(0.6, rawE * 0.6 + score * 0.4),
+                );
+                const zcrProxy = highEnergies[i] / avgH;
 
                 beats.push({
-                  time,
+                  time: parseFloat(time.toFixed(3)),
                   isMajorSectionShift: sectionFirstBeat,
                   focus: isMelodyFocus ? "melody" : "bass",
                   energy: localEnergy,
@@ -1113,8 +1386,8 @@ export const AudioVisualizer = forwardRef<
           }
         }
 
-        // Enforce max interval to prevent giant jumps
-        const maxGap = 0.5;
+        // Enforce max interval to prevent giant jumps during quiet sustained passages
+        const maxGap = 0.52;
         const smoothBeats: typeof beats = [];
 
         if (beats.length > 0 && beats[0].time > maxGap) {
@@ -1122,7 +1395,7 @@ export const AudioVisualizer = forwardRef<
           const numExtra = Math.floor(firstTime / maxGap);
           for (let j = 1; j <= numExtra; j++) {
             smoothBeats.push({
-              time: (firstTime * j) / (numExtra + 1),
+              time: parseFloat(((firstTime * j) / (numExtra + 1)).toFixed(3)),
               isMajorSectionShift: false,
               focus: "bass",
               energy: 1.0,
@@ -1146,7 +1419,7 @@ export const AudioVisualizer = forwardRef<
                   prev.energy +
                   (curr.energy - prev.energy) * (j / (numExtra + 1));
                 smoothBeats.push({
-                  time: t,
+                  time: parseFloat(t.toFixed(3)),
                   isMajorSectionShift: false,
                   focus: curr.focus,
                   energy: e,
@@ -1171,8 +1444,8 @@ export const AudioVisualizer = forwardRef<
             analysisDataRef.current?.bgImages?.length ||
             Math.max(4, Math.min(16, Math.round(duration / 15)));
 
-      const existingImgs = analysisDataRef.current?.bgImages;
-      simulatePhysicsFromBeats(beats, duration, desiredSlices, existingImgs);
+      // Pass undefined for existingBgImages so compileAndAssignAlignedSvgs forces a full rebuild of the SVGs matched 1:1 with the real audio trajectory
+      simulatePhysicsFromBeats(beats, duration, desiredSlices, undefined);
     } catch (e) {
       console.error("Audio analysis failed, falling back to OKF trajectory:", e);
       if (project) {
@@ -1259,7 +1532,12 @@ export const AudioVisualizer = forwardRef<
       }
     }
 
-    if (!audioFile || (okfProject.data && okfProject.data.positions?.length)) {
+    if (
+      !audioFile ||
+      (okfProject.data &&
+        okfProject.data.positions?.length &&
+        okfProject.audioBase64)
+    ) {
       buildTrajectoryFromOkfJson(okfProject);
     } else {
       analyzeAudioFile(audioFile, okfProject);
@@ -2524,13 +2802,42 @@ export const AudioVisualizer = forwardRef<
       data?.duration ||
       90;
 
-    // Advance virtual clock if playing without an external audio file
+    // Advance clock with sub-frame high-resolution interpolation for external audio or virtual clock
     let time = 0;
     let isPaused = true;
 
     if (hasExternalAudio && audioRef.current) {
-      time = audioRef.current.currentTime || 0;
+      const rawAudioTime = audioRef.current.currentTime || 0;
       isPaused = audioRef.current.paused;
+      const now = performance.now();
+
+      if (isPaused || Math.abs(rawAudioTime - audioClockSyncRef.current.lastElemTime) > 0.25) {
+        audioClockSyncRef.current.lastElemTime = rawAudioTime;
+        audioClockSyncRef.current.lastPerfTime = now;
+        time = rawAudioTime;
+      } else {
+        if (rawAudioTime !== audioClockSyncRef.current.lastElemTime) {
+          audioClockSyncRef.current.lastElemTime = rawAudioTime;
+          audioClockSyncRef.current.lastPerfTime = now;
+        }
+        const subFrameElapsed = Math.min(
+          0.045,
+          Math.max(0, (now - audioClockSyncRef.current.lastPerfTime) / 1000),
+        );
+        const rate = audioRef.current.playbackRate || 1.0;
+        const activeCtx = contextRef.current?.audioCtx as any;
+        const outputLat =
+          activeCtx && activeCtx.state === "running"
+            ? Number(activeCtx.outputLatency || activeCtx.baseLatency || 0)
+            : 0;
+        time = Math.max(
+          0,
+          Math.min(
+            duration,
+            rawAudioTime + subFrameElapsed * rate - Math.min(0.06, outputLat * 0.5),
+          ),
+        );
+      }
     } else {
       isPaused = !isPlayingRef.current;
       if (!isPaused) {
@@ -2596,7 +2903,7 @@ export const AudioVisualizer = forwardRef<
         angle: exactAngle,
       };
 
-      // Camera Math
+      // Camera Math: Lock horizontal X directly to ballPos.x for zero horizontal phase lag, while smoothing vertical Y
       if (!cameraPosRef.current || isPaused) {
         cameraPosRef.current = { x: ballPos.x, y: ballPos.y };
       } else {
@@ -2610,10 +2917,9 @@ export const AudioVisualizer = forwardRef<
             0.99,
             Math.max(0, cameraSmoothnessRef.current || 0),
           );
-          const tX = Math.pow(1.0 - smooth, 1.2) * 0.5;
-          const tY = Math.pow(1.0 - smooth, 1.5) * 0.25;
+          const tY = Math.pow(1.0 - smooth, 1.5) * 0.28;
 
-          cameraPosRef.current.x += (ballPos.x - cameraPosRef.current.x) * tX;
+          cameraPosRef.current.x = ballPos.x;
           cameraPosRef.current.y += (ballPos.y - cameraPosRef.current.y) * tY;
         }
       }
