@@ -1,0 +1,5 @@
+{
+  "name": "Sonogramic — Estándar OKF y Estudio Web de Musicogramas (Sin IA)",
+  "description": "Repositorio Open Knowledge Framework (OKF v1.3.0) para generar archivos JSON con indicaciones y pasos de musicogramas, junto con la aplicación web 100% sin IA que reproduce el musicograma a partir de las imágenes introducidas + el JSON y devuelve un vídeo HD (.webm) tras capturar la reproducción.",
+  "requestFramePermissions": []
+}

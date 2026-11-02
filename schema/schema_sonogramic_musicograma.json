@@ -1,0 +1,535 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nmarafo.github.io/Sonogramic/schema/schema_sonogramic_musicograma.json",
+  "title": "Sonogramic OKF Musicograma Specification & Project Schema",
+  "description": "Esquema formal JSON Schema (Draft 2020-12) del estándar Open Knowledge Framework (OKF v1.3.0) para generar y ejecutar proyectos de Musicogramas Fluidos en Sonogramic (100% sin IA en la aplicación). Incluye metadatos musicológicos, indicaciones paso a paso (guideSteps), especificaciones de segmentos visuales e instrucciones de imagen (sliceSpecs), configuración estética y vectorial SVG de las esferas (config), estructura musical/rítmica determinista (musicalStructure) y datos opcionales de simulación física y recursos embebidos (data).",
+  "type": "object",
+  "required": [
+    "okfVersion",
+    "metadata",
+    "guideSteps",
+    "sliceSpecs",
+    "config"
+  ],
+  "properties": {
+    "okfVersion": {
+      "type": "string",
+      "default": "1.3.0",
+      "description": "Versión del estándar Open Knowledge Framework (OKF)."
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "title",
+        "composer",
+        "durationSeconds",
+        "bpm",
+        "emotions",
+        "environmentConcept"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador único URN o slug del musicograma."
+        },
+        "title": {
+          "type": "string",
+          "description": "Título de la obra musical o canción."
+        },
+        "composer": {
+          "type": "string",
+          "description": "Compositor, autor o intérprete de la obra."
+        },
+        "musicalPeriodOrGenre": {
+          "type": "string",
+          "description": "Periodo histórico-musical o género (ej. Barroco, Romanticismo, Folclore Canario, Rock Sinfónico)."
+        },
+        "educationalStage": {
+          "type": "string",
+          "description": "Etapa educativa o destinatarios recomendados (ej. Primaria, ESO, Bachillerato, Conservatorio)."
+        },
+        "durationSeconds": {
+          "type": "number",
+          "minimum": 5,
+          "description": "Duración estimada o exacta de la pista o fragmento musical en segundos."
+        },
+        "bpm": {
+          "type": "number",
+          "minimum": 20,
+          "maximum": 300,
+          "description": "Tempo principal en pulsos por minuto (BPM)."
+        },
+        "timeSignature": {
+          "type": "string",
+          "default": "4/4",
+          "description": "Compás principal de la obra (ej. 4/4, 3/4, 6/8, 2/4)."
+        },
+        "musicalForm": {
+          "type": "string",
+          "description": "Estructura formal de la pieza (ej. Intro - A - B - A' - Coda, Rondó ABACADA)."
+        },
+        "pedagogicalObjectives": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Objetivos didácticos y de escucha activa del musicograma."
+        },
+        "emotions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Etiquetas emocionales y de carácter musical (ej. Allegro luminoso, Misterioso, Crescendo dramático)."
+        },
+        "environmentConcept": {
+          "type": "string",
+          "description": "Concepto visual general del escenario continuo por el que ruedan y saltan las esferas del musicograma."
+        }
+      }
+    },
+    "guideSteps": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Lista ordenada de indicaciones y pasos operativos para construir, personalizar con imágenes y capturar en vídeo el musicograma dentro de la app Sonogramic.",
+      "items": {
+        "type": "object",
+        "required": [
+          "step",
+          "title",
+          "phase",
+          "instruction"
+        ],
+        "properties": {
+          "step": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Número secuencial del paso (1..N)."
+          },
+          "title": {
+            "type": "string",
+            "description": "Título breve de la acción a realizar."
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "preparacion",
+              "plantillas",
+              "imagenes",
+              "esferas",
+              "sincronizacion",
+              "grabacion"
+            ],
+            "description": "Fase del flujo de trabajo en Sonogramic."
+          },
+          "instruction": {
+            "type": "string",
+            "description": "Explicación detallada paso a paso para la persona usuaria."
+          },
+          "didacticTip": {
+            "type": "string",
+            "description": "Consejo pedagógico o técnico opcional."
+          },
+          "targetAction": {
+            "type": "string",
+            "enum": [
+              "download_layouts",
+              "upload_batch_images",
+              "upload_audio",
+              "preview_playback",
+              "record_full_video",
+              "export_project_json",
+              "none"
+            ],
+            "description": "Acción rápida vinculada al botón interactivo del paso dentro de la aplicación."
+          }
+        }
+      }
+    },
+    "sliceSpecs": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Especificación individual de cada segmento horizontal (slice) del mosaico panorámico del musicograma.",
+      "items": {
+        "type": "object",
+        "required": [
+          "index",
+          "title",
+          "startTime",
+          "endTime",
+          "musicalSection",
+          "didacticNote",
+          "imagePrompt"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Índice base 0 del segmento (0 = Segmento 1)."
+          },
+          "title": {
+            "type": "string",
+            "description": "Título del segmento (ej. 'Segmento 1: Introducción - El despertar del bosque')."
+          },
+          "startTime": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Segundo de inicio del segmento."
+          },
+          "endTime": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Segundo de fin del segmento."
+          },
+          "musicalSection": {
+            "type": "string",
+            "description": "Sección formal correspondiente (ej. 'Intro', 'Tema A', 'Puente', 'Tema B', 'Clímax', 'Coda')."
+          },
+          "dynamicsAndTempo": {
+            "type": "string",
+            "description": "Indicación agógica y dinámica (ej. 'pp -> mf, Andante', 'ff, Presto')."
+          },
+          "didacticNote": {
+            "type": "string",
+            "description": "Indicación pedagógica para la escucha activa en este tramo del musicograma."
+          },
+          "imagePrompt": {
+            "type": "string",
+            "description": "Prompt descriptivo listo para copiar si la persona usuaria desea crear la ilustración de este segmento en una herramienta externa (respetando la plantilla de plataformas)."
+          },
+          "recommendedPalette": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Colores hexadecimales recomendados para mantener continuidad visual en este segmento."
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "URL, ruta local o Data URI (data:image/...) generada por el agente mediante el OKF o predefinida para actuar como imagen de fondo (background) de este segmento."
+          },
+          "backgroundSvg": {
+            "type": "string",
+            "description": "Código XML <svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\">...</svg> completo de la ilustración panorámica de fondo generada por el agente mediante el OKF e incrustada directamente en el JSON para este segmento."
+          },
+          "generatedByAgent": {
+            "type": "boolean",
+            "default": false,
+            "description": "Indica si la imagen de fondo de este segmento (imageUrl o backgroundSvg) ha sido generada automáticamente por el agente mediante el estándar OKF."
+          }
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "required": [
+        "mosaicSlices",
+        "ballConfig",
+        "extraTracksConfig"
+      ],
+      "properties": {
+        "zoom": {
+          "type": "number",
+          "minimum": 0.25,
+          "maximum": 1.5,
+          "default": 0.85,
+          "description": "Factor de zoom base de la cámara."
+        },
+        "platformOpacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.85,
+          "description": "Opacidad de las plataformas sobre las imágenes de fondo (0.0 para ocultar las plataformas cuando la imagen ya las tiene dibujadas, 1.0 para máxima visibilidad)."
+        },
+        "bgOffsetY": {
+          "type": "number",
+          "minimum": -2000,
+          "maximum": 2000,
+          "default": 0,
+          "description": "Ajuste vertical en píxeles del mosaico de imágenes de fondo."
+        },
+        "cameraSmoothness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.99,
+          "default": 0.82,
+          "description": "Suavidad de seguimiento cinemático de la cámara."
+        },
+        "mosaicSlices": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32,
+          "default": 6,
+          "description": "Número total de segmentos horizontales de imagen (debe coincidir con la longitud de sliceSpecs)."
+        },
+        "userKeywords": {
+          "type": "string",
+          "description": "Palabras clave temáticas y estilísticas del proyecto."
+        },
+        "ballConfig": {
+          "$ref": "#/$defs/trackVisualConfig"
+        },
+        "extraTracksConfig": {
+          "type": "object",
+          "required": [
+            "melody",
+            "bass"
+          ],
+          "properties": {
+            "melody": {
+              "$ref": "#/$defs/trackVisualConfig"
+            },
+            "bass": {
+              "$ref": "#/$defs/trackVisualConfig"
+            }
+          }
+        }
+      }
+    },
+    "musicalStructure": {
+      "type": "object",
+      "description": "Estructura musical y rítmica declarativa que permite a Sonogramic generar o enriquecer determinísticamente el recorrido físico del musicograma sin utilizar IA.",
+      "properties": {
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "startTime",
+              "endTime",
+              "label",
+              "focus",
+              "energy",
+              "platformStyle"
+            ],
+            "properties": {
+              "startTime": {
+                "type": "number",
+                "minimum": 0
+              },
+              "endTime": {
+                "type": "number",
+                "minimum": 0
+              },
+              "label": {
+                "type": "string"
+              },
+              "focus": {
+                "type": "string",
+                "enum": [
+                  "melody",
+                  "bass",
+                  "tutti"
+                ]
+              },
+              "energy": {
+                "type": "number",
+                "minimum": 0.2,
+                "maximum": 5.0,
+                "description": "Intensidad relativa de la sección (1.0 = normal, >2.5 = clímax)."
+              },
+              "bpmOverride": {
+                "type": "number",
+                "minimum": 20,
+                "maximum": 300,
+                "description": "BPM específico de la sección si hay cambio de tempo."
+              },
+              "subdivision": {
+                "type": "number",
+                "default": 1,
+                "description": "Subdivisión rítmica de impactos por pulso (ej. 0.5 = blancas, 1 = negras, 2 = corcheas)."
+              },
+              "melodicContour": {
+                "type": "string",
+                "enum": [
+                  "ascending",
+                  "descending",
+                  "arch",
+                  "valley",
+                  "wave",
+                  "staccato_jumps",
+                  "sustained_ramp"
+                ],
+                "description": "Contorno melódico/espacial de las plataformas en esta sección."
+              },
+              "platformStyle": {
+                "type": "string",
+                "enum": [
+                  "major",
+                  "minor",
+                  "accelerator",
+                  "friction"
+                ]
+              }
+            }
+          }
+        },
+        "customBeats": {
+          "type": "array",
+          "description": "Lista opcional de impactos rítmicos explícitos si se desea fijar acentos exactos en el tiempo.",
+          "items": {
+            "type": "object",
+            "required": [
+              "time",
+              "energy"
+            ],
+            "properties": {
+              "time": {
+                "type": "number",
+                "minimum": 0
+              },
+              "energy": {
+                "type": "number",
+                "minimum": 0.1
+              },
+              "isMajorSectionShift": {
+                "type": "boolean"
+              },
+              "focus": {
+                "type": "string",
+                "enum": [
+                  "melody",
+                  "bass"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "major",
+                  "minor",
+                  "accelerator",
+                  "friction"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "audioBase64": {
+      "type": "string",
+      "description": "Audio codificado en Base64 (Data URL) cuando se exporta el proyecto completo desde la aplicación."
+    },
+    "audioType": {
+      "type": "string"
+    },
+    "audioName": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object",
+      "description": "Datos precalculados de simulación a 60 FPS e imágenes en Base64 al guardar el proyecto completo desde la aplicación.",
+      "properties": {
+        "duration": {
+          "type": "number"
+        },
+        "frames": {
+          "type": "integer"
+        },
+        "bounds": {
+          "type": "object",
+          "properties": {
+            "minX": { "type": "number" },
+            "maxX": { "type": "number" },
+            "minY": { "type": "number" },
+            "maxY": { "type": "number" }
+          }
+        },
+        "positions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "angle": { "type": "number" },
+              "isImpact": { "type": "boolean" },
+              "zoom": { "type": "number" }
+            }
+          }
+        },
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "w": { "type": "number" },
+              "h": { "type": "number" },
+              "angle": { "type": "number" },
+              "type": { "type": "string" },
+              "time": { "type": "number" }
+            }
+          }
+        },
+        "extraTracks": {
+          "type": "array"
+        },
+        "bgImagesBase64": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "trackVisualConfig": {
+      "type": "object",
+      "required": [
+        "shape",
+        "color",
+        "effect",
+        "rotate",
+        "opacity"
+      ],
+      "properties": {
+        "shape": {
+          "type": "string",
+          "enum": [
+            "circle",
+            "square",
+            "hexagon",
+            "star",
+            "music-note",
+            "custom-svg"
+          ],
+          "description": "Forma geométrica o icono vectorial/imagen personalizada ('custom-svg')."
+        },
+        "color": {
+          "type": "string",
+          "description": "Color hexadecimal (ej. '#f59e0b') o 'dynamic' para cambio automático por altura."
+        },
+        "effect": {
+          "type": "string",
+          "enum": [
+            "none",
+            "glow",
+            "outline"
+          ]
+        },
+        "rotate": {
+          "type": "boolean",
+          "default": true
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1
+        },
+        "label": {
+          "type": "string",
+          "description": "Nombre descriptivo del elemento móvil (ej. 'Sol Barroco - Violín Principal')."
+        },
+        "svgContent": {
+          "type": "string",
+          "description": "Código XML <svg>...</svg> completo (puede incluir animaciones <animate> o <animateTransform>) o Data URL de imagen que la app renderizará directamente sin usar IA."
+        }
+      }
+    }
+  }
+}

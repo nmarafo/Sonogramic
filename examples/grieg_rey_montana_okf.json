@@ -1,0 +1,294 @@
+{
+  "okfVersion": "1.3.0",
+  "metadata": {
+    "id": "urn:okf:musicograma:grieg-rey-montana:2026",
+    "title": "En la Gruta del Rey de la Montaña (Peer Gynt, Op. 23)",
+    "composer": "Edvard Grieg (1843–1907)",
+    "musicalPeriodOrGenre": "Romanticismo Nacionalista Noruego · Música Incidental Orquestal",
+    "educationalStage": "Educación Primaria y Educación Secundaria Obligatoria (ESO)",
+    "durationSeconds": 90,
+    "bpm": 108,
+    "timeSignature": "4/4",
+    "musicalForm": "Tema y Variaciones Orquestales en Accelerando y Crescendo Continuo (Intro - A1 [pp] - A2 [p] - B [mp] - A3 [f] - Coda Explosiva [ff])",
+    "pedagogicalObjectives": [
+      "Experimentar visual y auditivamente el concepto de crescendo (de pianissimo a fortissimo) y accelerando (aumento progresivo de la velocidad).",
+      "Distinguir la evolución tímbrica del tema desde los fagotes y violonchelos en pizzicato hasta el tutti orquestal con percusión.",
+      "Asociar las plataformas de aceleración (rojas) y de impacto mayor (fucsias) con los acentos síncopados de los troles."
+    ],
+    "emotions": [
+      "Misterioso",
+      "Sigiloso",
+      "Grotesco",
+      "Frenético",
+      "Explosivo"
+    ],
+    "environmentConcept": "Caverna subterránea nórdica iluminada por cristales bioluminiscentes y antorchas que se vuelve cada vez más vertiginosa, con puentes de roca y forjas incandescentes a medida que los troles persiguen a Peer Gynt hacia la salida."
+  },
+  "guideSteps": [
+    {
+      "step": 1,
+      "title": "Cargar el Audio de 'En la Gruta del Rey de la Montaña'",
+      "phase": "preparacion",
+      "instruction": "Suban su archivo de audio (.mp3, .wav u .ogg) de la pieza de Edvard Grieg o utilicen directamente la simulación rítmica en accelerando incluida en este JSON.",
+      "didacticTip": "Observen cómo en la segunda mitad de la obra la subdivisión de impactos se duplica reflejando la persecución.",
+      "targetAction": "upload_audio"
+    },
+    {
+      "step": 2,
+      "title": "Descargar las Plantillas Guía de los 6 Segmentos de la Caverna",
+      "phase": "plantillas",
+      "instruction": "Descarguen las plantillas guía (rectángulos blancos sobre negro) para observar la inclinación de las rampas y saltos de cada tramo subterráneo.",
+      "didacticTip": "Los primeros segmentos tienen pasos cortos y sigilosos; los últimos muestran grandes saltos parabólicos.",
+      "targetAction": "download_layouts"
+    },
+    {
+      "step": 3,
+      "title": "Preparar las Ilustraciones Progresivas (Del Misterio al Clímax)",
+      "phase": "imagenes",
+      "instruction": "Copien los prompts de los Segmentos 1 a 6 si desean generar las imágenes externamente, evolucionando desde el azul verdoso oscuro (pp) hasta el rojo lava y oro incandescente (ff).",
+      "didacticTip": "Este cambio cromático ayuda al alumnado a visualizar el crescendo orquestal de forma sinestésica.",
+      "targetAction": "none"
+    },
+    {
+      "step": 4,
+      "title": "Subir las Imágenes al Mosaico del Musicograma",
+      "phase": "imagenes",
+      "instruction": "Carguen las 6 imágenes en lote o segmento a segmento y ajusten la opacidad de las plataformas según su preferencia visual.",
+      "didacticTip": "Con una opacidad de plataformas de 0.35 se aprecian tanto los puentes de la imagen como el destello neón de las plataformas aceleradoras.",
+      "targetAction": "upload_batch_images"
+    },
+    {
+      "step": 5,
+      "title": "Previsualizar los Personajes Vectoriales SVG",
+      "phase": "esferas",
+      "instruction": "El JSON incluye tres iconos SVG animados: el Orbe Runico de Peer Gynt (principal), la Llama de Antorcha (melodía) y el Martillo de Piedra del Trol (bajo).",
+      "didacticTip": "Activen la rotación para ver cómo el orbe rueda cada vez más deprisa sobre las rampas.",
+      "targetAction": "preview_playback"
+    },
+    {
+      "step": 6,
+      "title": "Capturar y Exportar el Vídeo Final (.webm)",
+      "phase": "grabacion",
+      "instruction": "Pulsen 'Capturar Musicograma Completo (Auto-Vídeo)' para grabar toda la persecución a 60 FPS y descargar el archivo de vídeo resultante.",
+      "didacticTip": "Ideal para proyectar en la pizarra digital mientras el alumnado acompaña el pulso con percusión corporal.",
+      "targetAction": "record_full_video"
+    }
+  ],
+  "sliceSpecs": [
+    {
+      "index": 0,
+      "title": "Segmento 1: Introducción y Tema A1 — «Pasos Sigilosos en la Oscuridad»",
+      "startTime": 0,
+      "endTime": 16,
+      "musicalSection": "Intro + Tema A1 (Pianissimo)",
+      "dynamicsAndTempo": "pp — Alla marcia e molto marcato (Violonchelos y contrabajos en pizzicato)",
+      "didacticNote": "Acorde inicial de trompas y marcha sigilosa en el registro grave con fagotes y cuerdas en pizzicato.",
+      "imagePrompt": "Ilustración panorámica 2D oscura y misteriosa: entrada a una caverna nórdica subterránea con estalactitas azules y plataformas de piedra musgosa cuyos bordes superiores coinciden exactamente con los rectángulos blancos de la plantilla. Hongos bioluminiscentes tenues.",
+      "recommendedPalette": [
+        "#090d16",
+        "#0f172a",
+        "#065f46",
+        "#34d399"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#090d16\"/><stop offset=\"55%\" stop-color=\"#0f172a\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#065f46\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_0\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0f172a\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#090d16\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#34d399\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#090d16\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_0)\"/><polygon points=\"0,620 240,396 520,536 790,471 1024,681 1024,1024 0,1024\" fill=\"#0f172a\" fill-opacity=\"0.35\"/><g fill=\"#065f46\" fill-opacity=\"0.45\"><polygon points=\"180,0 220,160 260,0\" /><polygon points=\"520,0 570,210 620,0\" /><polygon points=\"820,0 860,150 900,0\" /></g><circle cx=\"512\" cy=\"300\" r=\"60\" fill=\"#34d399\" fill-opacity=\"0.22\"/><path d=\"M 0 620 Q 512 576 1024 681 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_0)\"/><path d=\"M 0 790 Q 512 803 1024 765 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_0)\"/><path d=\"M 0 790 Q 512 803 1024 765\" fill=\"none\" stroke=\"#065f46\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 1,
+      "title": "Segmento 2: Tema A2 — «Los Troles Despiertan»",
+      "startTime": 16,
+      "endTime": 32,
+      "musicalSection": "Tema A2 (Piano -> Mezzo-piano)",
+      "dynamicsAndTempo": "p — Se suman los violines y maderas",
+      "didacticNote": "El tema se repite una quinta más aguda incorporando más instrumentos de la orquesta sin perder el carácter misterioso.",
+      "imagePrompt": "Ilustración panorámica 2D: galería subterránea con cristales de cuarzo esmeralda y puentes de roca tallada alineados exactamente con el borde superior de los rectángulos blancos de la plantilla.",
+      "recommendedPalette": [
+        "#0f172a",
+        "#115e59",
+        "#2dd4bf",
+        "#a7f3d0"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_1\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0f172a\"/><stop offset=\"55%\" stop-color=\"#115e59\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#2dd4bf\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#115e59\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#0f172a\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_1\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#a7f3d0\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#0f172a\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_1)\"/><polygon points=\"0,681 240,486 520,626 790,471 1024,681 1024,1024 0,1024\" fill=\"#115e59\" fill-opacity=\"0.35\"/><g fill=\"#2dd4bf\" fill-opacity=\"0.45\"><polygon points=\"180,0 220,160 260,0\" /><polygon points=\"520,0 570,210 620,0\" /><polygon points=\"820,0 860,150 900,0\" /></g><circle cx=\"512\" cy=\"300\" r=\"74\" fill=\"#a7f3d0\" fill-opacity=\"0.22\"/><path d=\"M 0 681 Q 512 666 1024 681 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_1)\"/><path d=\"M 0 765 Q 512 715 1024 715 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_1)\"/><path d=\"M 0 765 Q 512 715 1024 715\" fill=\"none\" stroke=\"#2dd4bf\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 2,
+      "title": "Segmento 3: Sección B — «Danza en el Salón del Rey»",
+      "startTime": 32,
+      "endTime": 48,
+      "musicalSection": "Episodio Central B",
+      "dynamicsAndTempo": "mp -> mf — Poco a poco accelerando",
+      "didacticNote": "Motivo secundario repetitivo con diálogo entre maderas agudas y cuerdas graves mientras comienza a acelerarse el pulso.",
+      "imagePrompt": "Ilustración panorámica 2D: gran salón subterráneo del Rey de la Montaña con columnas ciclópeas, antorchas encendidas y pasarelas de piedra alineadas con los rectángulos blancos de la plantilla.",
+      "recommendedPalette": [
+        "#1e1b4b",
+        "#3730a3",
+        "#f59e0b",
+        "#fde047"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_2\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#1e1b4b\"/><stop offset=\"55%\" stop-color=\"#3730a3\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#f59e0b\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_2\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#3730a3\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#1e1b4b\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_2\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fde047\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#1e1b4b\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_2)\"/><polygon points=\"0,681 240,396 520,536 790,410 1024,620 1024,1024 0,1024\" fill=\"#3730a3\" fill-opacity=\"0.35\"/><g fill=\"#f59e0b\" fill-opacity=\"0.45\"><polygon points=\"180,0 220,160 260,0\" /><polygon points=\"520,0 570,210 620,0\" /><polygon points=\"820,0 860,150 900,0\" /></g><circle cx=\"512\" cy=\"300\" r=\"88\" fill=\"#fde047\" fill-opacity=\"0.22\"/><path d=\"M 0 681 Q 512 576 1024 620 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_2)\"/><path d=\"M 0 715 Q 512 728 1024 690 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_2)\"/><path d=\"M 0 715 Q 512 728 1024 690\" fill=\"none\" stroke=\"#f59e0b\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 3,
+      "title": "Segmento 4: Reexposición A3 — «Comienza la Persecución»",
+      "startTime": 48,
+      "endTime": 64,
+      "musicalSection": "Tema A3 en Forte y Stringendo",
+      "dynamicsAndTempo": "f — Stringendo (Más rápido y vigoroso)",
+      "didacticNote": "Toda la orquesta ataca el tema principal con fuerza mientras el tempo se acelera notablemente.",
+      "imagePrompt": "Ilustración panorámica 2D: fragua subterránea con ríos de magma al fondo y puentes de hierro forjado y roca volcánica cuyos bordes superiores coinciden con los rectángulos blancos de la plantilla.",
+      "recommendedPalette": [
+        "#31102f",
+        "#7c2d12",
+        "#ea580c",
+        "#fbbf24"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_3\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#31102f\"/><stop offset=\"55%\" stop-color=\"#7c2d12\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#ea580c\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_3\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#7c2d12\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#31102f\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_3\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fbbf24\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#31102f\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_3)\"/><polygon points=\"0,620 240,395 520,535 790,349 1024,559 1024,1024 0,1024\" fill=\"#7c2d12\" fill-opacity=\"0.35\"/><g fill=\"#ea580c\" fill-opacity=\"0.45\"><polygon points=\"180,0 220,160 260,0\" /><polygon points=\"520,0 570,210 620,0\" /><polygon points=\"820,0 860,150 900,0\" /></g><circle cx=\"512\" cy=\"300\" r=\"102\" fill=\"#fbbf24\" fill-opacity=\"0.22\"/><path d=\"M 0 620 Q 512 575 1024 559 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_3)\"/><path d=\"M 0 690 Q 512 678 1024 715 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_3)\"/><path d=\"M 0 690 Q 512 678 1024 715\" fill=\"none\" stroke=\"#ea580c\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 4,
+      "title": "Segmento 5: Clímax Orquestal — «Estampida en la Gruta»",
+      "startTime": 64,
+      "endTime": 78,
+      "musicalSection": "Clímax con Platillos, Bombo y Metales",
+      "dynamicsAndTempo": "ff — Più vivo (Síncopas y acentos violentos)",
+      "didacticNote": "Golpes de platillos y metales estridentes marcan los saltos más altos del musicograma.",
+      "imagePrompt": "Ilustración panorámica 2D épica: caverna en derrumbe iluminada por chispas doradas y grietas incandescentes, con plataformas de obsidiana alineadas con los rectángulos blancos de la plantilla.",
+      "recommendedPalette": [
+        "#450a0a",
+        "#991b1b",
+        "#f43f5e",
+        "#fde047"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_4\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#450a0a\"/><stop offset=\"55%\" stop-color=\"#991b1b\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#f43f5e\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_4\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#991b1b\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#450a0a\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_4\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fde047\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#450a0a\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_4)\"/><polygon points=\"0,559 240,304 520,444 790,349 1024,559 1024,1024 0,1024\" fill=\"#991b1b\" fill-opacity=\"0.35\"/><g fill=\"#f43f5e\" fill-opacity=\"0.45\"><polygon points=\"180,0 220,160 260,0\" /><polygon points=\"520,0 570,210 620,0\" /><polygon points=\"820,0 860,150 900,0\" /></g><circle cx=\"512\" cy=\"300\" r=\"116\" fill=\"#fde047\" fill-opacity=\"0.22\"/><path d=\"M 0 559 Q 512 484 1024 559 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_4)\"/><path d=\"M 0 715 Q 512 765 1024 765 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_4)\"/><path d=\"M 0 715 Q 512 765 1024 765\" fill=\"none\" stroke=\"#f43f5e\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 5,
+      "title": "Segmento 6: Coda Presto — «Huida Explosiva hacia la Luz»",
+      "startTime": 78,
+      "endTime": 90,
+      "musicalSection": "Coda Final (Presto / Fortissimo)",
+      "dynamicsAndTempo": "fff — Presto y acordes secos finales",
+      "didacticNote": "Carrera vertiginosa en semicorcheas que desemboca en los grandes golpes finales de toda la orquesta.",
+      "imagePrompt": "Ilustración panorámica 2D: salida de la caverna hacia un fiordo iluminado, con los últimos puentes de roca volcánica alineados exactamente con los rectángulos blancos de la plantilla.",
+      "recommendedPalette": [
+        "#4c0519",
+        "#e11d48",
+        "#fb923c",
+        "#fef08a"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_5\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#4c0519\"/><stop offset=\"55%\" stop-color=\"#e11d48\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#fb923c\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_5\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#e11d48\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#4c0519\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_5\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fef08a\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#4c0519\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_5)\"/><polygon points=\"0,559 240,395 520,535 790,410 1024,620 1024,1024 0,1024\" fill=\"#e11d48\" fill-opacity=\"0.35\"/><g fill=\"#fb923c\" fill-opacity=\"0.45\"><polygon points=\"180,0 220,160 260,0\" /><polygon points=\"520,0 570,210 620,0\" /><polygon points=\"820,0 860,150 900,0\" /></g><circle cx=\"512\" cy=\"300\" r=\"130\" fill=\"#fef08a\" fill-opacity=\"0.22\"/><path d=\"M 0 559 Q 512 575 1024 620 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_5)\"/><path d=\"M 0 765 Q 512 753 1024 790 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_5)\"/><path d=\"M 0 765 Q 512 753 1024 790\" fill=\"none\" stroke=\"#fb923c\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    }
+  ],
+  "config": {
+    "zoom": 0.8,
+    "platformOpacity": 0.85,
+    "bgOffsetY": 0,
+    "cameraSmoothness": 0.8,
+    "mosaicSlices": 6,
+    "userKeywords": "Caverna nórdica misteriosa, cristales esmeralda, salón del Rey de la Montaña, lava incandescente y huida épica",
+    "ballConfig": {
+      "shape": "custom-svg",
+      "color": "dynamic",
+      "effect": "glow",
+      "rotate": true,
+      "opacity": 1,
+      "label": "Orbe Rúnico (Peer Gynt)",
+      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"#064e3b\" stroke=\"#34d399\" stroke-width=\"5\"/><polygon points=\"50,14 81,32 81,68 50,86 19,68 19,32\" fill=\"none\" stroke=\"#a7f3d0\" stroke-width=\"3\"/><circle cx=\"50\" cy=\"50\" r=\"16\" fill=\"#10b981\"><animate attributeName=\"r\" values=\"12;20;12\" dur=\"0.8s\" repeatCount=\"indefinite\"/><animate attributeName=\"fill\" values=\"#10b981;#fde047;#f43f5e;#10b981\" dur=\"3s\" repeatCount=\"indefinite\"/></circle></svg>"
+    },
+    "extraTracksConfig": {
+      "melody": {
+        "shape": "custom-svg",
+        "color": "#fbbf24",
+        "effect": "glow",
+        "rotate": false,
+        "opacity": 0.95,
+        "label": "Chispa de Antorcha (Maderas y Violines)",
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M50,10 C70,35 80,55 65,78 C55,90 45,90 35,78 C20,55 30,35 50,10 Z\" fill=\"#f59e0b\" stroke=\"#fef08a\" stroke-width=\"3\"><animateTransform attributeName=\"transform\" type=\"scale\" values=\"1,1; 1.08,0.94; 1,1\" additive=\"sum\" dur=\"0.5s\" repeatCount=\"indefinite\"/></path><circle cx=\"50\" cy=\"62\" r=\"12\" fill=\"#fef08a\"/></svg>"
+      },
+      "bass": {
+        "shape": "custom-svg",
+        "color": "#a855f7",
+        "effect": "glow",
+        "rotate": true,
+        "opacity": 0.95,
+        "label": "Engranaje de Piedra (Pizzicato de Graves y Fagotes)",
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"20\" y=\"20\" width=\"60\" height=\"60\" rx=\"10\" fill=\"#4c1d95\" stroke=\"#c084fc\" stroke-width=\"4\"/><rect x=\"20\" y=\"20\" width=\"60\" height=\"60\" rx=\"10\" fill=\"none\" stroke=\"#e9d5ff\" stroke-width=\"3\" transform=\"rotate(45 50 50)\"/><circle cx=\"50\" cy=\"50\" r=\"12\" fill=\"#f43f5e\"/></svg>"
+      }
+    }
+  },
+  "musicalStructure": {
+    "sections": [
+      {
+        "startTime": 0,
+        "endTime": 16,
+        "label": "Intro y Tema A1 (Pianissimo Sigiloso)",
+        "focus": "bass",
+        "energy": 0.8,
+        "bpmOverride": 88,
+        "subdivision": 1,
+        "melodicContour": "staccato_jumps",
+        "platformStyle": "minor"
+      },
+      {
+        "startTime": 16,
+        "endTime": 32,
+        "label": "Tema A2 (Piano en Quinta Superior)",
+        "focus": "melody",
+        "energy": 1.15,
+        "bpmOverride": 98,
+        "subdivision": 1,
+        "melodicContour": "ascending",
+        "platformStyle": "minor"
+      },
+      {
+        "startTime": 32,
+        "endTime": 48,
+        "label": "Sección B (Mezzo-Forte y Poco Accelerando)",
+        "focus": "tutti",
+        "energy": 1.6,
+        "bpmOverride": 112,
+        "subdivision": 1,
+        "melodicContour": "wave",
+        "platformStyle": "major"
+      },
+      {
+        "startTime": 48,
+        "endTime": 64,
+        "label": "Reexposición A3 (Forte y Stringendo)",
+        "focus": "tutti",
+        "energy": 2.2,
+        "bpmOverride": 128,
+        "subdivision": 2,
+        "melodicContour": "arch",
+        "platformStyle": "major"
+      },
+      {
+        "startTime": 64,
+        "endTime": 78,
+        "label": "Clímax Orquestal con Síncopas (Fortissimo)",
+        "focus": "tutti",
+        "energy": 3,
+        "bpmOverride": 146,
+        "subdivision": 2,
+        "melodicContour": "staccato_jumps",
+        "platformStyle": "accelerator"
+      },
+      {
+        "startTime": 78,
+        "endTime": 90,
+        "label": "Coda Presto Final",
+        "focus": "tutti",
+        "energy": 3.5,
+        "bpmOverride": 164,
+        "subdivision": 2,
+        "melodicContour": "ascending",
+        "platformStyle": "accelerator"
+      }
+    ]
+  }
+}

@@ -1,0 +1,260 @@
+{
+  "okfVersion": "1.3.0",
+  "metadata": {
+    "id": "urn:okf:musicograma:isa-canaria-parrandera:2026",
+    "title": "Isa Parrandera Canaria — Folclore Tradicional de Canarias",
+    "composer": "Tradicional de Canarias (Arreglo Didáctico de Parranda)",
+    "musicalPeriodOrGenre": "Música Tradicional y Patrimonio Cultural de Canarias · Compás Ternario (3/4)",
+    "educationalStage": "Educación Primaria y Educación Secundaria Obligatoria (Canarias)",
+    "durationSeconds": 75,
+    "bpm": 132,
+    "timeSignature": "3/4",
+    "musicalForm": "Introducción Instrumental (Timple y Bandurria) - Copla 1 - Estribillo Coral - Puente dePunteo - Rueda Final de Baile",
+    "pedagogicalObjectives": [
+      "Interiorizar el pulso ternario alegre (3/4) característico de la Isa Canaria y el rasgueo del timple.",
+      "Diferenciar las secciones instrumentales de punteo (bandurria/laúd) de las coplas solistas y el estribillo colectivo de la parranda.",
+      "Valorar el patrimonio musical y visual del Archipiélago Canario a través de un musicograma interactivo."
+    ],
+    "emotions": [
+      "Festivo",
+      "Parrandero",
+      "Luminoso",
+      "Comunitario",
+      "Danzable"
+    ],
+    "environmentConcept": "Recorrido visual por los paisajes de las Islas Canarias: desde un barranco con cardones y tabaibas al amanecer, pasando por una plaza tradicional con balcones de madera de tea y banderines de romería, hasta una costa volcánica bañada por el Atlántico."
+  },
+  "guideSteps": [
+    {
+      "step": 1,
+      "title": "Subir el Audio de la Isa Canaria (o Usar Guía Rítmica 3/4)",
+      "phase": "preparacion",
+      "instruction": "Suban un archivo de audio (.mp3, .wav u .ogg) de una Isa Canaria (ej. 'Isa Parrandera') o utilicen la previsualización rítmica integrada a 132 BPM.",
+      "didacticTip": "El motor detectará el acento del primer tiempo del compás de 3/4 junto con el repique de timple y chácaras.",
+      "targetAction": "upload_audio"
+    },
+    {
+      "step": 2,
+      "title": "Descargar las Plantillas Guía de los 5 Segmentos",
+      "phase": "plantillas",
+      "instruction": "Descarguen las 5 plantillas estructurales para alinear los balcones canarios, muros de piedra seca y senderos volcánicos con las plataformas del musicograma.",
+      "didacticTip": "Cada segmento corresponde a una sección formal de la Isa (Intro, Copla, Estribillo, Punteo y Rueda final).",
+      "targetAction": "download_layouts"
+    },
+    {
+      "step": 3,
+      "title": "Preparar las Ilustraciones de Paisajes de Canarias",
+      "phase": "imagenes",
+      "instruction": "Utilicen los prompts de los Segmentos 1 a 5 o fotografías/dibujos del alumnado para ilustrar los paisajes isleños respetando el borde superior de los rectángulos blancos.",
+      "didacticTip": "Excelente actividad interdisciplinar entre Música y Educación Plástica y Visual.",
+      "targetAction": "none"
+    },
+    {
+      "step": 4,
+      "title": "Introducir las 5 Imágenes en Sonogramic",
+      "phase": "imagenes",
+      "instruction": "Pulsen 'Subir Imágenes en Lote' para asignar las 5 láminas de una vez o súbanlas individualmente en cada segmento.",
+      "didacticTip": "Ajusten la opacidad de plataformas a 0.25 para destacar la arquitectura y la flora canaria de sus imágenes.",
+      "targetAction": "upload_batch_images"
+    },
+    {
+      "step": 5,
+      "title": "Explorar la Pintadera Canaria y el Timple en SVG",
+      "phase": "esferas",
+      "instruction": "Este JSON incluye una Pintadera Geométrica Canaria animada para la esfera principal, una Estrella de Ocho Puntas / Roseta para la melodía (bandurria/voz) y un Tambor/Herreño para el bajo (guitarra/guitarrón).",
+      "didacticTip": "La pintadera gira al rodar sobre las rampas siguiendo el compás ternario.",
+      "targetAction": "preview_playback"
+    },
+    {
+      "step": 6,
+      "title": "Capturar y Exportar el Vídeo del Musicograma (.webm)",
+      "phase": "grabacion",
+      "instruction": "Pulsen 'Capturar Musicograma Completo (Auto-Vídeo)' para grabar la reproducción íntegra y obtener el archivo de vídeo para el aula o el blog del centro.",
+      "didacticTip": "Recuerden que toda la captura se realiza localmente en su navegador sin subir ningún dato a servidores externos.",
+      "targetAction": "record_full_video"
+    }
+  ],
+  "sliceSpecs": [
+    {
+      "index": 0,
+      "title": "Segmento 1: Introducción Instrumental — «Rasgueo de Timple y Punteo de Bandurria»",
+      "startTime": 0,
+      "endTime": 15,
+      "musicalSection": "Introducción Instrumental",
+      "dynamicsAndTempo": "f — Allegro festivo (132 BPM en 3/4)",
+      "didacticNote": "Entrada brillante de la parranda con el rasgueo característico del timple y la melodía en bandurrias y laúdes.",
+      "imagePrompt": "Ilustración panorámica 2D luminosa de un paisaje canario con cardones, tabaibas y muros de piedra volcánica seca cuyos bordes superiores coinciden exactamente con los rectángulos blancos de la plantilla. Cielo azul Atlántico con mar de nubes al fondo.",
+      "recommendedPalette": [
+        "#0369a1",
+        "#38bdf8",
+        "#eab308",
+        "#fef08a"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0369a1\"/><stop offset=\"55%\" stop-color=\"#38bdf8\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#eab308\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_0\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#38bdf8\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#0369a1\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fef08a\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#0369a1\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_0)\"/><circle cx=\"800\" cy=\"210\" r=\"68\" fill=\"#eab308\" fill-opacity=\"0.7\"/><path d=\"M 0 580 L 340 390 L 680 559 L 1024 647 L 1024 1024 L 0 1024 Z\" fill=\"#38bdf8\" fill-opacity=\"0.32\"/><g stroke=\"#eab308\" stroke-width=\"3\" fill=\"none\" opacity=\"0.4\"><polygon points=\"512,150 562,200 512,250 462,200\" /><circle cx=\"512\" cy=\"200\" r=\"18\" /></g><path d=\"M 0 620 Q 512 579 1024 687 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_0)\"/><path d=\"M 0 790 Q 512 798 1024 755 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_0)\"/><path d=\"M 0 790 Q 512 798 1024 755\" fill=\"none\" stroke=\"#eab308\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 1,
+      "title": "Segmento 2: Primera Copla — «Canto Solista en Tercias»",
+      "startTime": 15,
+      "endTime": 30,
+      "musicalSection": "Copla 1",
+      "dynamicsAndTempo": "mf — Cantabile y rítmico",
+      "didacticNote": "La voz solista entona la copla octosilábica mientras las cuerdas mantienen el acompañamiento ternario.",
+      "imagePrompt": "Ilustración panorámica 2D: calle tradicional canaria con casas blancas y balcones de madera de tea cuyos tejados y pasarelas coinciden exactamente con el borde superior de los rectángulos blancos de la plantilla.",
+      "recommendedPalette": [
+        "#1e3a8a",
+        "#60a5fa",
+        "#b45309",
+        "#fde68a"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_1\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#1e3a8a\"/><stop offset=\"55%\" stop-color=\"#60a5fa\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#b45309\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#60a5fa\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#1e3a8a\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_1\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fde68a\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#1e3a8a\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_1)\"/><circle cx=\"720\" cy=\"210\" r=\"68\" fill=\"#b45309\" fill-opacity=\"0.7\"/><path d=\"M 0 647 L 340 390 L 680 639 L 1024 621 L 1024 1024 L 0 1024 Z\" fill=\"#60a5fa\" fill-opacity=\"0.32\"/><g stroke=\"#b45309\" stroke-width=\"3\" fill=\"none\" opacity=\"0.4\"><polygon points=\"512,150 562,200 512,250 462,200\" /><circle cx=\"512\" cy=\"200\" r=\"18\" /></g><path d=\"M 0 687 Q 512 659 1024 661 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_1)\"/><path d=\"M 0 755 Q 512 703 1024 700 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_1)\"/><path d=\"M 0 755 Q 512 703 1024 700\" fill=\"none\" stroke=\"#b45309\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 2,
+      "title": "Segmento 3: Estribillo Coral — «¡Viva la Parranda!»",
+      "startTime": 30,
+      "endTime": 45,
+      "musicalSection": "Estribillo Colectivo",
+      "dynamicsAndTempo": "ff — Coro a voces y cuerpo de baile",
+      "didacticNote": "Se une todo el coro en el estribillo mientras los bailadores forman corros y puentes.",
+      "imagePrompt": "Ilustración panorámica 2D festiva: plaza de pueblo canario engalanada con banderines de colores de romería y plataformas de cantería azul alineadas con los rectángulos blancos de la plantilla.",
+      "recommendedPalette": [
+        "#1d4ed8",
+        "#f59e0b",
+        "#ffffff",
+        "#f43f5e"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_2\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#1d4ed8\"/><stop offset=\"55%\" stop-color=\"#f59e0b\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#ffffff\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_2\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#f59e0b\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#1d4ed8\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_2\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#f43f5e\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#1d4ed8\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_2)\"/><circle cx=\"640\" cy=\"210\" r=\"68\" fill=\"#ffffff\" fill-opacity=\"0.7\"/><path d=\"M 0 621 L 340 390 L 680 525 L 1024 539 L 1024 1024 L 0 1024 Z\" fill=\"#f59e0b\" fill-opacity=\"0.32\"/><g stroke=\"#ffffff\" stroke-width=\"3\" fill=\"none\" opacity=\"0.4\"><polygon points=\"512,150 562,200 512,250 462,200\" /><circle cx=\"512\" cy=\"200\" r=\"18\" /></g><path d=\"M 0 661 Q 512 545 1024 579 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_2)\"/><path d=\"M 0 700 Q 512 725 1024 700 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_2)\"/><path d=\"M 0 700 Q 512 725 1024 700\" fill=\"none\" stroke=\"#ffffff\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 3,
+      "title": "Segmento 4: Interludio de Punteo — «Diálogo de Timple y Laúd»",
+      "startTime": 45,
+      "endTime": 60,
+      "musicalSection": "Puente Instrumental",
+      "dynamicsAndTempo": "f — Virtuosismo de cuerda pulsada",
+      "didacticNote": "Rápidas escalas en corcheas de las bandurrias y laúdes respondidas por el rasgueo sincopado del timple.",
+      "imagePrompt": "Ilustración panorámica 2D: mirador sobre una caldera volcánica canaria al atardecer con senderos empedrados cuyas superficies superiores coinciden con los rectángulos blancos de la plantilla.",
+      "recommendedPalette": [
+        "#312e81",
+        "#ea580c",
+        "#fbbf24",
+        "#fef3c7"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_3\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#312e81\"/><stop offset=\"55%\" stop-color=\"#ea580c\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#fbbf24\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_3\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#ea580c\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#312e81\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_3\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fef3c7\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#312e81\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_3)\"/><circle cx=\"560\" cy=\"210\" r=\"68\" fill=\"#fbbf24\" fill-opacity=\"0.7\"/><path d=\"M 0 539 L 340 390 L 680 531 L 1024 513 L 1024 1024 L 0 1024 Z\" fill=\"#ea580c\" fill-opacity=\"0.32\"/><g stroke=\"#fbbf24\" stroke-width=\"3\" fill=\"none\" opacity=\"0.4\"><polygon points=\"512,150 562,200 512,250 462,200\" /><circle cx=\"512\" cy=\"200\" r=\"18\" /></g><path d=\"M 0 579 Q 512 551 1024 553 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_3)\"/><path d=\"M 0 700 Q 512 703 1024 755 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_3)\"/><path d=\"M 0 700 Q 512 703 1024 755\" fill=\"none\" stroke=\"#fbbf24\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 4,
+      "title": "Segmento 5: Rueda Final y Coda — «Despedida en Rueda»",
+      "startTime": 60,
+      "endTime": 75,
+      "musicalSection": "Coda Festiva",
+      "dynamicsAndTempo": "ff — Aceleración final y acorde de cierre",
+      "didacticNote": "Cierre jubiloso con toda la agrupación folclórica marcando los tres pulsos finales.",
+      "imagePrompt": "Ilustración panorámica 2D: costa volcánica canaria con charcos naturales y faro iluminado al atardecer, con pasarelas de basalto alineadas exactamente con los rectángulos blancos de la plantilla.",
+      "recommendedPalette": [
+        "#0c4a6e",
+        "#0284c7",
+        "#facc15",
+        "#ffffff"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_4\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0c4a6e\"/><stop offset=\"55%\" stop-color=\"#0284c7\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#facc15\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_4\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0284c7\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#0c4a6e\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_4\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#ffffff\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#0c4a6e\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_4)\"/><circle cx=\"480\" cy=\"210\" r=\"68\" fill=\"#facc15\" fill-opacity=\"0.7\"/><path d=\"M 0 513 L 340 390 L 680 492 L 1024 580 L 1024 1024 L 0 1024 Z\" fill=\"#0284c7\" fill-opacity=\"0.32\"/><g stroke=\"#facc15\" stroke-width=\"3\" fill=\"none\" opacity=\"0.4\"><polygon points=\"512,150 562,200 512,250 462,200\" /><circle cx=\"512\" cy=\"200\" r=\"18\" /></g><path d=\"M 0 553 Q 512 512 1024 620 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_4)\"/><path d=\"M 0 755 Q 512 798 1024 790 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_4)\"/><path d=\"M 0 755 Q 512 798 1024 790\" fill=\"none\" stroke=\"#facc15\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    }
+  ],
+  "config": {
+    "zoom": 0.85,
+    "platformOpacity": 0.85,
+    "bgOffsetY": 0,
+    "cameraSmoothness": 0.82,
+    "mosaicSlices": 5,
+    "userKeywords": "Folclore de Canarias, Isa Parrandera, pintadera canaria, timple, balcones de madera y paisaje volcánico",
+    "ballConfig": {
+      "shape": "custom-svg",
+      "color": "#f59e0b",
+      "effect": "glow",
+      "rotate": true,
+      "opacity": 1,
+      "label": "Pintadera Canaria (Pulso Ternario)",
+      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"44\" fill=\"#9a3412\" stroke=\"#fde047\" stroke-width=\"4\"/><g fill=\"#fef08a\"><polygon points=\"50,10 60,28 40,28\"/><polygon points=\"50,90 60,72 40,72\"/><polygon points=\"10,50 28,60 28,40\"/><polygon points=\"90,50 72,60 72,40\"/><polygon points=\"22,22 38,26 26,38\"/><polygon points=\"78,22 62,26 74,38\"/><polygon points=\"22,78 38,74 26,62\"/><polygon points=\"78,78 62,74 74,62\"/></g><circle cx=\"50\" cy=\"50\" r=\"16\" fill=\"#ea580c\" stroke=\"#fef08a\" stroke-width=\"3\"><animate attributeName=\"r\" values=\"14;18;14\" dur=\"0.9s\" repeatCount=\"indefinite\"/></circle></svg>"
+    },
+    "extraTracksConfig": {
+      "melody": {
+        "shape": "custom-svg",
+        "color": "#38bdf8",
+        "effect": "glow",
+        "rotate": true,
+        "opacity": 0.95,
+        "label": "Roseta de Timple (Melodía y Rasgueo Agudo)",
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"50,8 62,38 92,50 62,62 50,92 38,62 8,50 38,38\" fill=\"#38bdf8\" stroke=\"#ffffff\" stroke-width=\"3\"/><circle cx=\"50\" cy=\"50\" r=\"10\" fill=\"#fde047\"/></svg>"
+      },
+      "bass": {
+        "shape": "custom-svg",
+        "color": "#eab308",
+        "effect": "glow",
+        "rotate": true,
+        "opacity": 0.9,
+        "label": "Bordón de Guitarra / Guitarrón (Bajo en Tiempos 1-2-3)",
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"36\" fill=\"#1e3a8a\" stroke=\"#fbbf24\" stroke-width=\"5\"/><circle cx=\"50\" cy=\"50\" r=\"14\" fill=\"#fbbf24\"/></svg>"
+      }
+    }
+  },
+  "musicalStructure": {
+    "sections": [
+      {
+        "startTime": 0,
+        "endTime": 15,
+        "label": "Introducción Instrumental (Timple y Bandurria)",
+        "focus": "melody",
+        "energy": 1.7,
+        "subdivision": 1,
+        "melodicContour": "ascending",
+        "platformStyle": "major"
+      },
+      {
+        "startTime": 15,
+        "endTime": 30,
+        "label": "Primera Copla Solista",
+        "focus": "melody",
+        "energy": 1.3,
+        "subdivision": 1,
+        "melodicContour": "wave",
+        "platformStyle": "minor"
+      },
+      {
+        "startTime": 30,
+        "endTime": 45,
+        "label": "Estribillo Coral de Parranda",
+        "focus": "tutti",
+        "energy": 2.2,
+        "subdivision": 1,
+        "melodicContour": "arch",
+        "platformStyle": "major"
+      },
+      {
+        "startTime": 45,
+        "endTime": 60,
+        "label": "Interludio de Punteo",
+        "focus": "melody",
+        "energy": 1.9,
+        "subdivision": 2,
+        "melodicContour": "staccato_jumps",
+        "platformStyle": "friction"
+      },
+      {
+        "startTime": 60,
+        "endTime": 75,
+        "label": "Rueda Final y Coda",
+        "focus": "tutti",
+        "energy": 2.8,
+        "subdivision": 2,
+        "melodicContour": "ascending",
+        "platformStyle": "accelerator"
+      }
+    ]
+  }
+}

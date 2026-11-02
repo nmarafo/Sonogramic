@@ -1,0 +1,166 @@
+{
+  "$schema": "https://openknowledgeframework.org/schemas/v1.3.0/okf.schema.json",
+  "okfVersion": "1.3.0",
+  "metadata": {
+    "id": "urn:okf:software:sonogramic:2026:v2.0.0",
+    "title": "Sonogramic — Estándar OKF para la Generación de Musicogramas en JSON y Estudio Web de Reproducción y Captura de Vídeo (100% Sin IA en la App)",
+    "shortTitle": "OKF-Sonogramic-v2.0.0",
+    "description": "Paquete de Conocimiento Abierto (Open Knowledge Framework - OKF v1.3.0) diseñado para que cualquier modelo de lenguaje o agente de IA (Google NotebookLM, Gemini, Claude, ChatGPT, Ollama) genere un archivo .JSON estructurado con las indicaciones, los pasos guiados (guideSteps), la estructura musical (musicalStructure), los iconos vectoriales SVG animados (svgContent) y las especificaciones de cada segmento (sliceSpecs). Nuestra aplicación web Sonogramic NO utiliza Inteligencia Artificial: toma únicamente el archivo .JSON junto con las imágenes introducidas por las personas usuarias (y opcionalmente el archivo de audio), reproduce el musicograma interactivo a 60 FPS y devuelve un vídeo HD (.webm) tras capturar su reproducción.",
+    "version": "2.0.0",
+    "created": "2026-11-02",
+    "modified": "2026-11-02",
+    "language": "es-ES",
+    "domain": "Music Education / Active Listening / Musicograma / Audio Visualization / Video Capture",
+    "targetApplication": {
+      "name": "Sonogramic — Estudio de Musicogramas OKF (Sin IA)",
+      "version": "2.0.0",
+      "entryPoint": "index.html",
+      "repository": "https://github.com/nmarafo/Sonogramic",
+      "liveUrl": "https://nmarafo.github.io/Sonogramic/",
+      "runtime": "100% Client-Side Browser HTML5 Canvas 2D + Web Audio API + MediaRecorder API (Zero AI / Zero Backend)"
+    },
+    "authors": [
+      {
+        "name": "Norberto Martín Afonso",
+        "role": "Autor principal, Arquitecto de Software y Especificación OKF",
+        "url": "https://github.com/nmarafo"
+      }
+    ],
+    "license": {
+      "spdxId": "AGPL-3.0-or-later AND CC-BY-SA-4.0",
+      "name": "GNU Affero General Public License v3.0 or later (Sección 7b) y Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0) con atribución obligatoria a Norberto Martín Afonso",
+      "file": "LICENSE"
+    },
+    "keywords": [
+      "OKF",
+      "Open Knowledge Framework",
+      "Sonogramic",
+      "Musicograma",
+      "Educación Musical",
+      "Escucha Activa",
+      "Doodlechaos Style",
+      "JSON Builder",
+      "Web Audio API",
+      "MediaRecorder Video Export",
+      "Sin IA",
+      "Zero AI Web App"
+    ]
+  },
+  "sources": [
+    {
+      "id": "src-okf-architecture",
+      "title": "Arquitectura y Especificación Técnica OKF de Sonogramic",
+      "path": "okf/arquitectura_okf.md",
+      "format": "markdown",
+      "category": "architecture-and-agent-manual",
+      "summary": "Documentación técnica exhaustiva del flujo desacoplado: cómo generar el JSON OKF con indicaciones y pasos, cómo funciona el motor físico 2D determinista (800 px/s a 60 FPS), cómo exportar plantillas guía de plataformas y cómo cargar imágenes y capturar el vídeo final sin usar IA en la aplicación."
+    },
+    {
+      "id": "src-okf-master-prompt",
+      "title": "Prompt Maestro OKF — Generador de JSON con Indicaciones y Pasos para el Musicograma",
+      "path": "okf/prompt_maestro_okf_sonogramic.md",
+      "format": "markdown",
+      "category": "system-prompt",
+      "summary": "System Prompt oficial listo para copiar y pegar en cualquier LLM (NotebookLM, Gemini, Claude, ChatGPT) para generar el archivo .JSON completo del musicograma con guideSteps, sliceSpecs, SVGs embebidos y estructura musical."
+    },
+    {
+      "id": "src-okf-step-by-step-guide",
+      "title": "Guía Paso a Paso para Crear el Musicograma y Exportar el Vídeo",
+      "path": "okf/guia_paso_a_paso_musicograma.md",
+      "format": "markdown",
+      "category": "user-and-pedagogical-guide",
+      "summary": "Manual práctico para docentes y creadores sobre cómo utilizar el JSON y las imágenes en la aplicación para visualizar el musicograma y capturar el vídeo en alta definición."
+    },
+    {
+      "id": "src-json-schema",
+      "title": "JSON Schema Oficial del Musicograma OKF (.json)",
+      "path": "schema/schema_sonogramic_musicograma.json",
+      "format": "json-schema",
+      "category": "validation-schema",
+      "summary": "Esquema formal JSON Schema (Draft 2020-12) que valida tanto las recetas JSON generadas mediante el OKF como los proyectos completos exportados por la aplicación."
+    },
+    {
+      "id": "src-example-vivaldi",
+      "title": "Ejemplo OKF 1: La Primavera (Allegro) — Antonio Vivaldi",
+      "path": "examples/vivaldi_primavera_okf.json",
+      "format": "json",
+      "category": "example-project",
+      "summary": "Receta JSON OKF completa en 6 segmentos con indicaciones paso a paso, prompts de ilustración barroca, iconos SVG animados embebidos y estructura formal de rondó."
+    },
+    {
+      "id": "src-example-grieg",
+      "title": "Ejemplo OKF 2: En la Gruta del Rey de la Montaña — Edvard Grieg",
+      "path": "examples/grieg_rey_montana_okf.json",
+      "format": "json",
+      "category": "example-project",
+      "summary": "Receta JSON OKF diseñada para trabajar el accelerando y crescendo orquestal en 6 segmentos con plataformas aceleradoras y pasos didácticos."
+    },
+    {
+      "id": "src-example-isa-canaria",
+      "title": "Ejemplo OKF 3: Isa Parrandera Canaria — Folclore de Canarias (3/4)",
+      "path": "examples/isa_canaria_okf.json",
+      "format": "json",
+      "category": "example-project",
+      "summary": "Receta JSON OKF contextualizada en el patrimonio musical de Canarias en compás ternario 3/4 con pintadera/timple en SVG y guía paso a paso."
+    }
+  ],
+  "workflowArchitecture": {
+    "corePrinciple": "Desacoplamiento Total (Zero-AI Runtime): La aplicación Sonogramic no contiene dependencias de IA ni claves API. Todo el conocimiento musical, las indicaciones paso a paso (guideSteps), las descripciones de los segmentos (sliceSpecs), los vectores SVG y —cuando el agente generador del JSON dispone de capacidad gráfica— las propias imágenes de fondo (imageUrl / backgroundSvg) residen en el paquete generado bajo el estándar OKF. La aplicación únicamente combina dicho .JSON + las imágenes (generadas por el agente mediante el OKF o introducidas por las personas usuarias) + el archivo de audio para mostrar el musicograma y devolver un archivo de vídeo tras capturar su reproducción.",
+    "agentBackgroundGenerationProtocol": {
+      "enabled": true,
+      "policy": "MANDATORY_IF_CAPABLE",
+      "description": "Directiva oficial OKF para la generación automática de las imágenes de fondo (backgrounds) por parte del Agente de IA externo que procesa el OKF.",
+      "modes": [
+        {
+          "mode": "1. Generación Rasterizada con Herramienta de Imagen (Imagen 3 / DALL-E / subagente image-generator)",
+          "when": "El agente dispone de una herramienta nativa de generación de imágenes rasterizadas (.png, .jpg, .webp) o acceso al sistema de archivos.",
+          "action": "El agente DEBE generar automáticamente las N imágenes panorámicas de fondo (una por cada elemento de sliceSpecs) siguiendo fielmente el campo 'imagePrompt' y la paleta 'recommendedPalette', manteniendo continuidad de horizonte entre el borde derecho del segmento i y el borde izquierdo del segmento i+1. Si opera en espacio de trabajo local o puede obtener URLs/Data URIs, DEBE inyectar la ruta o Data URI en 'sliceSpecs[i].imageUrl' (o en 'data.bgImagesBase64') y establecer 'generatedByAgent': true. Si opera en un chat conversacional, entrega las N imágenes numeradas ('01_segmento_1.png'...'0N_segmento_N.png') listas para subir en lote a Sonogramic."
+        },
+        {
+          "mode": "2. Generación de Escenarios Panorámicos Vectoriales Embebidos ('sliceSpecs[i].backgroundSvg')",
+          "when": "El agente genera el archivo .JSON y tiene capacidad de síntesis gráfica vectorial (<svg>).",
+          "action": "El agente DEBE generar e incrustar directamente dentro de cada 'sliceSpecs[i].backgroundSvg' un paisaje o escenario panorámico ilustrado multicapa '<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>' coherente con 'environmentConcept', 'imagePrompt' y 'recommendedPalette', marcando 'generatedByAgent': true. Al importar el .JSON en Sonogramic, la aplicación renderizará automáticamente estos escenarios como background de cada sección sin requerir pasos adicionales."
+        }
+      ]
+    },
+    "steps": [
+      {
+        "step": 1,
+        "name": "Generar o Cargar el JSON OKF (con Fondos Generados si el Agente es Capaz)",
+        "description": "Usar el Prompt Maestro OKF adjuntando el archivo de audio en cualquier agente o modelo multimodal externo para obtener el archivo .json con las indicaciones (guideSteps), los segmentos (sliceSpecs), los iconos SVG (svgContent), la estructura musical (musicalStructure) y —si el agente tiene capacidad de generar imágenes— las imágenes de fondo ya generadas mediante el OKF (en 'sliceSpecs[i].imageUrl', 'sliceSpecs[i].backgroundSvg' o como lote de archivos)."
+      },
+      {
+        "step": 2,
+        "name": "Cargar el Audio y/o Previsualizar la Estructura",
+        "description": "Subir el archivo de audio (.mp3, .wav, .ogg) para que el motor determinista Web Audio API calcule los impactos reales sobre las plataformas, o reproducir directamente la estructura definida en el JSON."
+      },
+      {
+        "step": 3,
+        "name": "Descargar Plantillas Guía e Introducir las Imágenes",
+        "description": "Opcionalmente descargar las plantillas guía de plataformas (rectángulos blancos sobre fondo negro) de cada segmento para diseñar las ilustraciones, e introducir las imágenes en los segmentos (en lote o una por una) y/o en las esferas."
+      },
+      {
+        "step": 4,
+        "name": "Reproducir, Capturar y Descargar el Vídeo",
+        "description": "Pulsar 'Capturar Musicograma Completo (Auto-Vídeo)' o 'Grabar Vídeo' para capturar en tiempo real el lienzo HTML5 Canvas a 60 FPS junto con el audio y descargar el archivo de vídeo (.webm)."
+      }
+    ]
+  },
+  "programmaticApiCatalog": [
+    {
+      "function": "window.applyOkfMusicogramaConfig(jsonData)",
+      "arguments": "jsonData: OkfMusicogramaProject",
+      "description": "Carga programáticamente un objeto JSON OKF completo en la aplicación (metadatos, pasos guiados, segmentos, configuración visual, SVGs y estructura musical)."
+    },
+    {
+      "function": "window.exportOkfMusicogramaProject()",
+      "arguments": "none",
+      "description": "Devuelve el objeto JSON completo del proyecto actual incluyendo configuración, indicaciones OKF, geometría simulada e imágenes cargadas."
+    },
+    {
+      "function": "window.startFullMusicogramaVideoCapture()",
+      "arguments": "none",
+      "description": "Rebobina el musicograma al segundo 0.0, inicia la grabación de vídeo y audio a 60 FPS y detiene automáticamente la captura al finalizar la pista para devolver el vídeo."
+    }
+  ]
+}

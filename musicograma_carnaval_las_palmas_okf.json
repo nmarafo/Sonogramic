@@ -1,0 +1,406 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nmarafo/Sonogramic/main/schema/schema_sonogramic_musicograma.json",
+  "okfVersion": "1.3.0",
+  "appCompatible": "sonogramic-player-v2",
+  "metadata": {
+    "id": "carnaval-las-palmas-santa-catalina",
+    "title": "¡Ay, Carnaval! (Las Palmas en Flor)",
+    "composer": "Tradicional / Creación Carnavalera de Gran Canaria",
+    "musicalPeriodOrGenre": "Música Tropical Festiva / Salsa-Merengue de Carnaval Canario",
+    "educationalStage": "Educación Primaria (3.er Ciclo) y 1.º - 2.º de ESO",
+    "durationSeconds": 31,
+    "bpm": 124,
+    "timeSignature": "4/4",
+    "musicalForm": "A - A' - B - B' - C (Estribillo) - Coda (Mambo)",
+    "pedagogicalObjectives": [
+      "Identificar auditiva y visualmente la estructura fraseológica de una canción festiva inspirada en el Carnaval de Las Palmas de Gran Canaria.",
+      "Interiorizar el pulso binario-cuaternario rápido (124 BPM) y los contratiempos característicos del bajo tumbao y la sección de metales.",
+      "Relacionar el diálogo entre la voz solista (melodía), las respuestas de trompetas (contramelodía aguda) y la base de percusión latina y bajo (acompañamiento grave).",
+      "Valorar el patrimonio cultural y festivo de Canarias (Parque Santa Catalina, Gala de la Reina y Gala Drag Queen) a través de la escucha activa."
+    ],
+    "emotions": [
+      "Euforia carnavalera",
+      "Alegría luminosa",
+      "Orgullo y pasión insular",
+      "Energía bailable"
+    ],
+    "environmentConcept": "Recorrido panorámico continuo desde el atardecer hasta el amanecer por el Parque Santa Catalina de Las Palmas de Gran Canaria en pleno Carnaval: comienza entre palmeras engalanadas y flores tropicales, atraviesa el gran escenario iluminado de la Gala de la Reina y la Gala Drag Queen bajo una lluvia de confeti, y culmina frente al océano Atlántico con fuegos artificiales al salir el sol.",
+    "summary": "Pieza vocal e instrumental de ritmo tropical carnavalero (124 BPM, compás de 4/4 y 31 segundos de duración) dedicada al Carnaval de Las Palmas de Gran Canaria. Combina una línea vocal entusiasta con arreglos de vientos (trompetas y trombones en mambo), piano montuno, bajo sincopado y percusión afrolatina (congas, timbales y cencerro), estructurada en dos estrofas iniciales (A y A'), un pre-estribillo expresivo (B y B'), un estribillo climático ('¡Carnaval, carnaval! De Gran Canaria el motor') y una coda instrumental de metales en fortissimo.",
+    "author": "Norberto Martín Afonso",
+    "license": "CC BY-SA 4.0 / GNU AGPLv3"
+  },
+  "guideSteps": [
+    {
+      "step": 1,
+      "stepNumber": 1,
+      "title": "Paso 1: Escucha activa y estructura formal detectada",
+      "phase": "preparacion",
+      "instruction": "Escuchen con el grupo-clase el archivo de audio completo (31 segundos) para identificar sus 6 microsecciones formales a 124 BPM en compás de 4/4: las dos frases iniciales de presentación en el Parque Santa Catalina (0-10 s), el puente de orgullo, Reina y Drag (10-21 s), el estribillo central ('¡Carnaval, carnaval!', 21-26 s) y el mambo instrumental de metales en la Coda (26-31 s).",
+      "description": "Explicación de la forma musical (A - A' - B - B' - Estribillo - Coda) y del carácter festivo tropical detectados en el audio adjunto.",
+      "checklist": [
+        "Escuchar la pista completa prestando atención a la letra y a las respuestas de las trompetas",
+        "Marcar el pulso constante de 124 BPM con palmas o percusión corporal suave"
+      ],
+      "didacticTip": "Pueden dividir la clase en dos grupos: uno marca el pulso de negras mientras el otro responde con un gesto elevado cada vez que intervienen los metales al final de cada verso.",
+      "pedagogicalTip": "Pueden dividir la clase en dos grupos: uno marca el pulso de negras mientras el otro responde con un gesto elevado cada vez que intervienen los metales al final de cada verso.",
+      "targetAction": "upload_audio"
+    },
+    {
+      "step": 2,
+      "stepNumber": 2,
+      "title": "Paso 2: Descarga de plantillas guía y preparación de las 6 láminas visuales",
+      "phase": "plantillas",
+      "instruction": "Descarguen las 6 plantillas guía de plataformas (rectángulos blancos sobre fondo negro) y preparen o generen las 6 ilustraciones panorámicas del Carnaval de Las Palmas de Gran Canaria siguiendo los prompts de cada tarjeta en la pestaña «Imágenes».",
+      "description": "Indicaciones sobre qué imágenes preparar o ilustrar para cada tramo temporal del audio respetando la geometría de las plataformas de rebote.",
+      "checklist": [
+        "Descargar las 6 plantillas guía desde el botón 'Plantillas Guía'",
+        "Generar o ilustrar una imagen para cada sección de sliceSpecs",
+        "Verificar que la superficie superior de las plataformas quede despejada y con buen contraste"
+      ],
+      "didacticTip": "Mantengan una transición lumínica progresiva entre las 6 láminas: desde el atardecer cálido del segmento 1, pasando por las luces de neón de la Gala Drag en el segmento 4, hasta el sol radiante del amanecer en el segmento 6.",
+      "pedagogicalTip": "Mantengan una transición lumínica progresiva entre las 6 láminas: desde el atardecer cálido del segmento 1, pasando por las luces de neón de la Gala Drag en el segmento 4, hasta el sol radiante del amanecer en el segmento 6.",
+      "targetAction": "download_layouts"
+    },
+    {
+      "step": 3,
+      "stepNumber": 3,
+      "title": "Paso 3: Carga del lote de imágenes y armonización cromática",
+      "phase": "imagenes",
+      "instruction": "Suban las 6 ilustraciones en las tarjetas correspondientes de la pestaña «Imágenes» (o utilicen «Subir Lote») y pulsen «Armonizar Bordes» para integrar las transiciones horizontales entre los escenarios del Parque Santa Catalina.",
+      "description": "Pasos para importar este JSON, asignar cada imagen a su tarjeta temporal y vincular el archivo de audio.",
+      "checklist": [
+        "Cargar este archivo .json en Sonogramic",
+        "Subir las 6 imágenes en las tarjetas de sección (0 s a 31 s)",
+        "Aplicar la armonización de bordes y reducir la opacidad de las plataformas si ya están integradas en el dibujo"
+      ],
+      "didacticTip": "Recuerden que pueden hacer clic en el título de cada segmento dentro de la pestaña «Imágenes» para saltar directamente a ese segundo exacto del audio.",
+      "pedagogicalTip": "Recuerden que pueden hacer clic en el título de cada segmento dentro de la pestaña «Imágenes» para saltar directamente a ese segundo exacto del audio.",
+      "targetAction": "upload_batch_images"
+    },
+    {
+      "step": 4,
+      "stepNumber": 4,
+      "title": "Paso 4: Seguimiento de las pistas de pulso, melodía de metales y bajo",
+      "phase": "sincronizacion",
+      "instruction": "Reproduzcan el musicograma en pantalla completa y observen la interacción de los tres cursores SVG animados: la máscara real carnavalera (pulso vocal principal), la trompeta dorada (melodía aguda y mambos) y el tambor de comparsa (bajo tumbao y percusión).",
+      "description": "Explicación de cómo se mueven los tres cursores vectoriales en relación con el fraseo vocal y los vientos del audio.",
+      "checklist": [
+        "Comprobar la sincronía del salto con el pulso (124 BPM)",
+        "Observar el incremento de altura y energía en el estribillo (21 s) y en el mambo final (26 s)"
+      ],
+      "didacticTip": "Trabajen primero la percusión corporal siguiendo el cursor principal y, en una segunda escucha, asignen instrumentos de pequeña percusión (maracas, claves y panderos) a cada una de las tres pistas.",
+      "pedagogicalTip": "Trabajen primero la percusión corporal siguiendo el cursor principal y, en una segunda escucha, asignen instrumentos de pequeña percusión (maracas, claves y panderos) a cada una de las tres pistas.",
+      "targetAction": "preview_playback"
+    },
+    {
+      "step": 5,
+      "stepNumber": 5,
+      "title": "Paso 5: Captura de la reproducción y exportación a vídeo (.webm)",
+      "phase": "grabacion",
+      "instruction": "Pulsen el botón «Grabar Musicograma Completo» para que Sonogramic reproduzca la canción desde el segundo 0 hasta el segundo 31 y descargue automáticamente el vídeo en alta definición con el audio integrado.",
+      "description": "Instrucciones para grabar la reproducción completa desde Sonogramic y descargar el vídeo final para el aula.",
+      "checklist": [
+        "Pulsar 'Grabar Musicograma Completo'",
+        "Dejar reproducir los 31 segundos del musicograma sin cambiar de pestaña",
+        "Guardar el archivo .webm generado para su proyección en la pizarra digital"
+      ],
+      "didacticTip": "El vídeo exportado incluye el audio perfectamente sincronizado y puede proyectarse en el aula o compartirse en el aula virtual sin necesidad de conexión a Internet.",
+      "pedagogicalTip": "El vídeo exportado incluye el audio perfectamente sincronizado y puede proyectarse en el aula o compartirse en el aula virtual sin necesidad de conexión a Internet.",
+      "targetAction": "record_full_video"
+    }
+  ],
+  "sliceSpecs": [
+    {
+      "index": 0,
+      "title": "Segmento 1: Tema A1 - «¡Ay, carnaval! Las Palmas en flor»",
+      "musicalSection": "Tema A1 (Entrada vocal)",
+      "startTime": 0,
+      "endTime": 5,
+      "dynamicsAndTempo": "f, Allegro festivo (124 BPM)",
+      "didacticNote": "Entre los segundos 0 y 5 irrumpe la canción directamente en dinámica forte con la exclamación «¡Ay, carnaval! Las Palmas en flor». Suena la voz solista arropada por el ataque brillante de las trompetas, el piano montuno y las congas. Deben colocar aquí una ilustración luminosa de bienvenida con palmeras canarias y flores tropicales.",
+      "imagePrompt": "Wide 16:9 panoramic 2D vibrant digital illustration of Las Palmas de Gran Canaria in full bloom during Carnival at golden sunset, lush canary palm trees decorated with tropical hibiscus flowers and colorful paper garlands, respecting the exact white rectangles of the guide template as floral wooden carnival stages and walkways where the sphere bounces, clear sky above the platforms, seamless left and right edges, no text, no letters, cohesive festive style.",
+      "recommendedPalette": [
+        "#f59e0b",
+        "#ec4899",
+        "#06b6d4",
+        "#fef08a"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#f59e0b\"/><stop offset=\"55%\" stop-color=\"#ec4899\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#06b6d4\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_0\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#ec4899\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#f59e0b\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fef08a\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#f59e0b\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_0)\"/><circle cx=\"180\" cy=\"190\" r=\"74\" fill=\"#fef08a\" fill-opacity=\"0.35\"/><circle cx=\"780\" cy=\"240\" r=\"54\" fill=\"#06b6d4\" fill-opacity=\"0.45\"/><g fill=\"#06b6d4\" fill-opacity=\"0.7\"><circle cx=\"180\" cy=\"140\" r=\"6\"/><circle cx=\"340\" cy=\"220\" r=\"5\"/><circle cx=\"620\" cy=\"160\" r=\"7\"/><circle cx=\"860\" cy=\"210\" r=\"6\"/><polygon points=\"480,110 495,140 525,145 502,166 508,196 480,180 452,196 458,166 435,145 465,140\" fill=\"#fef08a\" fill-opacity=\"0.45\"/></g><g stroke=\"#ec4899\" stroke-width=\"5\" fill=\"none\" opacity=\"0.55\"><path d=\"M 120 790 Q 140 610 210 570\" /><path d=\"M 880 765 Q 860 585 790 545\" /></g><path d=\"M 0 620 Q 512 576 1024 681 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_0)\"/><path d=\"M 0 790 Q 512 803 1024 765 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_0)\"/><path d=\"M 0 790 Q 512 803 1024 765\" fill=\"none\" stroke=\"#06b6d4\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 1,
+      "title": "Segmento 2: Tema A2 - «Bailando en Santa Catalina hasta que salga el sol»",
+      "musicalSection": "Tema A2 (Respuesta rítmica)",
+      "startTime": 5,
+      "endTime": 10,
+      "dynamicsAndTempo": "f, Allegro bailable",
+      "didacticNote": "Del segundo 5 al 10 escuchamos la respuesta melódica «Bailando en Santa Catalina hasta que salga el sol», donde el bajo tumbao y el cencerro impulsan el movimiento de baile y los metales cierran la frase con un motivo sincopado ascendente. Suban aquí una imagen del Parque Santa Catalina lleno de comparsas y luces festivas.",
+      "imagePrompt": "Wide 16:9 panoramic 2D vibrant illustration of Parque Santa Catalina in Las Palmas de Gran Canaria during Carnival dusk, historic colorful buildings and festive string lights, platforms matching the exact white rectangles of the template transformed into illuminated dance floors and carnival float roofs with confetti, seamless horizontal edges with the previous slice, no text, no letters, cohesive festive style.",
+      "recommendedPalette": [
+        "#06b6d4",
+        "#3b82f6",
+        "#f43f5e",
+        "#fde047"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_1\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#06b6d4\"/><stop offset=\"55%\" stop-color=\"#3b82f6\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#f43f5e\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#3b82f6\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#06b6d4\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_1\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fde047\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#06b6d4\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_1)\"/><circle cx=\"300\" cy=\"190\" r=\"74\" fill=\"#fde047\" fill-opacity=\"0.35\"/><circle cx=\"690\" cy=\"240\" r=\"54\" fill=\"#f43f5e\" fill-opacity=\"0.45\"/><g fill=\"#f43f5e\" fill-opacity=\"0.7\"><circle cx=\"180\" cy=\"140\" r=\"6\"/><circle cx=\"340\" cy=\"220\" r=\"5\"/><circle cx=\"620\" cy=\"160\" r=\"7\"/><circle cx=\"860\" cy=\"210\" r=\"6\"/><polygon points=\"480,110 495,140 525,145 502,166 508,196 480,180 452,196 458,166 435,145 465,140\" fill=\"#fde047\" fill-opacity=\"0.45\"/></g><g stroke=\"#3b82f6\" stroke-width=\"5\" fill=\"none\" opacity=\"0.55\"><path d=\"M 120 765 Q 140 585 210 545\" /><path d=\"M 880 715 Q 860 535 790 495\" /></g><path d=\"M 0 681 Q 512 666 1024 681 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_1)\"/><path d=\"M 0 765 Q 512 715 1024 715 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_1)\"/><path d=\"M 0 765 Q 512 715 1024 715\" fill=\"none\" stroke=\"#f43f5e\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 2,
+      "title": "Segmento 3: Puente B1 - «Un grito al viento, orgullo y pasión»",
+      "musicalSection": "Puente B1 (Expresión lírica)",
+      "startTime": 10,
+      "endTime": 15.5,
+      "dynamicsAndTempo": "mf -> f, Espressivo",
+      "didacticNote": "Entre los segundos 10 y 15.5 la melodía vocal se vuelve más amplia y sostenida en «Un grito al viento, orgullo y pasión», contrastando las notas largas de la voz con los cortes secos de la sección de vientos. La imagen de esta tarjeta debe reflejar brisa marina, serpentinas volando al viento y banderas de colores.",
+      "imagePrompt": "Wide 16:9 panoramic 2D digital illustration of colorful carnival ribbons, feathers, and swirling confetti carried by the ocean breeze over Las Palmas twilight sky, platforms aligned with the white template rectangles designed as glowing carnival arches and musical ribbons, seamless left and right borders, no text, no letters, cohesive vibrant style.",
+      "recommendedPalette": [
+        "#8b5cf6",
+        "#ec4899",
+        "#38bdf8",
+        "#f97316"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_2\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#8b5cf6\"/><stop offset=\"55%\" stop-color=\"#ec4899\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#38bdf8\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_2\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#ec4899\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#8b5cf6\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_2\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#f97316\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#8b5cf6\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_2)\"/><circle cx=\"420\" cy=\"190\" r=\"74\" fill=\"#f97316\" fill-opacity=\"0.35\"/><circle cx=\"600\" cy=\"240\" r=\"54\" fill=\"#38bdf8\" fill-opacity=\"0.45\"/><g fill=\"#38bdf8\" fill-opacity=\"0.7\"><circle cx=\"180\" cy=\"140\" r=\"6\"/><circle cx=\"340\" cy=\"220\" r=\"5\"/><circle cx=\"620\" cy=\"160\" r=\"7\"/><circle cx=\"860\" cy=\"210\" r=\"6\"/><polygon points=\"480,110 495,140 525,145 502,166 508,196 480,180 452,196 458,166 435,145 465,140\" fill=\"#f97316\" fill-opacity=\"0.45\"/></g><g stroke=\"#ec4899\" stroke-width=\"5\" fill=\"none\" opacity=\"0.55\"><path d=\"M 120 715 Q 140 535 210 495\" /><path d=\"M 880 690 Q 860 510 790 470\" /></g><path d=\"M 0 681 Q 512 576 1024 620 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_2)\"/><path d=\"M 0 715 Q 512 728 1024 690 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_2)\"/><path d=\"M 0 715 Q 512 728 1024 690\" fill=\"none\" stroke=\"#38bdf8\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 3,
+      "title": "Segmento 4: Puente B2 - «La Reina y el Drag me roban el corazón»",
+      "musicalSection": "Puente B2 (Transición climática)",
+      "startTime": 15.5,
+      "endTime": 20.8,
+      "dynamicsAndTempo": "f -> ff, Crescendo de timbales",
+      "didacticNote": "Desde el segundo 15.5 hasta el 20.8 se homenajea a los dos iconos del carnaval capitalino («La Reina y el Drag me roban el corazón») mientras un redoble de timbales y las trompetas agudas preparan el estribillo. Coloquen aquí una ilustración deslumbrante del gran escenario de la Gala de la Reina y la Gala Drag Queen con coronas de plumas y plataformas de neón.",
+      "imagePrompt": "Wide 16:9 panoramic 2D festive illustration of the grand Carnival stage of Las Palmas featuring giant glittering Carnival Queen feather fantasias and tall colorful Drag Queen platform boots as decorative background motifs, neon spotlights in magenta and gold, the template platform rectangles rendered as sparkling stage catwalks, seamless edges, no text, no letters, cohesive style.",
+      "recommendedPalette": [
+        "#d946ef",
+        "#f43f5e",
+        "#fbbf24",
+        "#2dd4bf"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_3\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#d946ef\"/><stop offset=\"55%\" stop-color=\"#f43f5e\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#fbbf24\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_3\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#f43f5e\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#d946ef\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_3\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#2dd4bf\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#d946ef\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_3)\"/><circle cx=\"540\" cy=\"190\" r=\"74\" fill=\"#2dd4bf\" fill-opacity=\"0.35\"/><circle cx=\"510\" cy=\"240\" r=\"54\" fill=\"#fbbf24\" fill-opacity=\"0.45\"/><g fill=\"#fbbf24\" fill-opacity=\"0.7\"><circle cx=\"180\" cy=\"140\" r=\"6\"/><circle cx=\"340\" cy=\"220\" r=\"5\"/><circle cx=\"620\" cy=\"160\" r=\"7\"/><circle cx=\"860\" cy=\"210\" r=\"6\"/><polygon points=\"480,110 495,140 525,145 502,166 508,196 480,180 452,196 458,166 435,145 465,140\" fill=\"#2dd4bf\" fill-opacity=\"0.45\"/></g><g stroke=\"#f43f5e\" stroke-width=\"5\" fill=\"none\" opacity=\"0.55\"><path d=\"M 120 690 Q 140 510 210 470\" /><path d=\"M 880 715 Q 860 535 790 495\" /></g><path d=\"M 0 620 Q 512 575 1024 559 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_3)\"/><path d=\"M 0 690 Q 512 678 1024 715 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_3)\"/><path d=\"M 0 690 Q 512 678 1024 715\" fill=\"none\" stroke=\"#fbbf24\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 4,
+      "title": "Segmento 5: Estribillo C - «¡Carnaval, carnaval! De Gran Canaria el motor»",
+      "musicalSection": "Estribillo C (Clímax vocal)",
+      "startTime": 20.8,
+      "endTime": 26,
+      "dynamicsAndTempo": "ff, Con fuoco",
+      "didacticNote": "Entre los segundos 20.8 y 26 llegamos al clímax cantado en fortissimo: «¡Carnaval, carnaval! De Gran Canaria el motor». Toda la agrupación suena en tutti con acentos rítmicos muy marcados sobre cada sílaba. Suban aquí una lámina de máxima energía visual con carrozas iluminadas, silueta de Gran Canaria y explosión de confeti dorado.",
+      "imagePrompt": "Wide 16:9 panoramic 2D illustration of the grand climax of Gran Canaria Carnival parade in full energy, illuminated carnival floats, golden confetti rain, silhouette of Gran Canaria island glowing with festive lights, platforms matching the exact template rectangles as golden brass and neon bridges, seamless borders, no text, no letters, cohesive style.",
+      "recommendedPalette": [
+        "#ef4444",
+        "#f59e0b",
+        "#fef08a",
+        "#a855f7"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_4\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#ef4444\"/><stop offset=\"55%\" stop-color=\"#f59e0b\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#fef08a\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_4\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#f59e0b\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#ef4444\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_4\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#a855f7\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#ef4444\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_4)\"/><circle cx=\"660\" cy=\"190\" r=\"74\" fill=\"#a855f7\" fill-opacity=\"0.35\"/><circle cx=\"420\" cy=\"240\" r=\"54\" fill=\"#fef08a\" fill-opacity=\"0.45\"/><g fill=\"#fef08a\" fill-opacity=\"0.7\"><circle cx=\"180\" cy=\"140\" r=\"6\"/><circle cx=\"340\" cy=\"220\" r=\"5\"/><circle cx=\"620\" cy=\"160\" r=\"7\"/><circle cx=\"860\" cy=\"210\" r=\"6\"/><polygon points=\"480,110 495,140 525,145 502,166 508,196 480,180 452,196 458,166 435,145 465,140\" fill=\"#a855f7\" fill-opacity=\"0.45\"/></g><g stroke=\"#f59e0b\" stroke-width=\"5\" fill=\"none\" opacity=\"0.55\"><path d=\"M 120 715 Q 140 535 210 495\" /><path d=\"M 880 765 Q 860 585 790 545\" /></g><path d=\"M 0 559 Q 512 484 1024 559 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_4)\"/><path d=\"M 0 715 Q 512 765 1024 765 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_4)\"/><path d=\"M 0 715 Q 512 765 1024 765\" fill=\"none\" stroke=\"#fef08a\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    },
+    {
+      "index": 5,
+      "title": "Segmento 6: Coda Instrumental - Mambo final de metales al amanecer",
+      "musicalSection": "Coda (Mambo de vientos)",
+      "startTime": 26,
+      "endTime": 31,
+      "dynamicsAndTempo": "ff, Presto brillante",
+      "didacticNote": "Del segundo 26 al final (31 s) la voz cede el protagonismo al mambo instrumental de trompetas y trombones en registro agudo junto con los timbales, cerrando con un corte seco y brillante. Coloquen aquí la imagen final del amanecer sobre el mar en Las Palmas con fuegos artificiales y trompetas doradas.",
+      "imagePrompt": "Wide 16:9 panoramic 2D illustration of a radiant sunrise over the Atlantic Ocean and Las Canteras / Santa Catalina coast in Las Palmas de Gran Canaria with colorful carnival fireworks and gleaming golden brass instruments in the sky, platforms aligned with the white template rectangles as sunlit golden soundwaves, seamless left edge, no text, no letters, cohesive style.",
+      "recommendedPalette": [
+        "#facc15",
+        "#fb923c",
+        "#38bdf8",
+        "#f43f5e"
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_5\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#facc15\"/><stop offset=\"55%\" stop-color=\"#fb923c\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#38bdf8\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_5\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fb923c\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#facc15\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_5\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#f43f5e\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#facc15\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_5)\"/><circle cx=\"780\" cy=\"190\" r=\"74\" fill=\"#f43f5e\" fill-opacity=\"0.35\"/><circle cx=\"330\" cy=\"240\" r=\"54\" fill=\"#38bdf8\" fill-opacity=\"0.45\"/><g fill=\"#38bdf8\" fill-opacity=\"0.7\"><circle cx=\"180\" cy=\"140\" r=\"6\"/><circle cx=\"340\" cy=\"220\" r=\"5\"/><circle cx=\"620\" cy=\"160\" r=\"7\"/><circle cx=\"860\" cy=\"210\" r=\"6\"/><polygon points=\"480,110 495,140 525,145 502,166 508,196 480,180 452,196 458,166 435,145 465,140\" fill=\"#f43f5e\" fill-opacity=\"0.45\"/></g><g stroke=\"#fb923c\" stroke-width=\"5\" fill=\"none\" opacity=\"0.55\"><path d=\"M 120 765 Q 140 585 210 545\" /><path d=\"M 880 790 Q 860 610 790 570\" /></g><path d=\"M 0 559 Q 512 575 1024 620 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_5)\"/><path d=\"M 0 765 Q 512 753 1024 790 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_5)\"/><path d=\"M 0 765 Q 512 753 1024 790\" fill=\"none\" stroke=\"#38bdf8\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+    }
+  ],
+  "config": {
+    "zoom": 0.85,
+    "platformOpacity": 0.85,
+    "bgOffsetY": 0,
+    "cameraSmoothness": 0.84,
+    "mosaicSlices": 6,
+    "userKeywords": "Carnaval de Las Palmas de Gran Canaria, Parque Santa Catalina, Gala de la Reina, Gala Drag Queen, Salsa Canaria, Metales, Comparsa",
+    "visualStyle": "Creative Theme",
+    "colorPalette": [
+      "#f59e0b",
+      "#ec4899",
+      "#06b6d4",
+      "#a855f7",
+      "#ef4444"
+    ],
+    "particleSpeed": 5,
+    "particleSize": 6,
+    "sensitivity": 1.4,
+    "showBeatMarkers": true,
+    "backgroundStyle": "aurora",
+    "smoothness": 0.84,
+    "customPlotType": "staff",
+    "trackLayout": "single",
+    "extraTracks": "melody-bass",
+    "visualTheme": {
+      "backgroundConcept": "Parque Santa Catalina de Las Palmas en flor hasta el amanecer durante el Carnaval",
+      "primaryElement": "Máscara Real del Carnaval con penacho de plumas (Pulso y Voz)",
+      "secondaryElement": "Trompeta dorada de mambo canario (Melodía aguda y metales)",
+      "ambientEffect": "sparkles"
+    },
+    "ballConfig": {
+      "shape": "custom-svg",
+      "label": "Máscara Real del Carnaval (Pulso y Voz Principal)",
+      "color": "#f59e0b",
+      "glowColor": "#fef08a",
+      "effect": "glow",
+      "rotate": false,
+      "opacity": 1,
+      "size": 1.45,
+      "trailLength": 18,
+      "bounceIntensity": 1.35,
+      "svgContent": "<svg viewBox='0 0 100 100' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><style>@keyframes plumeSway { 0%, 100% { transform: rotate(-4deg) scale(1); } 50% { transform: rotate(4deg) scale(1.06); } } @keyframes maskPulse { 0%, 100% { filter: drop-shadow(0 0 4px #fef08a); } 50% { filter: drop-shadow(0 0 10px #ec4899); } } .plumes { transform-origin: 50px 50px; animation: plumeSway 0.96s ease-in-out infinite; } .mask-body { animation: maskPulse 0.48s ease-in-out infinite; }</style><defs><radialGradient id='carnivalGold' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='#fef08a'/><stop offset='60%' stop-color='#f59e0b'/><stop offset='100%' stop-color='#b45309'/></radialGradient><linearGradient id='featherPink' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#f472b6'/><stop offset='100%' stop-color='#db2777'/></linearGradient><linearGradient id='featherCyan' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#38bdf8'/><stop offset='100%' stop-color='#0284c7'/></linearGradient></defs><g class='plumes'><path d='M50 48 C42 20, 44 6, 50 4 C56 6, 58 20, 50 48 Z' fill='url(#featherPink)'/><path d='M50 48 C30 24, 22 12, 26 8 C34 10, 44 24, 50 48 Z' fill='url(#featherCyan)'/><path d='M50 48 C70 24, 78 12, 74 8 C66 10, 56 24, 50 48 Z' fill='url(#featherCyan)'/><path d='M50 50 C20 34, 10 26, 12 20 C22 20, 36 32, 50 50 Z' fill='#a855f7'/><path d='M50 50 C80 34, 90 26, 88 20 C78 20, 64 32, 50 50 Z' fill='#a855f7'/><animateTransform attributeName='transform' type='scale' values='1;1.07;1' dur='0.48s' repeatCount='indefinite' additive='sum'/></g><g class='mask-body'><path d='M16 54 C16 38, 34 36, 50 46 C66 36, 84 38, 84 54 C84 68, 68 78, 56 72 L50 64 L44 72 C32 78, 16 68, 16 54 Z' fill='url(#carnivalGold)' stroke='#ffffff' stroke-width='2.5'/><ellipse cx='34' cy='55' rx='9' ry='5.5' fill='#1e1b4b' stroke='#fef08a' stroke-width='1.5'/><ellipse cx='66' cy='55' rx='9' ry='5.5' fill='#1e1b4b' stroke='#fef08a' stroke-width='1.5'/><polygon points='50,32 54,40 50,48 46,40' fill='#ec4899' stroke='#ffffff' stroke-width='1.2'/><circle cx='24' cy='46' r='2.5' fill='#38bdf8'/><circle cx='76' cy='46' r='2.5' fill='#38bdf8'/></g></svg>"
+    },
+    "extraTracksConfig": {
+      "melody": {
+        "shape": "custom-svg",
+        "label": "Trompeta de Mambo Carnavalero (Melodía y Metales)",
+        "color": "#38bdf8",
+        "glowColor": "#bae6fd",
+        "effect": "glow",
+        "rotate": false,
+        "opacity": 0.95,
+        "svgContent": "<svg viewBox='0 0 100 100' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><style>@keyframes hornVib { 0%, 100% { transform: rotate(-6deg) scale(1); } 50% { transform: rotate(6deg) scale(1.08); } } @keyframes sparkEmit { 0% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0.3; transform: scale(0.8); } } .horn { transform-origin: 50px 50px; animation: hornVib 0.48s ease-in-out infinite; } .sparks { transform-origin: 82px 34px; animation: sparkEmit 0.48s ease-in-out infinite; }</style><defs><linearGradient id='brassGrad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#fef08a'/><stop offset='50%' stop-color='#f59e0b'/><stop offset='100%' stop-color='#d97706'/></linearGradient></defs><circle cx='50' cy='50' r='38' fill='#0284c7' fill-opacity='0.25' stroke='#38bdf8' stroke-width='2'/><g class='horn'><path d='M18 62 L58 44 L76 26 L86 52 L62 52 L22 70 Z' fill='url(#brassGrad)' stroke='#ffffff' stroke-width='2' stroke-linejoin='round'/><ellipse cx='81' cy='39' rx='5' ry='14' transform='rotate(-22 81 39)' fill='#fef08a' stroke='#b45309' stroke-width='2'/><rect x='36' y='44' width='4' height='10' rx='1.5' transform='rotate(-22 38 49)' fill='#ffffff'/><rect x='43' y='41' width='4' height='10' rx='1.5' transform='rotate(-22 45 46)' fill='#ffffff'/><rect x='50' y='38' width='4' height='10' rx='1.5' transform='rotate(-22 52 43)' fill='#ffffff'/></g><g class='sparks'><circle cx='88' cy='24' r='4' fill='#38bdf8'/><circle cx='92' cy='38' r='3.5' fill='#ec4899'/><circle cx='86' cy='50' r='4' fill='#fef08a'/></g></svg>"
+      },
+      "bass": {
+        "shape": "custom-svg",
+        "label": "Tambor de Comparsa Canaria (Bajo Tumbao y Percusión)",
+        "color": "#10b981",
+        "glowColor": "#a7f3d0",
+        "effect": "glow",
+        "rotate": true,
+        "opacity": 0.9,
+        "svgContent": "<svg viewBox='0 0 100 100' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><style>@keyframes drumBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } } .drum { transform-origin: 50px 50px; animation: drumBeat 0.48s ease-in-out infinite; }</style><defs><linearGradient id='drumBody' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='#10b981'/><stop offset='50%' stop-color='#34d399'/><stop offset='100%' stop-color='#059669'/></linearGradient></defs><circle cx='50' cy='50' r='44' fill='none' stroke='#a7f3d0' stroke-width='2.5' stroke-dasharray='6 4'><animate attributeName='r' values='38;46;38' dur='0.96s' repeatCount='indefinite'/></circle><g class='drum'><path d='M28 30 L72 30 L64 78 L36 78 Z' fill='url(#drumBody)' stroke='#ffffff' stroke-width='2.5' stroke-linejoin='round'/><polygon points='31,42 50,62 69,42' fill='none' stroke='#fef08a' stroke-width='2.5'/><polygon points='34,64 50,44 66,64' fill='none' stroke='#ec4899' stroke-width='2.5'/><ellipse cx='50' cy='30' rx='22' ry='7' fill='#fef9c3' stroke='#f59e0b' stroke-width='2.5'/><ellipse cx='50' cy='78' rx='14' ry='4.5' fill='#064e3b' stroke='#ffffff' stroke-width='2'/></g></svg>"
+      }
+    }
+  },
+  "musicalStructure": {
+    "sections": [
+      {
+        "name": "Tema A1: ¡Ay, carnaval! Las Palmas en flor",
+        "label": "Tema A1: ¡Ay, carnaval! Las Palmas en flor",
+        "startTime": 0,
+        "endTime": 5,
+        "type": "theme-a",
+        "focus": "tutti",
+        "energy": 2.1,
+        "subdivision": 1,
+        "melodicContour": "ascending",
+        "platformStyle": "major",
+        "description": "Entrada festiva en tutti con exclamación vocal '¡Ay, carnaval! Las Palmas en flor', ataques brillantes de trompetas y ritmo tropical a 124 BPM.",
+        "color": "#f59e0b",
+        "intensity": 7,
+        "tempo": "allegro",
+        "articulation": "marcato",
+        "dynamics": "f",
+        "instrument": "Voz solista, trompetas y percusión afrolatina"
+      },
+      {
+        "name": "Tema A2: Bailando en Santa Catalina",
+        "label": "Tema A2: Bailando en Santa Catalina",
+        "startTime": 5,
+        "endTime": 10,
+        "type": "theme-a-prime",
+        "focus": "melody",
+        "energy": 2.3,
+        "subdivision": 1,
+        "melodicContour": "wave",
+        "platformStyle": "major",
+        "description": "Frase de respuesta 'Bailando en Santa Catalina hasta que salga el sol' con patrón sincopado de piano montuno, bajo tumbao y cierre de metales.",
+        "color": "#06b6d4",
+        "intensity": 8,
+        "tempo": "allegro",
+        "articulation": "staccato",
+        "dynamics": "f",
+        "instrument": "Voz solista, piano montuno y sección de metales"
+      },
+      {
+        "name": "Puente B1: Un grito al viento, orgullo y pasión",
+        "label": "Puente B1: Un grito al viento, orgullo y pasión",
+        "startTime": 10,
+        "endTime": 15.5,
+        "type": "bridge-b",
+        "focus": "melody",
+        "energy": 1.9,
+        "subdivision": 1,
+        "melodicContour": "arch",
+        "platformStyle": "minor",
+        "description": "Sección expresiva con notas vocales más amplias y tenidas ('Un grito al viento, orgullo y pasión') punteadas por acordes cortos de trompeta y trombón.",
+        "color": "#8b5cf6",
+        "intensity": 7,
+        "tempo": "allegro",
+        "articulation": "legato",
+        "dynamics": "mf",
+        "instrument": "Voz principal con contracantos de vientos"
+      },
+      {
+        "name": "Puente B2: La Reina y el Drag me roban el corazón",
+        "label": "Puente B2: La Reina y el Drag",
+        "startTime": 15.5,
+        "endTime": 20.8,
+        "type": "bridge-b-prime",
+        "focus": "tutti",
+        "energy": 2.6,
+        "subdivision": 2,
+        "melodicContour": "ascending",
+        "platformStyle": "accelerator",
+        "description": "Transición climática ('La Reina y el Drag me roban el corazón') con redoble de timbales en crescendo y llamadas ascendentes de metales hacia el estribillo.",
+        "color": "#ec4899",
+        "intensity": 8,
+        "tempo": "allegro",
+        "articulation": "marcato",
+        "dynamics": "f",
+        "instrument": "Voz, timbales en crescendo y trompetas agudas"
+      },
+      {
+        "name": "Estribillo C: ¡Carnaval, carnaval! De Gran Canaria el motor",
+        "label": "Estribillo C: ¡Carnaval, carnaval!",
+        "startTime": 20.8,
+        "endTime": 26,
+        "type": "chorus",
+        "focus": "tutti",
+        "energy": 3.2,
+        "subdivision": 2,
+        "melodicContour": "staccato_jumps",
+        "platformStyle": "major",
+        "description": "Clímax vocal y rítmico ('¡Carnaval, carnaval! De Gran Canaria el motor') en fortissimo con acentos percusivos y plenitud orquestal.",
+        "color": "#ef4444",
+        "intensity": 10,
+        "tempo": "vivace",
+        "articulation": "marcato",
+        "dynamics": "ff",
+        "instrument": "Tutti vocal, sección completa de metales y percusión"
+      },
+      {
+        "name": "Coda Instrumental: Mambo final de metales",
+        "label": "Coda: Mambo final de metales",
+        "startTime": 26,
+        "endTime": 31,
+        "type": "coda",
+        "focus": "melody",
+        "energy": 3.4,
+        "subdivision": 2,
+        "melodicContour": "staccato_jumps",
+        "platformStyle": "accelerator",
+        "description": "Mambo instrumental explosivo de trompetas y trombones en armonía abierta con percusión latina plena hasta el acorde final en el segundo 31.",
+        "color": "#facc15",
+        "intensity": 10,
+        "tempo": "presto",
+        "articulation": "staccato",
+        "dynamics": "ff",
+        "instrument": "Sección de metales (trompetas y trombones) y timbales"
+      }
+    ]
+  }
+}
