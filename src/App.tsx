@@ -12,7 +12,6 @@ import {
   Palette,
   BookOpen,
   Film,
-  Layers,
   ClipboardPaste,
   Eye,
   EyeOff,
@@ -153,9 +152,6 @@ export default function App() {
     EXAMPLE_OKF_PROJECTS[0].id,
   );
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<
-    "slices" | "controls" | "okf-prompt"
-  >("slices");
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [pastedJsonText, setPastedJsonText] = useState("");
   const [hideSvgButtons, setHideSvgButtons] = useState(false);
@@ -562,7 +558,6 @@ export default function App() {
     else reader.readAsDataURL(file);
   };
 
-  const readySlicesCount = (vState.bgReadySlices || []).filter(Boolean).length;
   const totalSlicesCount =
     vState.bgImageCount || okfProject.config.mosaicSlices || 6;
 
@@ -636,7 +631,6 @@ export default function App() {
             <button
               onClick={() => {
                 copyToClipboard(OKF_MASTER_PROMPT_SNIPPET, "header-master-okf");
-                setActiveTab("okf-prompt");
               }}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 text-amber-200 border border-amber-500/40 text-xs font-semibold transition-all cursor-pointer shadow-sm"
               title="Copiar el Prompt Maestro OKF v1.4.0 para generar el archivo .JSON con todos los SVGs integrados"
@@ -935,513 +929,282 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Column: Interactive OKF Panel (Slices & SVGs, Controls, OKF Prompt) (5 cols) */}
+          {/* Right Column: Ajustes Panel Only (5 cols) */}
           <div className="lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden flex flex-col shadow-xl">
-            {/* Tabs Navigation */}
-            <div className="grid grid-cols-3 border-b border-slate-800 bg-slate-950/60 p-1 gap-1">
-              <button
-                onClick={() => setActiveTab("slices")}
-                className={`py-2 px-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  activeTab === "slices"
-                    ? "bg-purple-600 text-white shadow"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5" />
-                <span>
-                  SVGs ({readySlicesCount}/{totalSlicesCount})
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("controls")}
-                className={`py-2 px-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  activeTab === "controls"
-                    ? "bg-purple-600 text-white shadow"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-                }`}
-              >
+            {/* Single Tab Header: Ajustes */}
+            <div className="border-b border-slate-800 bg-slate-950/60 p-1">
+              <div className="py-2 px-3 rounded-xl text-xs font-semibold bg-purple-600 text-white shadow flex items-center justify-center gap-1.5">
                 <Palette className="w-3.5 h-3.5" />
                 <span>Ajustes</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("okf-prompt")}
-                className={`py-2 px-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  activeTab === "okf-prompt"
-                    ? "bg-purple-600 text-white shadow"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-                }`}
-              >
-                <FileJson className="w-3.5 h-3.5" />
-                <span>Prompt OKF</span>
-              </button>
+              </div>
             </div>
 
-            {/* Tab 1: Slices & Trajectory-Aligned SVG Management */}
-            {activeTab === "slices" && (
-              <div className="p-4 space-y-3 max-h-[620px] overflow-y-auto">
-                <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800">
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-100">
-                      Escenografía Vectorial SVG Alineada con los Trayectos
-                    </h3>
-                    <p className="text-[11px] text-slate-400">
-                      Cada puente, rampa, barandilla y arco en el SVG coincide
-                      exactamente (1:1) con el trayecto físico de las esferas.
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <button
-                      onClick={() =>
-                        visualizerRef.current?.setMosaicSlices(
-                          totalSlicesCount === 1
-                            ? okfProject.sliceSpecs?.length || 6
-                            : 1,
-                        )
-                      }
-                      className="px-2.5 py-1.5 rounded-lg bg-sky-600/25 hover:bg-sky-600/40 text-sky-200 border border-sky-500/40 text-xs font-medium cursor-pointer"
-                      title="Alternar entre 1 único SVG panorámico para toda la obra o múltiples SVGs por sección musical"
-                    >
-                      {totalSlicesCount === 1
-                        ? `Cambiar a ${okfProject.sliceSpecs?.length || 6} SVGs por Sección`
-                        : "Unificar en 1 SVG Panorámico"}
-                    </button>
-                    <button
-                      onClick={() =>
-                        visualizerRef.current?.restoreOkfBackgrounds()
-                      }
-                      className="px-2.5 py-1.5 rounded-lg bg-purple-600/25 hover:bg-purple-600/40 text-purple-200 border border-purple-500/40 text-xs font-medium cursor-pointer"
-                      title="Recompilar y restaurar los SVGs vectoriales alineados con los trayectos del JSON OKF"
-                    >
-                      ✨ Recompilar SVGs OKF
-                    </button>
-                  </div>
-                </div>
+            {/* Visual & Camera Controls (100% Zero-AI) */}
+            <div className="p-4 space-y-4 max-h-[620px] overflow-y-auto">
+              <h3 className="text-sm font-bold text-slate-100">
+                Cámara, Plataformas y Esferas (Sin IA)
+              </h3>
 
-                {Array.from({ length: totalSlicesCount }).map((_, idx) => {
-                  const spec = okfProject.sliceSpecs?.[idx];
-                  const isReady = vState.bgReadySlices?.[idx];
-                  return (
-                    <div
-                      key={idx}
-                      className={`p-3.5 rounded-xl border transition-all space-y-2 ${
-                        isReady
-                          ? "bg-emerald-950/20 border-emerald-500/40"
-                          : "bg-slate-950/60 border-slate-800"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <button
-                          onClick={() => {
-                            if (spec)
-                              visualizerRef.current?.seekTo(spec.startTime);
-                          }}
-                          className="text-left text-xs font-bold text-slate-100 hover:text-purple-300 transition-colors cursor-pointer"
-                        >
-                          {totalSlicesCount === 1
-                            ? `Escenario Panorámico Único · ${okfProject.metadata.title}`
-                            : spec?.title || `Segmento ${idx + 1}`}
-                        </button>
-                        <span
-                          className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
-                            isReady
-                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                              : "bg-slate-800 text-slate-400"
-                          }`}
-                        >
-                          {isReady
-                            ? "✒️ SVG Alineado 1:1"
-                            : "📐 Pendiente"}
-                        </span>
-                      </div>
-
-                      {spec && (
-                        <>
-                          <div className="flex flex-wrap items-center gap-2 text-[11px] text-sky-300 font-mono">
-                            <span>
-                              ⏱{" "}
-                              {totalSlicesCount === 1
-                                ? `0s – ${okfProject.metadata.durationSeconds}s`
-                                : `${spec.startTime}s – ${spec.endTime}s`}
-                            </span>
-                            <span>· {spec.musicalSection}</span>
-                            {spec.dynamicsAndTempo && (
-                              <span>· {spec.dynamicsAndTempo}</span>
-                            )}
-                          </div>
-                          <p className="text-xs text-slate-300">
-                            {spec.didacticNote}
-                          </p>
-                          <div className="bg-slate-900/90 border border-slate-800 rounded-lg p-2 text-[11px] text-slate-400 font-mono leading-relaxed">
-                            <span className="text-purple-400 font-semibold">
-                              Arquitectura SVG del Trayecto:{" "}
-                            </span>
-                            {spec.imagePrompt}
-                          </div>
-                        </>
-                      )}
-
-                      <div className="flex flex-wrap items-center gap-2 pt-1">
-                        <button
-                          onClick={() =>
-                            visualizerRef.current?.downloadSliceLayout(idx)
-                          }
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-medium cursor-pointer transition-colors"
-                          title="Descargar el archivo .SVG vectorial detallado de este tramo con puentes y trayectos exactos"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          <span>Descargar SVG Exacto</span>
-                        </button>
-
-                        {spec?.imagePrompt && (
-                          <button
-                            onClick={() =>
-                              copyToClipboard(
-                                spec.imagePrompt,
-                                `slice-prompt-${idx}`,
-                              )
-                            }
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium cursor-pointer transition-colors"
-                          >
-                            {copiedId === `slice-prompt-${idx}` ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                <span className="text-emerald-300">
-                                  Copiado
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3.5 h-3.5" />
-                                <span>Copiar Indicación</span>
-                              </>
-                            )}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+              {/* Zoom */}
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-xs font-medium text-slate-400 w-28">
+                  Zoom ({vState.zoom.toFixed(2)}x)
+                </span>
+                <input
+                  type="range"
+                  min="0.25"
+                  max="1.25"
+                  step="0.05"
+                  value={vState.zoom}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    visualizerRef.current?.setZoom(val);
+                    setVState((prev) => ({ ...prev, zoom: val }));
+                  }}
+                  className="flex-1 accent-purple-500"
+                />
               </div>
-            )}
 
-            {/* Tab 3: Visual & Camera Controls (100% Zero-AI) */}
-            {activeTab === "controls" && (
-              <div className="p-4 space-y-4 max-h-[620px] overflow-y-auto">
-                <h3 className="text-sm font-bold text-slate-100">
-                  Cámara, Plataformas y Esferas (Sin IA)
-                </h3>
-
-                {/* Zoom */}
-                <div className="flex justify-between items-center gap-3">
-                  <span className="text-xs font-medium text-slate-400 w-28">
-                    Zoom ({vState.zoom.toFixed(2)}x)
-                  </span>
-                  <input
-                    type="range"
-                    min="0.25"
-                    max="1.25"
-                    step="0.05"
-                    value={vState.zoom}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      visualizerRef.current?.setZoom(val);
-                      setVState((prev) => ({ ...prev, zoom: val }));
-                    }}
-                    className="flex-1 accent-purple-500"
-                  />
-                </div>
-
-                {/* Platform Opacity */}
-                <div className="flex justify-between items-center gap-3">
-                  <span className="text-xs font-medium text-slate-400 w-28">
-                    Opacidad Plataformas (
-                    {Math.round(vState.platformOpacity * 100)}%)
-                  </span>
-                  <input
-                    type="range"
-                    min="0.0"
-                    max="1.0"
-                    step="0.05"
-                    value={vState.platformOpacity}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      visualizerRef.current?.setPlatformOpacity(val);
-                      setVState((prev) => ({
-                        ...prev,
-                        platformOpacity: val,
-                      }));
-                    }}
-                    className="flex-1 accent-purple-500"
-                  />
-                </div>
-
-                {/* Vertical Offset */}
-                <div className="flex justify-between items-center gap-3">
-                  <span className="text-xs font-medium text-slate-400 w-28">
-                    Ajuste Vertical ({vState.bgOffsetY}px)
-                  </span>
-                  <input
-                    type="range"
-                    min="-1000"
-                    max="1000"
-                    step="10"
-                    value={vState.bgOffsetY}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      visualizerRef.current?.setBgOffsetY(val);
-                      setVState((prev) => ({ ...prev, bgOffsetY: val }));
-                    }}
-                    className="flex-1 accent-purple-500"
-                  />
-                </div>
-
-                {/* Camera Smoothness */}
-                <div className="flex justify-between items-center gap-3">
-                  <span className="text-xs font-medium text-slate-400 w-28">
-                    Suavidad Cámara ({Math.round(vState.cameraSmoothness * 100)}
-                    %)
-                  </span>
-                  <input
-                    type="range"
-                    min="0.0"
-                    max="0.98"
-                    step="0.02"
-                    value={vState.cameraSmoothness}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      visualizerRef.current?.setCameraSmoothness(val);
-                      setVState((prev) => ({
-                        ...prev,
-                        cameraSmoothness: val,
-                      }));
-                    }}
-                    className="flex-1 accent-purple-500"
-                  />
-                </div>
-
-                {/* Mosaic Slices Count */}
-                <div className="flex justify-between items-center gap-3">
-                  <span className="text-xs font-medium text-slate-400 w-28">
-                    Nº Segmentos ({totalSlicesCount})
-                  </span>
-                  <input
-                    type="range"
-                    min="1"
-                    max="24"
-                    step="1"
-                    value={totalSlicesCount}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value, 10);
-                      visualizerRef.current?.setMosaicSlices(val);
-                    }}
-                    className="flex-1 accent-purple-500"
-                  />
-                </div>
-
-                {/* Main Sphere Config */}
-                <div className="pt-3 border-t border-slate-800 space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-purple-300 uppercase">
-                      Esfera Principal
-                    </span>
-                    <label className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 cursor-pointer">
-                      Subir SVG / PNG
-                      <input
-                        type="file"
-                        accept=".svg,image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          if (e.target.files?.[0]) {
-                            handleSphereGraphicUpload(
-                              "main",
-                              e.target.files[0],
-                            );
-                          }
-                          e.target.value = "";
-                        }}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <select
-                      value={vState.ballShape}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        visualizerRef.current?.setBallConfig({ shape: val });
-                        setVState((prev) => ({ ...prev, ballShape: val }));
-                      }}
-                      className="text-xs bg-slate-800 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700"
-                    >
-                      <option value="custom-svg">
-                        Icono SVG / Imagen del JSON
-                      </option>
-                      <option value="circle">Círculo</option>
-                      <option value="square">Cuadrado</option>
-                      <option value="hexagon">Hexágono</option>
-                      <option value="star">Estrella</option>
-                      <option value="music-note">Nota Musical</option>
-                    </select>
-
-                    <select
-                      value={vState.ballEffect}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        visualizerRef.current?.setBallConfig({ effect: val });
-                        setVState((prev) => ({ ...prev, ballEffect: val }));
-                      }}
-                      className="text-xs bg-slate-800 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700"
-                    >
-                      <option value="glow">Brillo y Estela</option>
-                      <option value="outline">Borde Minimalista</option>
-                      <option value="none">Sin Efecto</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Auxiliary Spheres (Melody & Bass) */}
-                <div className="pt-3 border-t border-slate-800 space-y-3">
-                  <span className="text-xs font-bold text-purple-300 uppercase block">
-                    Esferas Auxiliares (Melodía y Bajo)
-                  </span>
-
-                  {(["melody", "bass"] as const).map((track) => (
-                    <div
-                      key={track}
-                      className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-slate-200">
-                          {track === "melody"
-                            ? "🎵 Pista Melodía (Agudos)"
-                            : "🎸 Pista Bajo (Graves)"}
-                        </span>
-                        <label className="text-[10px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 cursor-pointer">
-                          Subir SVG / PNG
-                          <input
-                            type="file"
-                            accept=".svg,image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              if (e.target.files?.[0]) {
-                                handleSphereGraphicUpload(
-                                  track,
-                                  e.target.files[0],
-                                );
-                              }
-                              e.target.value = "";
-                            }}
-                          />
-                        </label>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={
-                            vState.extraTracksConfig[track]?.shape || "circle"
-                          }
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            visualizerRef.current?.setExtraTrackConfig(track, {
-                              shape: val,
-                            });
-                            setVState((prev) => ({
-                              ...prev,
-                              extraTracksConfig: {
-                                ...prev.extraTracksConfig,
-                                [track]: {
-                                  ...prev.extraTracksConfig[track],
-                                  shape: val,
-                                },
-                              },
-                            }));
-                          }}
-                          className="flex-1 text-xs bg-slate-800 text-slate-200 px-2 py-1 rounded border border-slate-700"
-                        >
-                          <option value="custom-svg">SVG / Imagen</option>
-                          <option value="circle">Círculo</option>
-                          <option value="square">Cuadrado</option>
-                          <option value="hexagon">Hexágono</option>
-                          <option value="star">Estrella</option>
-                          <option value="music-note">Nota Musical</option>
-                        </select>
-
-                        <input
-                          type="color"
-                          value={
-                            vState.extraTracksConfig[track]?.color || "#ffffff"
-                          }
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            visualizerRef.current?.setExtraTrackConfig(track, {
-                              color: val,
-                            });
-                            setVState((prev) => ({
-                              ...prev,
-                              extraTracksConfig: {
-                                ...prev.extraTracksConfig,
-                                [track]: {
-                                  ...prev.extraTracksConfig[track],
-                                  color: val,
-                                },
-                              },
-                            }));
-                          }}
-                          className="w-7 h-7 rounded bg-transparent cursor-pointer"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {/* Platform Opacity */}
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-xs font-medium text-slate-400 w-28">
+                  Opacidad Plataformas (
+                  {Math.round(vState.platformOpacity * 100)}%)
+                </span>
+                <input
+                  type="range"
+                  min="0.0"
+                  max="1.0"
+                  step="0.05"
+                  value={vState.platformOpacity}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    visualizerRef.current?.setPlatformOpacity(val);
+                    setVState((prev) => ({
+                      ...prev,
+                      platformOpacity: val,
+                    }));
+                  }}
+                  className="flex-1 accent-purple-500"
+                />
               </div>
-            )}
 
-            {/* Tab 4: OKF Master Prompt & Schema Info */}
-            {activeTab === "okf-prompt" && (
-              <div className="p-4 space-y-3 max-h-[620px] overflow-y-auto">
+              {/* Vertical Offset */}
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-xs font-medium text-slate-400 w-28">
+                  Ajuste Vertical ({vState.bgOffsetY}px)
+                </span>
+                <input
+                  type="range"
+                  min="-1000"
+                  max="1000"
+                  step="10"
+                  value={vState.bgOffsetY}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    visualizerRef.current?.setBgOffsetY(val);
+                    setVState((prev) => ({ ...prev, bgOffsetY: val }));
+                  }}
+                  className="flex-1 accent-purple-500"
+                />
+              </div>
+
+              {/* Camera Smoothness */}
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-xs font-medium text-slate-400 w-28">
+                  Suavidad Cámara ({Math.round(vState.cameraSmoothness * 100)}
+                  %)
+                </span>
+                <input
+                  type="range"
+                  min="0.0"
+                  max="0.98"
+                  step="0.02"
+                  value={vState.cameraSmoothness}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    visualizerRef.current?.setCameraSmoothness(val);
+                    setVState((prev) => ({
+                      ...prev,
+                      cameraSmoothness: val,
+                    }));
+                  }}
+                  className="flex-1 accent-purple-500"
+                />
+              </div>
+
+              {/* Mosaic Slices Count */}
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-xs font-medium text-slate-400 w-28">
+                  Nº Segmentos ({totalSlicesCount})
+                </span>
+                <input
+                  type="range"
+                  min="1"
+                  max="24"
+                  step="1"
+                  value={totalSlicesCount}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    visualizerRef.current?.setMosaicSlices(val);
+                  }}
+                  className="flex-1 accent-purple-500"
+                />
+              </div>
+
+              {/* Main Sphere Config */}
+              <div className="pt-3 border-t border-slate-800 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-slate-100">
-                    Prompt Maestro OKF (Generar JSON Externamente)
-                  </h3>
-                  <button
-                    onClick={() =>
-                      copyToClipboard(OKF_MASTER_PROMPT_SNIPPET, "master-okf")
-                    }
-                    className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-                  >
-                    {copiedId === "master-okf" ? (
-                      <>
-                        <Check className="w-3.5 h-3.5" />
-                        <span>¡Copiado!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Copiar Prompt OKF</span>
-                      </>
-                    )}
-                  </button>
+                  <span className="text-xs font-bold text-purple-300 uppercase">
+                    Esfera Principal
+                  </span>
+                  <label className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 cursor-pointer">
+                    Subir SVG / PNG
+                    <input
+                      type="file"
+                      accept=".svg,image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          handleSphereGraphicUpload("main", e.target.files[0]);
+                        }
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
                 </div>
 
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Copien este prompt en cualquier asistente externo (NotebookLM,
-                  Gemini, Claude, ChatGPT) adjuntando su archivo de audio para
-                  generar un único{" "}
-                  <strong className="text-white">
-                    archivo .JSON con todos los SVGs ya incluidos dentro
-                  </strong>{" "}
-                  (escenografías vectoriales alineadas con los trayectos y
-                  cursores sin zoom tipo pulse), y péguenlo aquí con el botón{" "}
-                  <strong className="text-sky-300">«Pegar JSON»</strong>.
-                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <select
+                    value={vState.ballShape}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      visualizerRef.current?.setBallConfig({ shape: val });
+                      setVState((prev) => ({ ...prev, ballShape: val }));
+                    }}
+                    className="text-xs bg-slate-800 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700"
+                  >
+                    <option value="custom-svg">
+                      Icono SVG / Imagen del JSON
+                    </option>
+                    <option value="circle">Círculo</option>
+                    <option value="square">Cuadrado</option>
+                    <option value="hexagon">Hexágono</option>
+                    <option value="star">Estrella</option>
+                    <option value="music-note">Nota Musical</option>
+                  </select>
 
-                <pre className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 font-mono whitespace-pre-wrap leading-relaxed select-all">
-                  {OKF_MASTER_PROMPT_SNIPPET}
-                </pre>
+                  <select
+                    value={vState.ballEffect}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      visualizerRef.current?.setBallConfig({ effect: val });
+                      setVState((prev) => ({ ...prev, ballEffect: val }));
+                    }}
+                    className="text-xs bg-slate-800 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-700"
+                  >
+                    <option value="glow">Brillo y Estela</option>
+                    <option value="outline">Borde Minimalista</option>
+                    <option value="none">Sin Efecto</option>
+                  </select>
+                </div>
               </div>
-            )}
+
+              {/* Auxiliary Spheres (Melody & Bass) */}
+              <div className="pt-3 border-t border-slate-800 space-y-3">
+                <span className="text-xs font-bold text-purple-300 uppercase block">
+                  Esferas Auxiliares (Melodía y Bajo)
+                </span>
+
+                {(["melody", "bass"] as const).map((track) => (
+                  <div
+                    key={track}
+                    className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-200">
+                        {track === "melody"
+                          ? "🎵 Pista Melodía (Agudos)"
+                          : "🎸 Pista Bajo (Graves)"}
+                      </span>
+                      <label className="text-[10px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 cursor-pointer">
+                        Subir SVG / PNG
+                        <input
+                          type="file"
+                          accept=".svg,image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) {
+                              handleSphereGraphicUpload(
+                                track,
+                                e.target.files[0],
+                              );
+                            }
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={
+                          vState.extraTracksConfig[track]?.shape || "circle"
+                        }
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          visualizerRef.current?.setExtraTrackConfig(track, {
+                            shape: val,
+                          });
+                          setVState((prev) => ({
+                            ...prev,
+                            extraTracksConfig: {
+                              ...prev.extraTracksConfig,
+                              [track]: {
+                                ...prev.extraTracksConfig[track],
+                                shape: val,
+                              },
+                            },
+                          }));
+                        }}
+                        className="flex-1 text-xs bg-slate-800 text-slate-200 px-2 py-1 rounded border border-slate-700"
+                      >
+                        <option value="custom-svg">SVG / Imagen</option>
+                        <option value="circle">Círculo</option>
+                        <option value="square">Cuadrado</option>
+                        <option value="hexagon">Hexágono</option>
+                        <option value="star">Estrella</option>
+                        <option value="music-note">Nota Musical</option>
+                      </select>
+
+                      <input
+                        type="color"
+                        value={
+                          vState.extraTracksConfig[track]?.color || "#ffffff"
+                        }
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          visualizerRef.current?.setExtraTrackConfig(track, {
+                            color: val,
+                          });
+                          setVState((prev) => ({
+                            ...prev,
+                            extraTracksConfig: {
+                              ...prev.extraTracksConfig,
+                              [track]: {
+                                ...prev.extraTracksConfig[track],
+                                color: val,
+                              },
+                            },
+                          }));
+                        }}
+                        className="w-7 h-7 rounded bg-transparent cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
