@@ -3141,24 +3141,33 @@ export const AudioVisualizer = forwardRef<
         angle: exactAngle,
       };
 
-      // Camera Math: Lock horizontal X directly to ballPos.x for zero horizontal phase lag, while smoothing vertical Y
-      if (!cameraPosRef.current || isPaused) {
-        cameraPosRef.current = { x: ballPos.x, y: ballPos.y };
+      // Camera Math: Lock horizontal X directly to ballPos.x for zero horizontal phase lag,
+      // while cameraSmoothnessRef (0% to 100%) controls both vertical jump isolation (steady horizon vs locked to sphere) and temporal inertia
+      const smooth = Math.min(
+        1.0,
+        Math.max(0, cameraSmoothnessRef.current ?? 0.82),
+      );
+      const steadyHorizonY = -45;
+      const verticalFollow = Math.pow(1.0 - smooth, 1.55);
+      const desiredCamY =
+        steadyHorizonY + (ballPos.y - steadyHorizonY) * verticalFollow;
+
+      if (!cameraPosRef.current) {
+        cameraPosRef.current = { x: ballPos.x, y: desiredCamY };
       } else {
         const distSq =
           (ballPos.x - cameraPosRef.current.x) ** 2 +
-          (ballPos.y - cameraPosRef.current.y) ** 2;
-        if (distSq > 1000000) {
-          cameraPosRef.current = { x: ballPos.x, y: ballPos.y };
+          (desiredCamY - cameraPosRef.current.y) ** 2;
+        if (distSq > 1500000) {
+          cameraPosRef.current = { x: ballPos.x, y: desiredCamY };
         } else {
-          const smooth = Math.min(
-            0.99,
-            Math.max(0, cameraSmoothnessRef.current || 0),
-          );
-          const tY = Math.pow(1.0 - smooth, 1.5) * 0.28;
+          const tY = isPaused
+            ? 0.28
+            : 0.008 + Math.pow(1.0 - smooth, 2.1) * 0.992;
 
           cameraPosRef.current.x = ballPos.x;
-          cameraPosRef.current.y += (ballPos.y - cameraPosRef.current.y) * tY;
+          cameraPosRef.current.y +=
+            (desiredCamY - cameraPosRef.current.y) * tY;
         }
       }
 
@@ -3171,7 +3180,7 @@ export const AudioVisualizer = forwardRef<
       ctx.save();
       ctx.translate(targetCx, targetCy);
 
-      // Wide, smooth dynamic camera zoom regulated by userZoomRef (base zoom) and zoomVariationRef (intensity of zoom changes: 0% to 150%)
+      // Wide, smooth dynamic camera zoom regulated by userZoomRef (base zoom), zoomVariationRef (0% to 150%), and cameraSmoothnessRef (0% to 100%)
       const rawZoomFactor = Math.max(0.28, Math.min(2.2, ballPos.zoom || 1.0));
       const dynamicScale = Math.pow(
         rawZoomFactor,
@@ -3184,13 +3193,9 @@ export const AudioVisualizer = forwardRef<
       if (cameraZoomRef.current === null) {
         cameraZoomRef.current = targetZoom;
       } else {
-        const smoothZ = Math.min(
-          0.99,
-          Math.max(0, cameraSmoothnessRef.current || 0.82),
-        );
         const alphaZ = isPaused
-          ? 0.22
-          : Math.max(0.028, Math.pow(1.0 - smoothZ, 1.15) * 0.16);
+          ? 0.25
+          : 0.004 + Math.pow(1.0 - smooth, 2.2) * 0.996;
         cameraZoomRef.current +=
           (targetZoom - cameraZoomRef.current) * alphaZ;
       }

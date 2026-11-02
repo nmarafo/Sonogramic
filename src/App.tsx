@@ -1034,14 +1034,14 @@ export default function App() {
 
               {/* Camera Smoothness */}
               <div className="flex justify-between items-center gap-3">
-                <span className="text-xs font-medium text-slate-400 w-28">
+                <span className="text-xs font-medium text-slate-400 w-36">
                   Suavidad Cámara ({Math.round(vState.cameraSmoothness * 100)}
                   %)
                 </span>
                 <input
                   type="range"
                   min="0.0"
-                  max="0.98"
+                  max="1.0"
                   step="0.02"
                   value={vState.cameraSmoothness}
                   onChange={(e) => {
@@ -1052,6 +1052,7 @@ export default function App() {
                       cameraSmoothness: val,
                     }));
                   }}
+                  title="0% = la cámara sigue rígidamente cada salto vertical de la esfera; 100% = cámara estabilizada en el horizonte panorámico y transiciones de zoom ultra suaves"
                   className="flex-1 accent-purple-500"
                 />
               </div>
