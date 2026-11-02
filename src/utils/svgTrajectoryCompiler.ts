@@ -1,4 +1,4 @@
-import { OkfMusicogramaMetadata, OkfSliceSpec } from "../types/okf";
+import type { OkfMusicogramaMetadata, OkfSliceSpec } from "../types/okf";
 
 export interface TrajectoryCompilerInput {
   sliceIndex: number;
@@ -157,7 +157,12 @@ const extractAndNamespaceCustomSvg = (
   worldHeight: number,
 ): string => {
   if (!rawSvg || !rawSvg.trim().startsWith("<svg")) return "";
-  if (rawSvg.includes('data-sonogramic-aligned="true"')) return "";
+  if (rawSvg.includes('data-sonogramic-aligned="true"')) {
+    const backdropMatch = rawSvg.match(
+      /<!-- OKF_CUSTOM_BACKDROP_START -->([\s\S]*?)<!-- OKF_CUSTOM_BACKDROP_END -->/,
+    );
+    return backdropMatch ? backdropMatch[1].trim() : "";
+  }
 
   const viewBoxMatch = rawSvg.match(/viewBox=["']([^"']+)["']/i);
   const viewBox = viewBoxMatch ? viewBoxMatch[1] : "0 0 1024 1024";
@@ -702,7 +707,7 @@ export const compileDetailedSliceSvg = (
 
   <!-- 1. Sky & Custom OKF Backdrop -->
   <rect x="${sliceMinX.toFixed(1)}" y="${worldMinY}" width="${sliceWidth.toFixed(1)}" height="${worldHeight}" fill="url(#${pfx}_skyGrad)"/>
-  ${customBackdrop}
+  ${customBackdrop ? `<!-- OKF_CUSTOM_BACKDROP_START -->${customBackdrop}<!-- OKF_CUSTOM_BACKDROP_END -->` : ""}
 
   <!-- 2. Contoured Horizon & Mid-ground Scenic Ridges -->
   <path d="${farPts}" fill="url(#${pfx}_farHillGrad)"/>

@@ -143,6 +143,7 @@ export interface OkfMusicogramaProject {
       positions: { x: number; y: number; angle: number; zoom?: number }[];
       platforms: { x: number; y: number; w: number; h: number; angle: number }[];
     }[];
+    bgSvgs?: string[];
     bgImagesBase64?: string[];
   };
 }

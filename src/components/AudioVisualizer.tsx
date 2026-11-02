@@ -791,7 +791,20 @@ export const AudioVisualizer = forwardRef<
         new Array(slicesCount).fill(null);
 
       let hasSavedBg = false;
-      if (d.bgImagesBase64 && d.bgImagesBase64.length > 0) {
+      if (d.bgSvgs && d.bgSvgs.length > 0) {
+        compiledSliceSvgsRef.current = [...d.bgSvgs];
+        d.bgSvgs.forEach((svgStr: string, index: number) => {
+          if (!svgStr || index >= slicesCount) return;
+          const blobUrl = svgStringToBlobUrl(svgStr);
+          if (blobUrl) {
+            hasSavedBg = true;
+            const img = new Image();
+            img.onload = () => updateState();
+            img.src = blobUrl;
+            newBgImages[index] = img;
+          }
+        });
+      } else if (d.bgImagesBase64 && d.bgImagesBase64.length > 0) {
         d.bgImagesBase64.forEach((b64: string, index: number) => {
           if (!b64 || index >= slicesCount) return;
           hasSavedBg = true;
@@ -1750,6 +1763,7 @@ export const AudioVisualizer = forwardRef<
       }
 
       const masterSvgXml =
+        !forceRebuild &&
         okfProjectRef.current?.config?.masterSceneSvg &&
         okfProjectRef.current.config.masterSceneSvg.includes(
           'data-sonogramic-aligned="true"',
@@ -1764,6 +1778,10 @@ export const AudioVisualizer = forwardRef<
             );
 
       compiledSliceSvgsRef.current = [masterSvgXml];
+      if (okfProjectRef.current?.config) {
+        okfProjectRef.current.config.masterSceneSvg = masterSvgXml;
+        okfProjectRef.current.config.svgMode = "single";
+      }
 
       if (forceRebuild || !data.bgImages[0]) {
         const blobUrl = svgStringToBlobUrl(masterSvgXml);
@@ -1800,8 +1818,17 @@ export const AudioVisualizer = forwardRef<
         bassColor,
       };
 
-      const svgXml = compileDetailedSliceSvg(input);
+      const svgXml =
+        !forceRebuild &&
+        spec?.backgroundSvg &&
+        spec.backgroundSvg.includes('data-sonogramic-aligned="true"')
+          ? spec.backgroundSvg
+          : compileDetailedSliceSvg(input);
       compiledList[i] = svgXml;
+      if (spec) {
+        spec.backgroundSvg = svgXml;
+        spec.generatedByAgent = true;
+      }
 
       if (forceRebuild || !data.bgImages[i]) {
         const blobUrl = svgStringToBlobUrl(svgXml);
@@ -1814,6 +1841,9 @@ export const AudioVisualizer = forwardRef<
       }
     }
     compiledSliceSvgsRef.current = compiledList;
+    if (okfProjectRef.current?.config) {
+      okfProjectRef.current.config.svgMode = "segments";
+    }
   };
 
   // Algorithmic local Reinhard Color Transfer to harmonize adjacent slices (Zero AI)
@@ -2271,36 +2301,20 @@ export const AudioVisualizer = forwardRef<
       const d = analysisDataRef.current;
       if (!d) return null;
 
-      const bgImagesBase64: string[] = [];
-      if (d.bgImages) {
-        for (const img of d.bgImages) {
-          if (!img || !isMediaReady(img)) {
-            bgImagesBase64.push("");
-            continue;
-          }
-          const c = document.createElement("canvas");
-          const w =
-            (img as HTMLVideoElement).videoWidth ||
-            (img as HTMLImageElement).naturalWidth ||
-            1024;
-          const h =
-            (img as HTMLVideoElement).videoHeight ||
-            (img as HTMLImageElement).naturalHeight ||
-            1024;
-          c.width = w;
-          c.height = h;
-          const cx = c.getContext("2d");
-          if (cx) {
-            cx.drawImage(img as any, 0, 0, w, h);
-            bgImagesBase64.push(c.toDataURL("image/jpeg", 0.82));
-          } else {
-            bgImagesBase64.push("");
-          }
-        }
-      }
+      const slicesCount = d.bgImages?.length || 6;
+      const isSingleSvg = slicesCount === 1;
+      const baseSpecs = okfProject?.sliceSpecs || sliceSpecsRef.current || [];
+      const exportedSliceSpecs = baseSpecs.map((spec, idx) => ({
+        ...spec,
+        generatedByAgent: true,
+        backgroundSvg:
+          (!isSingleSvg && compiledSliceSvgsRef.current[idx]) ||
+          spec.backgroundSvg ||
+          "",
+      }));
 
       return {
-        okfVersion: okfProject?.okfVersion || "1.3.0",
+        okfVersion: "1.4.0",
         metadata: okfProject?.metadata || {
           title: audioFile?.name || "Musicograma Sonogramic",
           composer: "Autor Desconocido",
@@ -2310,7 +2324,7 @@ export const AudioVisualizer = forwardRef<
           environmentConcept: environmentConceptRef.current,
         },
         guideSteps: okfProject?.guideSteps || [],
-        sliceSpecs: okfProject?.sliceSpecs || [],
+        sliceSpecs: exportedSliceSpecs,
         musicalStructure: okfProject?.musicalStructure,
         config: {
           ballConfig: ballConfigRef.current,
@@ -2320,7 +2334,11 @@ export const AudioVisualizer = forwardRef<
           zoom: userZoomRef.current,
           platformOpacity: platformOpacityRef.current,
           bgOffsetY: bgOffsetYRef.current,
-          mosaicSlices: d.bgImages?.length || 6,
+          mosaicSlices: slicesCount,
+          svgMode: isSingleSvg ? "single" : "segments",
+          ...(isSingleSvg && compiledSliceSvgsRef.current[0]
+            ? { masterSceneSvg: compiledSliceSvgsRef.current[0] }
+            : {}),
         },
         data: {
           positions: d.positions.map((p) => ({
@@ -2328,14 +2346,14 @@ export const AudioVisualizer = forwardRef<
             y: Math.round(p.y * 10) / 10,
             angle: parseFloat(p.angle.toFixed(4)),
             isImpact: p.isImpact,
-            zoom: p.zoom ? parseFloat(p.zoom.toFixed(3)) : 1.0,
+            zoom: 1.0,
           })),
           platforms: d.platforms,
           extraTracks: d.extraTracks,
           duration: d.duration,
           frames: d.frames,
           bounds: d.bounds,
-          bgImagesBase64,
+          bgSvgs: [...compiledSliceSvgsRef.current],
         },
       };
     },
