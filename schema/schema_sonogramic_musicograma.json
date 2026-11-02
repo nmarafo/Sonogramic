@@ -7,7 +7,6 @@
   "required": [
     "okfVersion",
     "metadata",
-    "guideSteps",
     "sliceSpecs",
     "config"
   ],

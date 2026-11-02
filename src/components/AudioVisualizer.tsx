@@ -13,6 +13,8 @@ import {
   LayoutGrid,
   Sparkles,
   RotateCcw,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { OkfMusicogramaProject, OkfSliceSpec } from "../types/okf";
 import {
@@ -54,6 +56,10 @@ export interface AudioVisualizerHandle {
 interface AudioVisualizerProps {
   audioFile: File | null;
   okfProject: OkfMusicogramaProject | null;
+  hideSvgButtons?: boolean;
+  hidePlaybackBar?: boolean;
+  onToggleSvgButtons?: () => void;
+  onTogglePlaybackBar?: () => void;
   onStateChange: (state: {
     isPlaying: boolean;
     isRecording: boolean;
@@ -192,7 +198,19 @@ const isMediaReady = (media: any) => {
 export const AudioVisualizer = forwardRef<
   AudioVisualizerHandle,
   AudioVisualizerProps
->(({ audioFile, okfProject, onStateChange }, ref) => {
+>(
+  (
+    {
+      audioFile,
+      okfProject,
+      hideSvgButtons = false,
+      hidePlaybackBar = false,
+      onToggleSvgButtons,
+      onTogglePlaybackBar,
+      onStateChange,
+    },
+    ref,
+  ) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLInputElement>(null);
@@ -2684,7 +2702,6 @@ export const AudioVisualizer = forwardRef<
           emotions: emotionsRef.current,
           environmentConcept: environmentConceptRef.current,
         },
-        guideSteps: okfProject?.guideSteps || [],
         sliceSpecs: exportedSliceSpecs,
         musicalStructure: okfProject?.musicalStructure,
         config: {
@@ -3426,12 +3443,24 @@ export const AudioVisualizer = forwardRef<
   renderFrameRef.current = renderFrame;
 
   return (
-    <div className="relative w-full aspect-video bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
+    <div className="relative group/player w-full aspect-video bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
       <canvas
         ref={canvasRef}
         width={1920}
         height={1080}
-        className="w-full h-full object-cover"
+        onClick={() => {
+          if (hidePlaybackBar) {
+            isPlaying ? pause() : play();
+          }
+        }}
+        title={
+          hidePlaybackBar
+            ? isPlaying
+              ? "Clic para pausar"
+              : "Clic para reproducir"
+            : undefined
+        }
+        className={`w-full h-full object-cover ${hidePlaybackBar ? "cursor-pointer" : ""}`}
       />
 
       <audio
@@ -3464,6 +3493,54 @@ export const AudioVisualizer = forwardRef<
         }}
       />
 
+      {/* Quick Overlay Visibility Toggles on Canvas Hover */}
+      {(onToggleSvgButtons || onTogglePlaybackBar) && (
+        <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 opacity-0 group-hover/player:opacity-100 transition-opacity duration-200">
+          {onToggleSvgButtons && (
+            <button
+              onClick={onToggleSvgButtons}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-slate-900 text-slate-200 border border-slate-700/80 backdrop-blur-md text-[11px] font-medium cursor-pointer shadow-lg"
+              title={
+                hideSvgButtons
+                  ? "Mostrar botones de tramos SVG en el reproductor"
+                  : "Ocultar botones de tramos SVG en el reproductor"
+              }
+            >
+              {hideSvgButtons ? (
+                <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <EyeOff className="w-3.5 h-3.5 text-slate-400" />
+              )}
+              <span>
+                {hideSvgButtons ? "Mostrar Botones SVG" : "Ocultar Botones SVG"}
+              </span>
+            </button>
+          )}
+          {onTogglePlaybackBar && (
+            <button
+              onClick={onTogglePlaybackBar}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-slate-900 text-slate-200 border border-slate-700/80 backdrop-blur-md text-[11px] font-medium cursor-pointer shadow-lg"
+              title={
+                hidePlaybackBar
+                  ? "Mostrar barra de reproducción"
+                  : "Ocultar barra de reproducción (clic en el lienzo para reproducir/pausar)"
+              }
+            >
+              {hidePlaybackBar ? (
+                <Eye className="w-3.5 h-3.5 text-sky-400" />
+              ) : (
+                <EyeOff className="w-3.5 h-3.5 text-slate-400" />
+              )}
+              <span>
+                {hidePlaybackBar
+                  ? "Mostrar Barra Reproducción"
+                  : "Ocultar Barra Reproducción"}
+              </span>
+            </button>
+          )}
+        </div>
+      )}
+
       {isRecording && (
         <div className="absolute top-5 right-5 flex items-center space-x-2 bg-red-950/85 border border-red-500/50 px-4 py-2 rounded-full backdrop-blur-md shadow-lg">
           <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
@@ -3473,10 +3550,20 @@ export const AudioVisualizer = forwardRef<
         </div>
       )}
 
-      <div className="absolute bottom-0 left-0 right-0 px-6 pb-5 pt-12 bg-gradient-to-t from-slate-950 via-slate-950/85 to-transparent flex flex-col gap-2 opacity-95 hover:opacity-100 transition-opacity duration-200">
+      <div
+        className={
+          (hideSvgButtons || slicesInfo.count === 0) && hidePlaybackBar
+            ? "hidden"
+            : "absolute bottom-0 left-0 right-0 px-6 pb-5 pt-12 bg-gradient-to-t from-slate-950 via-slate-950/85 to-transparent flex flex-col gap-2 opacity-95 hover:opacity-100 transition-opacity duration-200"
+        }
+      >
         {/* Slices Timeline Overlay */}
         {slicesInfo.count > 0 && (
-          <div className="w-full flex h-9 gap-1 mb-1">
+          <div
+            className={
+              hideSvgButtons ? "hidden" : "w-full flex h-9 gap-1 mb-1"
+            }
+          >
             {Array.from({ length: slicesInfo.count }).map((_, i) => {
               const isReady = slicesInfo.ready[i];
               const spec = sliceSpecsRef.current[i];
@@ -3540,7 +3627,11 @@ export const AudioVisualizer = forwardRef<
         )}
 
         {/* Playback Controls */}
-        <div className="flex items-center gap-3 w-full">
+        <div
+          className={
+            hidePlaybackBar ? "hidden" : "flex items-center gap-3 w-full"
+          }
+        >
           <button
             onClick={() => (isPlaying ? pause() : play())}
             disabled={isAnalyzing}

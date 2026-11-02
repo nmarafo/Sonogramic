@@ -6,17 +6,16 @@ import {
   Music,
   Save,
   FileJson,
-  Image as ImageIcon,
-  CheckCircle2,
   Copy,
   Check,
   LayoutGrid,
-  Play,
   Palette,
   BookOpen,
   Film,
   Layers,
   ClipboardPaste,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   AudioVisualizer,
@@ -68,32 +67,6 @@ ESTRUCTURA JSON OFICIAL A DEVOLVER (UN ÚNICO BLOQUE JSON CON TODOS LOS SVGs INC
     "emotions": ["Emoción 1", "Emoción 2", "Emoción 3"],
     "environmentConcept": "Descripción de la escenografía vectorial continua cuyos puentes, arcos y relieves coinciden exactamente con los trayectos de las esferas."
   },
-  "guideSteps": [
-    {
-      "step": 1,
-      "title": "Cargar el Archivo de Audio en Sonogramic",
-      "phase": "preparacion",
-      "instruction": "Suban el archivo de audio para sincronizar la física con la onda sonora real.",
-      "didacticTip": "Todos los SVGs de fondo y de las esferas ya están incluidos dentro de este mismo archivo .JSON.",
-      "targetAction": "upload_audio"
-    },
-    {
-      "step": 2,
-      "title": "Inspeccionar los SVGs Detallados Alineados con los Trayectos",
-      "phase": "imagenes",
-      "instruction": "Comprueben en el lienzo cómo cada plataforma, rampa, puente, pilar y curva parabólica del SVG coincide exactamente con el recorrido de las esferas.",
-      "didacticTip": "Desde la pestaña 'SVGs' pueden alternar en un clic entre 'N SVGs por Sección' o '1 SVG Panorámico Único'.",
-      "targetAction": "preview_playback"
-    },
-    {
-      "step": 3,
-      "title": "Capturar la Reproducción Fluida (Sin Zooms Tipo Pulse) y Descargar el Vídeo (.webm)",
-      "phase": "grabacion",
-      "instruction": "Pulsen 'Capturar Musicograma Completo (Auto-Vídeo Inicio a Fin)' para grabar el recorrido a 60 FPS con zoom de cámara 100% estable.",
-      "didacticTip": "La opacidad de las cajas de colisión está al 32% para que luzcan los puentes y barandillas dibujados en el propio SVG.",
-      "targetAction": "record_full_video"
-    }
-  ],
   "sliceSpecs": [
     {
       "index": 0,
@@ -178,15 +151,14 @@ export default function App() {
   const [activeExampleId, setActiveExampleId] = useState<string>(
     EXAMPLE_OKF_PROJECTS[0].id,
   );
-  const [completedSteps, setCompletedSteps] = useState<{
-    [step: number]: boolean;
-  }>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    "guide" | "slices" | "controls" | "okf-prompt"
-  >("guide");
+    "slices" | "controls" | "okf-prompt"
+  >("slices");
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [pastedJsonText, setPastedJsonText] = useState("");
+  const [hideSvgButtons, setHideSvgButtons] = useState(false);
+  const [hidePlaybackBar, setHidePlaybackBar] = useState(false);
 
   const [vState, setVState] = useState<{
     isPlaying: boolean;
@@ -310,10 +282,6 @@ export default function App() {
           inputData.data?.environmentConcept ||
           "Escenario personalizado cargado desde JSON",
       },
-      guideSteps:
-        inputData.guideSteps && inputData.guideSteps.length > 0
-          ? inputData.guideSteps
-          : EXAMPLE_OKF_PROJECTS[0].project.guideSteps,
       sliceSpecs:
         inputData.sliceSpecs && inputData.sliceSpecs.length > 0
           ? inputData.sliceSpecs
@@ -433,7 +401,6 @@ export default function App() {
 
     setOkfProject(normalized);
     setActiveExampleId("custom");
-    setCompletedSteps({});
 
     setVState((prev) => ({
       ...prev,
@@ -592,23 +559,6 @@ export default function App() {
     };
     if (isSvg) reader.readAsText(file);
     else reader.readAsDataURL(file);
-  };
-
-  const executeStepAction = (action?: string) => {
-    if (!action || action === "none") return;
-    if (action === "upload_audio") {
-      audioInputRef.current?.click();
-    } else if (action === "download_layouts") {
-      visualizerRef.current?.downloadAllSliceLayouts();
-    } else if (action === "upload_batch_images") {
-      batchImagesInputRef.current?.click();
-    } else if (action === "preview_playback") {
-      visualizerRef.current?.play();
-    } else if (action === "record_full_video") {
-      visualizerRef.current?.startFullVideoCapture();
-    } else if (action === "export_project_json") {
-      handleProjectExport();
-    }
   };
 
   const readySlicesCount = (vState.bgReadySlices || []).filter(Boolean).length;
@@ -810,6 +760,10 @@ export default function App() {
                 ref={visualizerRef}
                 audioFile={audioFile}
                 okfProject={okfProject}
+                hideSvgButtons={hideSvgButtons}
+                hidePlaybackBar={hidePlaybackBar}
+                onToggleSvgButtons={() => setHideSvgButtons((v) => !v)}
+                onTogglePlaybackBar={() => setHidePlaybackBar((v) => !v)}
                 onStateChange={(newState) =>
                   setVState((prev) => ({ ...prev, ...newState }))
                 }
@@ -818,6 +772,56 @@ export default function App() {
 
             {/* Video Capture & Project Export Bar */}
             <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
+              {/* Visibility Toggles for SVG Buttons & Playback Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-800/80">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  Visibilidad en el Reproductor:
+                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setHideSvgButtons((v) => !v)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
+                      hideSvgButtons
+                        ? "bg-amber-500/15 text-amber-300 border-amber-500/40 hover:bg-amber-500/25"
+                        : "bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700"
+                    }`}
+                    title="Ocultar o mostrar los botones de tramos y descarga SVG en el reproductor"
+                  >
+                    {hideSvgButtons ? (
+                      <Eye className="w-3.5 h-3.5 text-amber-400" />
+                    ) : (
+                      <EyeOff className="w-3.5 h-3.5 text-slate-400" />
+                    )}
+                    <span>
+                      {hideSvgButtons
+                        ? "Mostrar Botones SVG"
+                        : "Ocultar Botones SVG"}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => setHidePlaybackBar((v) => !v)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
+                      hidePlaybackBar
+                        ? "bg-sky-500/15 text-sky-300 border-sky-500/40 hover:bg-sky-500/25"
+                        : "bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700"
+                    }`}
+                    title="Ocultar o mostrar la barra de reproducción inferior (cuando está oculta pueden hacer clic en el lienzo para reproducir/pausar)"
+                  >
+                    {hidePlaybackBar ? (
+                      <Eye className="w-3.5 h-3.5 text-sky-400" />
+                    ) : (
+                      <EyeOff className="w-3.5 h-3.5 text-slate-400" />
+                    )}
+                    <span>
+                      {hidePlaybackBar
+                        ? "Mostrar Barra de Reproducción"
+                        : "Ocultar Barra de Reproducción"}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <button
@@ -865,25 +869,31 @@ export default function App() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={() => visualizerRef.current?.downloadMasterSvg()}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-medium transition-colors cursor-pointer"
-                    title="Descargar 1 único archivo .SVG panorámico con toda la obra y todos los trayectos exactos"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>1 SVG Completo</span>
-                  </button>
+                  {!hideSvgButtons && (
+                    <>
+                      <button
+                        onClick={() =>
+                          visualizerRef.current?.downloadMasterSvg()
+                        }
+                        className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-medium transition-colors cursor-pointer"
+                        title="Descargar 1 único archivo .SVG panorámico con toda la obra y todos los trayectos exactos"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>1 SVG Completo</span>
+                      </button>
 
-                  <button
-                    onClick={() =>
-                      visualizerRef.current?.downloadAllSliceLayouts()
-                    }
-                    className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 rounded-xl text-xs font-medium transition-colors cursor-pointer"
-                    title="Descargar los archivos .SVG detallados con trayectos exactos de todos los segmentos"
-                  >
-                    <LayoutGrid className="w-3.5 h-3.5" />
-                    <span>SVGs por Tramo</span>
-                  </button>
+                      <button
+                        onClick={() =>
+                          visualizerRef.current?.downloadAllSliceLayouts()
+                        }
+                        className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 rounded-xl text-xs font-medium transition-colors cursor-pointer"
+                        title="Descargar los archivos .SVG detallados con trayectos exactos de todos los segmentos"
+                      >
+                        <LayoutGrid className="w-3.5 h-3.5" />
+                        <span>SVGs por Tramo</span>
+                      </button>
+                    </>
+                  )}
 
                   <button
                     onClick={handleProjectExport}
@@ -924,22 +934,10 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Column: Interactive OKF Panel (Guide Steps, Slices & Images, Controls, OKF Prompt) (5 cols) */}
+          {/* Right Column: Interactive OKF Panel (Slices & SVGs, Controls, OKF Prompt) (5 cols) */}
           <div className="lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden flex flex-col shadow-xl">
             {/* Tabs Navigation */}
-            <div className="grid grid-cols-4 border-b border-slate-800 bg-slate-950/60 p-1 gap-1">
-              <button
-                onClick={() => setActiveTab("guide")}
-                className={`py-2 px-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  activeTab === "guide"
-                    ? "bg-purple-600 text-white shadow"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-                }`}
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Pasos ({okfProject.guideSteps?.length || 0})</span>
-              </button>
-
+            <div className="grid grid-cols-3 border-b border-slate-800 bg-slate-950/60 p-1 gap-1">
               <button
                 onClick={() => setActiveTab("slices")}
                 className={`py-2 px-2 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
@@ -979,84 +977,7 @@ export default function App() {
               </button>
             </div>
 
-            {/* Tab 1: Guide Steps from the JSON */}
-            {activeTab === "guide" && (
-              <div className="p-4 space-y-3 max-h-[620px] overflow-y-auto">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-slate-100">
-                    Indicaciones y Pasos del JSON OKF
-                  </h3>
-                  <span className="text-[11px] text-slate-400">
-                    Marquen cada paso al completarlo
-                  </span>
-                </div>
-
-                {(okfProject.guideSteps || []).map((gs) => {
-                  const isDone = !!completedSteps[gs.step];
-                  return (
-                    <div
-                      key={gs.step}
-                      className={`p-3.5 rounded-xl border transition-all ${
-                        isDone
-                          ? "bg-emerald-950/25 border-emerald-500/40"
-                          : "bg-slate-950/60 border-slate-800 hover:border-slate-700"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          checked={isDone}
-                          onChange={(e) =>
-                            setCompletedSteps((prev) => ({
-                              ...prev,
-                              [gs.step]: e.target.checked,
-                            }))
-                          }
-                          className="mt-1 w-4 h-4 rounded border-slate-700 bg-slate-800 text-purple-500 cursor-pointer"
-                        />
-                        <div className="flex-1 space-y-1.5">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-xs font-bold text-slate-100">
-                              Paso {gs.step}: {gs.title}
-                            </span>
-                            <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-slate-800 text-purple-300">
-                              {gs.phase}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-300 leading-relaxed">
-                            {gs.instruction}
-                          </p>
-                          {gs.didacticTip && (
-                            <p className="text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
-                              💡 {gs.didacticTip}
-                            </p>
-                          )}
-                          {gs.targetAction && gs.targetAction !== "none" && (
-                            <div className="pt-1">
-                              <button
-                                onClick={() => {
-                                  executeStepAction(gs.targetAction);
-                                  setCompletedSteps((prev) => ({
-                                    ...prev,
-                                    [gs.step]: true,
-                                  }));
-                                }}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600/25 hover:bg-purple-600/40 text-purple-200 border border-purple-500/40 text-xs font-medium transition-colors cursor-pointer"
-                              >
-                                <Play className="w-3 h-3 fill-current" />
-                                <span>Ejecutar acción del Paso {gs.step}</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Tab 2: Slices & Trajectory-Aligned SVG Management */}
+            {/* Tab 1: Slices & Trajectory-Aligned SVG Management */}
             {activeTab === "slices" && (
               <div className="p-4 space-y-3 max-h-[620px] overflow-y-auto">
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800">

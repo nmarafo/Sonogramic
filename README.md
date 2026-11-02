@@ -78,32 +78,6 @@ ESTRUCTURA JSON OFICIAL A DEVOLVER (UN ÚNICO BLOQUE JSON CON TODOS LOS SVGs INC
     "emotions": ["Emoción 1", "Emoción 2", "Emoción 3"],
     "environmentConcept": "Descripción de la escenografía vectorial continua cuyos puentes, arcos y relieves coinciden exactamente con los trayectos de las esferas."
   },
-  "guideSteps": [
-    {
-      "step": 1,
-      "title": "Cargar el Archivo de Audio en Sonogramic",
-      "phase": "preparacion",
-      "instruction": "Suban el archivo de audio para sincronizar la física con la onda sonora real.",
-      "didacticTip": "Todos los SVGs de fondo y de las esferas ya están incluidos dentro de este mismo archivo .JSON.",
-      "targetAction": "upload_audio"
-    },
-    {
-      "step": 2,
-      "title": "Inspeccionar los SVGs Detallados Alineados con los Trayectos",
-      "phase": "imagenes",
-      "instruction": "Comprueben en el lienzo cómo cada plataforma, rampa, puente, pilar y curva parabólica del SVG coincide exactamente con el recorrido de las esferas.",
-      "didacticTip": "Desde la pestaña 'SVGs' pueden alternar en un clic entre 'N SVGs por Sección' o '1 SVG Panorámico Único'.",
-      "targetAction": "preview_playback"
-    },
-    {
-      "step": 3,
-      "title": "Capturar la Reproducción Fluida (Sin Zooms Tipo Pulse) y Descargar el Vídeo (.webm)",
-      "phase": "grabacion",
-      "instruction": "Pulsen 'Capturar Musicograma Completo (Auto-Vídeo Inicio a Fin)' para grabar el recorrido a 60 FPS con zoom de cámara 100% estable.",
-      "didacticTip": "La opacidad de las cajas de colisión está al 32% para que luzcan los puentes y barandillas dibujados en el propio SVG.",
-      "targetAction": "record_full_video"
-    }
-  ],
   "sliceSpecs": [
     {
       "index": 0,

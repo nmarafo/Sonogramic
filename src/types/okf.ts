@@ -108,7 +108,7 @@ export interface OkfMusicogramaConfig {
 export interface OkfMusicogramaProject {
   okfVersion: string;
   metadata: OkfMusicogramaMetadata;
-  guideSteps: OkfGuideStep[];
+  guideSteps?: OkfGuideStep[];
   sliceSpecs: OkfSliceSpec[];
   config: OkfMusicogramaConfig;
   musicalStructure?: {
