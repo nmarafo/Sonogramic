@@ -486,6 +486,8 @@ export default function App() {
         const text = e.target?.result as string;
         const parsed = JSON.parse(text);
         applyImportedJsonObject(parsed);
+        setShowPasteModal(false);
+        setPastedJsonText("");
       } catch (err) {
         console.error(err);
         alert(
@@ -702,21 +704,12 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => jsonInputRef.current?.click()}
+              onClick={() => setShowPasteModal(true)}
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/35 text-purple-200 border border-purple-500/40 text-xs font-medium transition-all cursor-pointer"
-              title="Cargar archivo .json con las indicaciones, pasos y SVGs integrados del musicograma"
+              title="Cargar un archivo .json desde su equipo o pegar directamente el código JSON generado"
             >
               <FileJson className="w-4 h-4 text-purple-400" />
-              <span>1. Cargar JSON OKF</span>
-            </button>
-
-            <button
-              onClick={() => setShowPasteModal(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition-all cursor-pointer"
-              title="Pegar directamente el código JSON generado con el Prompt Maestro OKF"
-            >
-              <ClipboardPaste className="w-4 h-4 text-sky-400" />
-              <span>Pegar JSON</span>
+              <span>1. Cargar / Pegar JSON</span>
             </button>
 
             <button
@@ -1570,14 +1563,17 @@ export default function App() {
         </footer>
       </div>
 
-      {/* Modal to Paste Raw JSON OKF */}
+      {/* Modal to Load File or Paste Raw JSON OKF */}
       {showPasteModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-white">
-                Pegar JSON OKF del Musicograma
-              </h3>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <FileJson className="w-5 h-5 text-purple-400" />
+                <h3 className="text-base font-bold text-white">
+                  Cargar o Pegar JSON OKF del Musicograma
+                </h3>
+              </div>
               <button
                 onClick={() => setShowPasteModal(false)}
                 className="text-xs text-slate-400 hover:text-white cursor-pointer"
@@ -1585,37 +1581,92 @@ export default function App() {
                 ✕ Cerrar
               </button>
             </div>
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <p className="text-xs text-slate-400">
-                Peguen aquí el bloque JSON generado con el Prompt Maestro OKF
-                (con todos los SVGs incluidos):
-              </p>
+
+            {/* Opción 1: Cargar archivo .JSON desde el equipo */}
+            <div className="bg-slate-950/70 border border-purple-500/30 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <h4 className="text-xs font-bold text-purple-200">
+                  Opción A · Cargar archivo .JSON desde su equipo
+                </h4>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Seleccionen un archivo <code className="text-slate-300">.json</code> guardado en su ordenador (con los SVGs integrados).
+                </p>
+              </div>
               <button
-                onClick={() =>
-                  copyToClipboard(OKF_MASTER_PROMPT_SNIPPET, "modal-master-okf")
-                }
-                className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/35 text-amber-200 border border-amber-500/40 text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer"
+                onClick={() => jsonInputRef.current?.click()}
+                className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-semibold text-white shadow-md shadow-purple-600/20 cursor-pointer transition-all"
               >
-                {copiedId === "modal-master-okf" ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>¡Prompt Copiado!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Copiar Prompt Maestro OKF</span>
-                  </>
-                )}
+                <Upload className="w-4 h-4" />
+                <span>Seleccionar Archivo .JSON</span>
               </button>
             </div>
-            <textarea
-              value={pastedJsonText}
-              onChange={(e) => setPastedJsonText(e.target.value)}
-              placeholder='{\n  "okfVersion": "1.4.0",\n  "metadata": { ... }\n}'
-              className="w-full h-64 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-purple-500"
-            />
-            <div className="flex justify-end gap-2">
+
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-slate-800 w-full" />
+              <span className="bg-slate-900 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                o bien
+              </span>
+              <div className="border-t border-slate-800 w-full" />
+            </div>
+
+            {/* Opción 2: Pegar código JSON directamente */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                  <h4 className="text-xs font-bold text-sky-200">
+                    Opción B · Pegar el código JSON directamente
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    Peguen aquí el bloque JSON devuelto por su asistente tras usar el Prompt Maestro OKF:
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const text = await navigator.clipboard.readText();
+                        if (text) setPastedJsonText(text);
+                      } catch {
+                        // Ignore clipboard permission errors
+                      }
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/35 text-sky-200 border border-sky-500/40 text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <ClipboardPaste className="w-3.5 h-3.5 text-sky-400" />
+                    <span>Pegar del Portapapeles</span>
+                  </button>
+                  <button
+                    onClick={() =>
+                      copyToClipboard(
+                        OKF_MASTER_PROMPT_SNIPPET,
+                        "modal-master-okf",
+                      )
+                    }
+                    className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/35 text-amber-200 border border-amber-500/40 text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {copiedId === "modal-master-okf" ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>¡Prompt Copiado!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Copiar Prompt Maestro OKF</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+              <textarea
+                value={pastedJsonText}
+                onChange={(e) => setPastedJsonText(e.target.value)}
+                placeholder='{\n  "okfVersion": "1.4.0",\n  "metadata": { ... }\n}'
+                className="w-full h-56 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-1">
               <button
                 onClick={() => setShowPasteModal(false)}
                 className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 cursor-pointer"
@@ -1624,9 +1675,10 @@ export default function App() {
               </button>
               <button
                 onClick={handlePasteJsonConfirm}
-                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-semibold text-white cursor-pointer"
+                disabled={!pastedJsonText.trim()}
+                className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-40 text-xs font-semibold text-white cursor-pointer transition-all"
               >
-                Cargar Musicograma
+                Cargar JSON Pegado
               </button>
             </div>
           </div>
