@@ -25,29 +25,33 @@ import {
 import { OkfMusicogramaProject } from "./types/okf";
 import { EXAMPLE_OKF_PROJECTS } from "./data/exampleProjects";
 
-const OKF_MASTER_PROMPT_SNIPPET = `Actúas como un Musicólogo Analista, Pedagogo Musical, Ilustrador Escénico y Arquitecto Oficial del Estándar OKF (v1.3.0) para la aplicación Sonogramic (https://github.com/nmarafo/Sonogramic), creada por Norberto Martín Afonso. Dirígete siempre a las personas usuarias empleando la norma culta de Canarias con el pronombre «ustedes».
+const OKF_MASTER_PROMPT_SNIPPET = `Actúas como un Musicólogo Analista, Pedagogo Musical, Ilustrador Vectorial SVG y Arquitecto Oficial del Estándar OKF (v1.4.0) para la aplicación Sonogramic (https://github.com/nmarafo/Sonogramic), creada por Norberto Martín Afonso. Dirígete siempre a las personas usuarias empleando la norma culta de Canarias con el pronombre «ustedes».
 
 TAREA PRINCIPAL:
 1. Escucha y analiza de principio a fin el ARCHIVO DE AUDIO adjunto.
-2. Genera el objeto JSON válido que siga el esquema oficial de Sonogramic para construir su musicograma interactivo.
-3. PROTOCOLO OKF DE GENERACIÓN AUTOMÁTICA DE BACKGROUNDS (SI TIENES CAPACIDAD DE GENERAR IMÁGENES):
-   - MODO A (Agente con herramienta generadora de imágenes rasterizadas: Imagen 3, DALL-E, subagente image-generator o acceso a archivos):
-     Genera automáticamente las N imágenes panorámicas de fondo (una por cada segmento de "sliceSpecs") ejecutando el "imagePrompt" y la paleta "recommendedPalette" de cada sección, manteniendo continuidad horizontal de izquierda a derecha. Si puedes referenciarlas por URL, ruta local o Data URI ("data:image/...;base64,..."), asígnalas en "sliceSpecs[i].imageUrl" con "generatedByAgent": true. Si estás en un chat conversacional, genera y entrega las N imágenes numeradas ("01_segmento_1.png" ... "0N_segmento_N.png") junto con el JSON.
-   - MODO B (Fondo Panorámico Autocontenido en el JSON mediante "backgroundSvg"):
-     En todos los casos, genera e incrusta directamente dentro de cada "sliceSpecs[i].backgroundSvg" un escenario panorámico ilustrado multicapa "<svg viewBox='0 0 1024 1024' width='1024' height='1024' xmlns='http://www.w3.org/2000/svg'>...</svg>" (con cielo en <linearGradient>, iluminación, motivos temáticos y planos de paisaje continuos cuyo horizonte en x=1024 del segmento i coincida con x=0 del segmento i+1) y marca "generatedByAgent": true. Así, al importar el JSON en Sonogramic, el musicograma tendrá todos sus backgrounds listos automáticamente sin usar IA en la aplicación web.
+2. Genera el objeto JSON válido que siga el esquema oficial de Sonogramic para construir su musicograma interactivo con escenografía 100 % vectorial SVG alineada matemáticamente con los trayectos.
+3. PROTOCOLO OKF DE ESCENOGRAFÍA VECTORIAL SVG ALINEADA CON LOS TRAYECTOS (CERO MAPAS DE BITS):
+   - Queda descartada la generación de imágenes de mapa de bits (.png / .jpg / DALL-E / Imagen 3). Toda la escenografía se construye mediante uno o varios SVGs vectoriales detallados cuyos puentes, barandillas, rampas, pilares, arcos y pentagramas coinciden exactamente con las coordenadas físicas de las plataformas y trayectorias de las esferas.
+   - OPCIÓN A (Varios SVGs detallados por sección musical, "config.svgMode": "segments"):
+     En cada "sliceSpecs[i]", define "svgTheme" ("baroque", "cavern", "canarias", "carnival" o "symphonic"), "recommendedPalette" (4 colores hex), "trajectoryWaypoints" (puntos [{ "time": seg, "y": px }] en el rango [-280, +220] que esculpen el contorno exacto del tramo) y "backgroundSvg" con un escenario vectorial "<svg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'>...</svg>" multicapa sin pulsos de escala. El compilador vectorial de Sonogramic ensamblará cada SVG en coordenadas exactas del mundo (viewBox="\${sliceMinX} -960 \${sliceWidth} 1600") haciendo coincidir al milímetro cada puente, rampa, arco parabólico y pilar con el trayecto real de las 3 esferas.
+   - OPCIÓN B (Un único SVG panorámico maestro para toda la obra, "config.svgMode": "single", "config.mosaicSlices": 1):
+     Unifica toda la partitura visual desde 0 s hasta "durationSeconds" en un solo SVG panorámico continuo donde todos los tramos y puentes forman una única ilustración vectorial continua.
+4. PROHIBICIÓN ESTRICTA DE ZOOMS TIPO PULSE:
+   - NO incluyas efectos de zoom rítmico ("zooms tipo pulse") en los pulsos musicales ni animaciones "<animate attributeName='r'>" o "<animateTransform type='scale'>" en los cursores SVG. El zoom de cámara se mantiene 100 % estable y las animaciones SVG de los cursores deben usar únicamente rotación suave o traslación interna sin alterar su escala.
 
 INSTRUCCIONES DE ANÁLISIS DEL AUDIO ADJUNTO:
 1. Detecta la duración total exacta del audio en segundos ("durationSeconds"), el tempo real en pulsos por minuto ("bpm"), el compás ("timeSignature") y la estructura formal por secciones ("musicalForm").
-2. Extrae el carácter emocional ("emotions"), la instrumentación o letra clave, y diseña un concepto de escenario visual continuo ("environmentConcept") acorde a la música.
-3. Divide la pista de audio en entre 4 y 8 segmentos horizontales ("sliceSpecs") que coincidan con los cambios reales de sección musical en el audio (indicando "startTime" y "endTime" exactos en segundos).
-4. Para cada segmento en "sliceSpecs", incluye:
+2. Extrae el carácter emocional ("emotions"), la instrumentación o letra clave, y diseña un concepto de escenario vectorial continuo ("environmentConcept") acorde a la música.
+3. Divide la pista de audio en entre 4 y 8 secciones ("sliceSpecs") que coincidan con los cambios reales de sección musical en el audio (indicando "startTime" y "endTime" exactos en segundos).
+4. Para cada sección en "sliceSpecs", incluye:
    - "didacticNote": qué ocurre musicalmente en ese tramo del audio (entradas instrumentales, cambios de dinámica f/p, ritmo, melodía).
-   - "imagePrompt": instrucciones visuales detalladas para crear la ilustración de fondo de ese segmento respetando las plataformas por donde rueda la esfera y manteniendo bordes izquierdo y derecho continuos.
+   - "svgTheme": tema arquitectónico vectorial ("baroque", "cavern", "canarias", "carnival" o "symphonic").
+   - "trajectoryWaypoints": array de puntos [{ "time": seg, "y": px }] (con y entre -280 y +220, iniciando y terminando en y: 0 en las fronteras de sección) para guiar con precisión matemática el dibujo de puentes y rampas.
+   - "imagePrompt": especificación técnica de los elementos vectoriales SVG (puentes, arcos, ornamentos y relieve) que coinciden con el trayecto de las esferas en este segmento.
    - "recommendedPalette": array de 4 colores hexadecimales acordes a la atmósfera de la sección.
    - "generatedByAgent": true.
-   - "imageUrl": (si generaste imagen rasterizada con herramienta externa y dispones de su ruta/URL/Data URI).
-   - "backgroundSvg": código XML "<svg viewBox='0 0 1024 1024' width='1024' height='1024' xmlns='http://www.w3.org/2000/svg'>...</svg>" con la ilustración panorámica multicapa de fondo para ese segmento.
-5. En "config", incluye dentro de "ballConfig" (esfera principal), "extraTracksConfig.melody" (registro agudo) y "extraTracksConfig.bass" (registro grave) la propiedad "shape": "custom-svg" con un código XML "<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>...</svg>" completo y animado (<animate>, <animateTransform repeatCount='indefinite'> o @keyframes CSS) que represente visualmente la temática del audio.
+   - "backgroundSvg": código XML "<svg viewBox='0 0 1024 1024' width='1024' height='1024' xmlns='http://www.w3.org/2000/svg'>...</svg>" con la atmósfera vectorial multicapa del segmento.
+5. En "config", incluye dentro de "ballConfig" (esfera principal), "extraTracksConfig.melody" (registro agudo) y "extraTracksConfig.bass" (registro grave) la propiedad "shape": "custom-svg" con un código XML "<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>...</svg>" detallado y sin animaciones de escala tipo pulse.
 6. En "musicalStructure.sections", detalla cada sección temporal del audio desde el segundo 0 hasta el final con su foco ("melody", "bass" o "tutti"), energía relativa (0.5 a 3.5), subdivisión rítmica (0.5, 1 o 2), contorno melódico ("ascending", "descending", "arch", "valley", "wave", "staccato_jumps", "sustained_ramp") y estilo de plataforma ("major", "minor", "accelerator", "friction").`;
 
 export default function App() {
@@ -212,21 +216,25 @@ export default function App() {
                 endTime: Math.round((idx + 1) * segDur),
                 musicalSection: `Sección ${idx + 1}`,
                 didacticNote:
-                  "Introduzcan la imagen correspondiente a este tramo del musicograma.",
+                  "Escenografía vectorial SVG compilada y alineada matemáticamente con los trayectos de este tramo.",
                 imagePrompt:
-                  "Ilustración panorámica 2D alineada con los rectángulos blancos de la plantilla guía de plataformas.",
+                  "Escenario vectorial SVG multicapa con puentes, barandillas, arcos de soporte y curvas de trayectoria exactas en coordenadas del mundo.",
               };
             }),
       config: {
         zoom: inputData.config?.zoom ?? 0.85,
-        platformOpacity: inputData.config?.platformOpacity ?? 0.85,
+        platformOpacity: inputData.config?.platformOpacity ?? 0.35,
         bgOffsetY: inputData.config?.bgOffsetY ?? 0,
         cameraSmoothness: inputData.config?.cameraSmoothness ?? 0.82,
+        svgMode: inputData.config?.svgMode || "segments",
+        masterSceneSvg: inputData.config?.masterSceneSvg,
         mosaicSlices:
-          inputData.config?.mosaicSlices ||
-          inputData.sliceSpecs?.length ||
-          inputData.data?.bgImagesBase64?.length ||
-          6,
+          inputData.config?.svgMode === "single"
+            ? 1
+            : inputData.config?.mosaicSlices ||
+              inputData.sliceSpecs?.length ||
+              inputData.data?.bgImagesBase64?.length ||
+              6,
         userKeywords: inputData.config?.userKeywords || "",
         ballConfig: {
           shape:
@@ -517,7 +525,7 @@ export default function App() {
       <input
         ref={batchImagesInputRef}
         type="file"
-        accept="image/*,video/*"
+        accept=".svg,image/svg+xml,image/*,video/*"
         multiple
         className="hidden"
         onChange={(e) => {
@@ -541,13 +549,15 @@ export default function App() {
                   Sonogramic OKF
                 </h1>
                 <span className="text-[11px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                  100 % Sin IA en App · OKF v1.3.0
+                  100 % Vectorial SVG · Sin Zoom Pulse · OKF v1.4.0
                 </span>
               </div>
               <p className="text-slate-400 text-xs md:text-sm mt-0.5">
-                Reproductor y capturador de vídeo de musicogramas a partir de{" "}
-                <strong className="text-slate-200">JSON OKF + Imágenes</strong>{" "}
-                (y audio opcional).
+                Reproductor y capturador de vídeo de musicogramas con{" "}
+                <strong className="text-slate-200">
+                  Escenografía Vectorial SVG Alineada 1:1 con los Trayectos
+                </strong>{" "}
+                (1 o varios SVGs).
               </p>
             </div>
           </div>
@@ -575,11 +585,11 @@ export default function App() {
             <button
               onClick={() => batchImagesInputRef.current?.click()}
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-200 border border-emerald-500/40 text-xs font-medium transition-all cursor-pointer"
-              title="Introducir varias imágenes a la vez para los segmentos del musicograma"
+              title="Subir uno o varios archivos .svg personalizados para los tramos del musicograma"
             >
               <ImageIcon className="w-4 h-4 text-emerald-400" />
               <span>
-                2. Subir Imágenes ({readySlicesCount}/{totalSlicesCount})
+                2. Subir SVGs ({readySlicesCount}/{totalSlicesCount})
               </span>
             </button>
 
@@ -735,22 +745,31 @@ export default function App() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => visualizerRef.current?.downloadMasterSvg()}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-medium transition-colors cursor-pointer"
+                    title="Descargar 1 único archivo .SVG panorámico con toda la obra y todos los trayectos exactos"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>1 SVG Completo</span>
+                  </button>
+
                   <button
                     onClick={() =>
                       visualizerRef.current?.downloadAllSliceLayouts()
                     }
                     className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 rounded-xl text-xs font-medium transition-colors cursor-pointer"
-                    title="Descargar las plantillas guía (rectángulos blancos sobre negro) de todos los segmentos"
+                    title="Descargar los archivos .SVG detallados con trayectos exactos de todos los segmentos"
                   >
                     <LayoutGrid className="w-3.5 h-3.5" />
-                    <span>Plantillas Guía</span>
+                    <span>SVGs por Tramo</span>
                   </button>
 
                   <button
                     onClick={handleProjectExport}
                     className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-medium transition-colors cursor-pointer"
-                    title="Guardar proyecto completo (.json) con imágenes y configuración"
+                    title="Guardar proyecto completo (.json) con escenografía SVG y configuración"
                   >
                     <Save className="w-3.5 h-3.5 text-purple-400" />
                     <span>Guardar Proyecto (.json)</span>
@@ -812,7 +831,7 @@ export default function App() {
               >
                 <Layers className="w-3.5 h-3.5" />
                 <span>
-                  Imágenes ({readySlicesCount}/{totalSlicesCount})
+                  SVGs ({readySlicesCount}/{totalSlicesCount})
                 </span>
               </button>
 
@@ -918,63 +937,57 @@ export default function App() {
               </div>
             )}
 
-            {/* Tab 2: Slices & Image Management */}
+            {/* Tab 2: Slices & Trajectory-Aligned SVG Management */}
             {activeTab === "slices" && (
               <div className="p-4 space-y-3 max-h-[620px] overflow-y-auto">
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800">
                   <div>
                     <h3 className="text-sm font-bold text-slate-100">
-                      Segmentos e Imágenes del Musicograma
+                      Escenografía Vectorial SVG Alineada con los Trayectos
                     </h3>
                     <p className="text-[11px] text-slate-400">
-                      Los fondos generados por el agente mediante el OKF se
-                      cargan automáticamente; también pueden subir sus propias
-                      imágenes.
+                      Cada puente, rampa, barandilla y arco en el SVG coincide
+                      exactamente (1:1) con el trayecto físico de las esferas.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {okfProject.sliceSpecs?.some(
-                      (s) => s.backgroundSvg || s.imageUrl,
-                    ) && (
-                      <button
-                        onClick={() =>
-                          visualizerRef.current?.restoreOkfBackgrounds()
-                        }
-                        className="px-2.5 py-1.5 rounded-lg bg-purple-600/25 hover:bg-purple-600/40 text-purple-200 border border-purple-500/40 text-xs font-medium cursor-pointer"
-                        title="Restaurar los escenarios de fondo generados por el agente en el archivo JSON OKF"
-                      >
-                        ✨ Restaurar Fondos OKF
-                      </button>
-                    )}
+                    <button
+                      onClick={() =>
+                        visualizerRef.current?.setMosaicSlices(
+                          totalSlicesCount === 1
+                            ? okfProject.sliceSpecs?.length || 6
+                            : 1,
+                        )
+                      }
+                      className="px-2.5 py-1.5 rounded-lg bg-sky-600/25 hover:bg-sky-600/40 text-sky-200 border border-sky-500/40 text-xs font-medium cursor-pointer"
+                      title="Alternar entre 1 único SVG panorámico para toda la obra o múltiples SVGs por sección musical"
+                    >
+                      {totalSlicesCount === 1
+                        ? `Cambiar a ${okfProject.sliceSpecs?.length || 6} SVGs por Sección`
+                        : "Unificar en 1 SVG Panorámico"}
+                    </button>
+                    <button
+                      onClick={() =>
+                        visualizerRef.current?.restoreOkfBackgrounds()
+                      }
+                      className="px-2.5 py-1.5 rounded-lg bg-purple-600/25 hover:bg-purple-600/40 text-purple-200 border border-purple-500/40 text-xs font-medium cursor-pointer"
+                      title="Recompilar y restaurar los SVGs vectoriales alineados con los trayectos del JSON OKF"
+                    >
+                      ✨ Recompilar SVGs OKF
+                    </button>
                     <button
                       onClick={() => batchImagesInputRef.current?.click()}
                       className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                     >
                       <Upload className="w-3.5 h-3.5" />
-                      <span>Subir Lote</span>
+                      <span>Subir SVGs</span>
                     </button>
-                    {readySlicesCount >= 2 && (
-                      <button
-                        onClick={() =>
-                          visualizerRef.current?.harmonizeAllSlicesColors()
-                        }
-                        className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700 text-xs font-medium cursor-pointer"
-                        title="Armonizar algorítmicamente el color entre bordes de segmentos contiguos (Sin IA)"
-                      >
-                        🎨 Armonizar Bordes
-                      </button>
-                    )}
                   </div>
                 </div>
 
                 {Array.from({ length: totalSlicesCount }).map((_, idx) => {
                   const spec = okfProject.sliceSpecs?.[idx];
                   const isReady = vState.bgReadySlices?.[idx];
-                  const hasAgentBg = !!(
-                    spec?.generatedByAgent ||
-                    spec?.backgroundSvg ||
-                    spec?.imageUrl
-                  );
                   return (
                     <div
                       key={idx}
@@ -992,7 +1005,9 @@ export default function App() {
                           }}
                           className="text-left text-xs font-bold text-slate-100 hover:text-purple-300 transition-colors cursor-pointer"
                         >
-                          {spec?.title || `Segmento ${idx + 1}`}
+                          {totalSlicesCount === 1
+                            ? `Escenario Panorámico Único · ${okfProject.metadata.title}`
+                            : spec?.title || `Segmento ${idx + 1}`}
                         </button>
                         <span
                           className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
@@ -1002,10 +1017,8 @@ export default function App() {
                           }`}
                         >
                           {isReady
-                            ? hasAgentBg
-                              ? "✨ Fondo OKF Activo"
-                              : "✅ Imagen activa"
-                            : "📐 Sin imagen"}
+                            ? "✒️ SVG Alineado 1:1"
+                            : "📐 Pendiente"}
                         </span>
                       </div>
 
@@ -1013,7 +1026,10 @@ export default function App() {
                         <>
                           <div className="flex flex-wrap items-center gap-2 text-[11px] text-sky-300 font-mono">
                             <span>
-                              ⏱ {spec.startTime}s – {spec.endTime}s
+                              ⏱{" "}
+                              {totalSlicesCount === 1
+                                ? `0s – ${okfProject.metadata.durationSeconds}s`
+                                : `${spec.startTime}s – ${spec.endTime}s`}
                             </span>
                             <span>· {spec.musicalSection}</span>
                             {spec.dynamicsAndTempo && (
@@ -1025,7 +1041,7 @@ export default function App() {
                           </p>
                           <div className="bg-slate-900/90 border border-slate-800 rounded-lg p-2 text-[11px] text-slate-400 font-mono leading-relaxed">
                             <span className="text-purple-400 font-semibold">
-                              Indicación de imagen:{" "}
+                              Arquitectura SVG del Trayecto:{" "}
                             </span>
                             {spec.imagePrompt}
                           </div>
@@ -1036,11 +1052,11 @@ export default function App() {
                         <label className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-purple-600/25 hover:bg-purple-600/40 text-purple-200 border border-purple-500/40 text-xs font-medium cursor-pointer transition-colors">
                           <Upload className="w-3.5 h-3.5" />
                           <span>
-                            {isReady ? "Cambiar Imagen" : "Subir Imagen"}
+                            {isReady ? "Sustituir SVG" : "Subir SVG"}
                           </span>
                           <input
                             type="file"
-                            accept="image/*,video/*"
+                            accept=".svg,image/svg+xml,image/*,video/*"
                             className="hidden"
                             onChange={(e) => {
                               if (e.target.files?.[0]) {
@@ -1059,10 +1075,10 @@ export default function App() {
                             visualizerRef.current?.downloadSliceLayout(idx)
                           }
                           className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-medium cursor-pointer transition-colors"
-                          title="Descargar plantilla de plataformas blancas sobre fondo negro de este segmento"
+                          title="Descargar el archivo .SVG vectorial detallado de este tramo con puentes y trayectos exactos"
                         >
-                          <LayoutGrid className="w-3.5 h-3.5" />
-                          <span>Descargar Plantilla</span>
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Descargar SVG Exacto</span>
                         </button>
 
                         {spec?.imagePrompt && (

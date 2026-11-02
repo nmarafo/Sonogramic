@@ -1,89 +1,102 @@
 {
-  "okfVersion": "1.3.0",
+  "$schema": "https://raw.githubusercontent.com/nmarafo/Sonogramic/main/schema/schema_sonogramic_musicograma.json",
+  "okfVersion": "1.4.0",
+  "appCompatible": "sonogramic-player-v2",
   "metadata": {
-    "id": "urn:okf:musicograma:vivaldi-primavera-allegro:2026",
-    "title": "La Primavera (Allegro, RV 269) — Las Cuatro Estaciones",
+    "id": "urn:okf:musicograma:vivaldi-primavera-allegro-rv269-215s:2026",
+    "title": "La Primavera (I. Allegro, Op. 8 n.º 1, RV 269) — Las Cuatro Estaciones",
     "composer": "Antonio Vivaldi (1678–1741)",
-    "musicalPeriodOrGenre": "Barroco · Concierto Programático para Violín y Cuerdas",
-    "educationalStage": "Educación Primaria, ESO y Bachillerato",
-    "durationSeconds": 90,
-    "bpm": 112,
+    "musicalPeriodOrGenre": "Barroco Italiano · Concierto Programático para Violín Solista, Cuerdas y Bajo Continuo",
+    "educationalStage": "Educación Primaria (3.er Ciclo), ESO y Bachillerato",
+    "durationSeconds": 215,
+    "bpm": 110,
     "timeSignature": "4/4",
-    "musicalForm": "Forma Ritornello (A1 - A2 [Eco] - B [Canto de las aves] - A3 - C [Los arroyos y céfiros] - D [La tormenta] - A4)",
+    "musicalForm": "Forma Ritornello Barroca Completa: Ritornello I (A1 f/p + A2 f/p) - Episodio B (Canto de las aves) - Ritornello II - Episodio C (Fuentes y céfiros) - Ritornello III - Episodio D (Tempestad: truenos y relámpagos) - Ritornello IV (Do# menor) - Episodio E (Regreso de las aves) - Ritornello V - Episodio F (Solo lírico) - Gran Ritornello Final (Forte/Eco y Coda)",
     "pedagogicalObjectives": [
-      "Reconocer auditiva y visualmente el tema principal (Ritornello) y sus dinámicas en eco (forte / piano).",
-      "Identificar los episodios descriptivos del soneto de Vivaldi: el canto de los pájaros (trinos en violines solistas), el murmullo de las fuentes y el estallido de la tormenta de primavera.",
-      "Relacionar la altura y energía de los saltos de la esfera con la articulación barroca y la intensidad orquestal."
+      "Identificar auditiva y visualmente la estructura en forma Ritornello del primer movimiento íntegro (215 s) de «La Primavera» de Vivaldi y el principio barroco de contraste dinámico en terraza (forte / piano en eco).",
+      "Relacionar cada uno de los episodios descriptivos del soneto programático de Vivaldi (el canto festivo de las aves, el murmullo de las fuentes con el céfiro, la tempestad de truenos y relámpagos, y el retorno del canto ornitológico) con los recursos técnicos e instrumentales de la cuerda barroca (trinos, semicorcheas ligadas, trémolos en fusas y escalas ascendentes).",
+      "Analizar la interacción tímbrica y registral entre el tutti orquestal (esfera principal), los tres violines concertantes en el registro agudo (melodía) y el grupo de violonchelo, contrabajo y clave en el bajo continuo (graves), observando su ausencia deliberada (tasto solo / senza basso) en el episodio del canto de los pájaros."
     ],
     "emotions": [
-      "Jubiloso",
-      "Luminoso",
-      "Pastoral",
-      "Contrastante (Eco f/p)",
-      "Tempestuoso"
+      "Júbilo primaveral y luminosidad",
+      "Contraste dinámico en eco (forte / piano)",
+      "Alegría ornitológica y ligereza pastoral",
+      "Serenidad cristalina y fluidez acuática",
+      "Dramatismo tempestuoso y tensión eléctrica",
+      "Renacimiento luminoso y plenitud triunfal"
     ],
-    "environmentConcept": "Paisaje barroco primaveral que evoluciona desde praderas floridas iluminadas por el sol matutino, pasando por copas de árboles con aves canoras y arroyos cristalinos, hasta una súbita tormenta eléctrica primaveral que vuelve a despejarse."
+    "environmentConcept": "Fresco panorámico continuo en seis lienzos por una campiña y jardín barroco italiano que evoluciona a lo largo del movimiento: (1) praderas floridas y balaustradas de mármol dorado bajo el sol matutino del Ritornello inicial; (2) copas de cerezos y almendros en flor con aves canoras durante el primer episodio solista; (3) jardín acuático de fuentes escalonadas y acueductos cristalinos mecidos por la brisa del Céfiro; (4) cielo de tormenta índigo y violeta rasgado por relámpagos dorados sobre terrazas de basalto; (5) despertar de la luz entre nubes que se disipan con las aves retomando el vuelo; y (6) gran valle soleado coronado por un arcoíris en la apoteosis del Ritornello final.",
+    "author": "Norberto Martín Afonso",
+    "license": "CC BY-SA 4.0 / GNU AGPL-3.0-or-later"
   },
   "guideSteps": [
     {
       "step": 1,
-      "title": "Cargar el Audio de 'La Primavera' (o Usar Síntesis Rítmica)",
+      "title": "Paso 1: Cargar el Archivo de Audio Completo (03:35 / 215 s) de «La Primavera»",
       "phase": "preparacion",
-      "instruction": "Suban su archivo de audio (.mp3, .wav u .ogg) del primer movimiento (Allegro) de 'La Primavera' de Vivaldi para sincronizar los botes con la grabación real, o reproduzcan directamente la estructura preconfigurada en este JSON.",
-      "didacticTip": "Si utilizan una grabación de unos 90 segundos (hasta el regreso del Ritornello tras la tormenta), los 6 segmentos encajarán de forma exacta con cada episodio del poema.",
+      "instruction": "Suban en Sonogramic el mismo archivo de audio de 215 segundos (03:35) del primer movimiento (Allegro) de «La Primavera» de Antonio Vivaldi para que el motor Web Audio API sincronice cada rebote parabólico con la grabación real.",
+      "didacticTip": "Antes de proyectar el musicograma, lean con el alumnado los versos del soneto de Vivaldi correspondientes a cada uno de los seis segmentos para anticipar qué instrumentos y articulaciones escucharemos.",
       "targetAction": "upload_audio"
     },
     {
       "step": 2,
-      "title": "Descargar las Plantillas Guía de los 6 Segmentos",
-      "phase": "plantillas",
-      "instruction": "Pulsen 'Descargar Plantillas Guía' o el icono de plantilla en cada tarjeta de segmento para obtener los 6 lienzos de referencia (rectángulos blancos sobre fondo negro).",
-      "didacticTip": "Los rectángulos blancos marcan la superficie exacta por donde rodarán las esferas en cada episodio del concierto.",
-      "targetAction": "download_layouts"
+      "title": "Paso 2: Verificar los SVGs Vectoriales Detallados Alineados 1:1 con los Trayectos",
+      "phase": "imagenes",
+      "instruction": "Comprueben en el lienzo interactivo y en la pestaña «SVGs» que los 6 escenarios vectoriales detallados (o el SVG panorámico único si pulsan «Unificar en 1 SVG Panorámico») hacen coincidir exactamente cada puente de mármol, balaustrada, acueducto, arco y rampa con el trayecto físico de las tres esferas.",
+      "didacticTip": "A diferencia de las antiguas imágenes de mapa de bits, los SVGs se compilan en coordenadas exactas del mundo para que el punto de apoyo de cada esfera coincida al milímetro con el tablero superior de cada puente y rampa.",
+      "targetAction": "preview_playback"
     },
     {
       "step": 3,
-      "title": "Crear o Seleccionar las 6 Imágenes del Recorrido",
-      "phase": "imagenes",
-      "instruction": "Utilicen los prompts incluidos en las tarjetas de los Segmentos 1 a 6 (Ritornello, Canto de las Aves, Arroyos, Tormenta y Regreso de las Aves) para ilustrar o generar fuera de la app las 6 imágenes de fondo.",
-      "didacticTip": "Pueden encargar en el aula que cada equipo cooperativo ilustre uno de los 6 segmentos sobre la plantilla descargada.",
-      "targetAction": "none"
+      "title": "Paso 3: Descargar 1 SVG Panorámico Completo o los 6 SVGs por Tramo",
+      "phase": "plantillas",
+      "instruction": "Pulsen «1 SVG Completo» o «SVGs por Tramo» para descargar los archivos vectoriales .svg con toda la arquitectura de puentes, arcos y curvas parabólicas de «La Primavera» para proyectarlos, editarlos en Inkscape/Illustrator o trabajarlos en el aula.",
+      "didacticTip": "Pueden alternar en cualquier momento entre el modo de 6 SVGs seccionales y 1 único SVG panorámico continuo desde la pestaña «SVGs».",
+      "targetAction": "download_layouts"
     },
     {
       "step": 4,
-      "title": "Introducir las Imágenes en el Musicograma",
-      "phase": "imagenes",
-      "instruction": "Pulsen 'Subir Imágenes en Lote (Segmentos 1..6)' y seleccionen sus 6 imágenes ordenadas, o cárguenlas una a una en cada tarjeta de segmento.",
-      "didacticTip": "Si sus imágenes ya tienen dibujados los caminos sobre las plataformas, reduzcan el deslizador 'Opacidad de Plataformas' a 0.15.",
-      "targetAction": "upload_batch_images"
+      "title": "Paso 4: Explorar los 3 Cursores Vectoriales SVG con Cámara Estable (Sin Zooms Tipo Pulse)",
+      "phase": "esferas",
+      "instruction": "Reproduzcan un fragmento y observen el comportamiento de los tres iconos SVG sobre los puentes vectoriales: el Sol Barroco Veneciano (pulso principal y tutti), el Ruiseñor Dorado en Vuelo (violín solista y trinos agudos) y el Violonchelo y Rosetón de Clave (bajo continuo), con un zoom de cámara 100 % estable y libre de sacudidas rítmicas.",
+      "didacticTip": "Ajusten el deslizador «Opacidad de Plataformas» entre 0.20 y 0.40 para apreciar con total nitidez las balaustradas de mármol, las fuentes y los arcos barrocos del SVG.",
+      "targetAction": "preview_playback"
     },
     {
       "step": 5,
-      "title": "Explorar los Iconos Vectoriales SVG y Previsualizar",
-      "phase": "esferas",
-      "instruction": "Este JSON ya incorpora tres iconos SVG animados sin IA: un Sol Barroco (esfera principal), un Pájaro Dorado (melodía aguda) y un Violonchelo/Clave (bajo continuo). También pueden sustituirlos por cualquier imagen propia.",
-      "didacticTip": "Pidan al alumnado que siga con la vista el Pájaro Dorado durante los trinos agudos del Episodio B.",
+      "title": "Paso 5: Análisis Auditivo por Secciones desde la Pestaña «Imágenes»",
+      "phase": "sincronizacion",
+      "instruction": "Hagan clic sobre cualquiera de las 6 tarjetas de segmento para saltar de inmediato al segundo exacto de cada episodio: Ritornello (0 s), Canto de las aves (33 s), Fuentes (70.5 s), Tempestad (103 s), Regreso de las aves (138 s) y Ritornello Final (176 s).",
+      "didacticTip": "Fíjense con el alumnado en cómo durante el Segmento 2 (00:33 - 01:10.5) el bajo continuo calla en la partitura original («senza cembalo») mientras los tres violines solistas dialogan en el registro sobreagudo.",
       "targetAction": "preview_playback"
     },
     {
       "step": 6,
-      "title": "Capturar la Reproducción y Descargar el Vídeo (.webm)",
+      "title": "Paso 6: Capturar la Reproducción Completa y Descargar el Vídeo HD (.webm)",
       "phase": "grabacion",
-      "instruction": "Pulsen 'Capturar Musicograma Completo (Auto-Vídeo)'. La aplicación grabará la reproducción íntegra desde el segundo 0:00 hasta el final y les devolverá el vídeo en alta definición listo para proyectar en clase.",
-      "didacticTip": "Guarden también el proyecto completo (.json) para conservar sus imágenes y audio integrados en un solo archivo.",
+      "instruction": "Pulsen «Capturar Musicograma Completo (Auto-Vídeo Inicio a Fin)» para que Sonogramic rebobine a 00:00, grabe los 215 segundos a 60 FPS con su audio sincronizado y descargue automáticamente el vídeo final en alta definición.",
+      "didacticTip": "Guarden también el proyecto completo (.json) desde el botón «Guardar» para conservar las imágenes rasterizadas y el audio integrados en un único archivo portable.",
       "targetAction": "record_full_video"
     }
   ],
   "sliceSpecs": [
     {
       "index": 0,
-      "title": "Segmento 1: Ritornello A1 y A2 — «Llegó la Primavera» (Forte / Piano en Eco)",
+      "title": "Segmento 1: Ritornello I (A1 y A2 en Eco) — «Giunt'è la Primavera» (Llegó la Primavera)",
       "startTime": 0,
-      "endTime": 15,
-      "musicalSection": "Ritornello A1 - A2",
-      "dynamicsAndTempo": "f luego p (eco) — Allegro (112 BPM)",
-      "didacticNote": "Tema principal jubiloso en tutti de cuerdas. Observen la repetición inmediata en eco (piano) con saltos más contenidos.",
-      "imagePrompt": "Ilustración panorámica 2D de videojuego artístico: pradera renacentista y barroca bañada por el sol de primavera con flores silvestres y balaustradas de mármol dorado que coinciden exactamente con el borde superior de los rectángulos blancos de la plantilla. Sin obstáculos sobre las plataformas. Bordes laterales suaves y continuos.",
+      "endTime": 33,
+      "musicalSection": "Ritornello I: Frase A1 (f/p) y Frase A2 (f/p)",
+      "dynamicsAndTempo": "f / p (dinámica en terraza barroca) — Allegro luminoso (110 BPM)",
+      "didacticNote": "Del segundo 0 al 33 se presenta el célebre Ritornello en Mi mayor con toda la orquesta de cuerdas y el clave continuo. Se estructura en dos períodos binarios (A1 del 00:01 al 00:15.8 y A2 del 00:15.8 al 00:33): cada frase se expone primero con energía radiante en forte y se repite inmediatamente en piano a modo de eco barroco.",
+      "imagePrompt": "Escenografía vectorial SVG barroca (Segmento 1 de 6): pradera italiana con cipreses, pérgolas, arcos de medio punto y balaustradas de mármol dorado cuyos tableros superiores coinciden exactamente (1:1) con las coordenadas físicas de rebote y deslizamiento del Ritornello I en eco.",
+      "svgTheme": "baroque",
+      "trajectoryWaypoints": [
+        { "time": 0, "y": 0 },
+        { "time": 8, "y": -180 },
+        { "time": 15.8, "y": -60 },
+        { "time": 24.2, "y": -210 },
+        { "time": 33, "y": 0 }
+      ],
       "recommendedPalette": [
         "#065f46",
         "#10b981",
@@ -91,17 +104,25 @@
         "#fef3c7"
       ],
       "generatedByAgent": true,
-      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#065f46\"/><stop offset=\"55%\" stop-color=\"#10b981\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#fbbf24\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_0\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#10b981\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#065f46\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fef3c7\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#065f46\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_0)\"/><circle cx=\"220\" cy=\"210\" r=\"78\" fill=\"#fbbf24\" fill-opacity=\"0.28\"/><circle cx=\"220\" cy=\"210\" r=\"46\" fill=\"#fbbf24\" fill-opacity=\"0.65\"/><g stroke=\"#fef3c7\" stroke-width=\"3\" fill=\"none\" opacity=\"0.55\"><path d=\"M 140 280 Q 170 250 200 280 Q 230 250 260 280\" /><path d=\"M 680 220 Q 710 190 740 220 Q 770 190 800 220\" /></g><g fill=\"#10b981\" fill-opacity=\"0.32\"><ellipse cx=\"260\" cy=\"595\" rx=\"95\" ry=\"65\"/><ellipse cx=\"760\" cy=\"651\" rx=\"110\" ry=\"75\"/></g><path d=\"M 0 620 Q 512 576 1024 681 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_0)\"/><path d=\"M 0 790 Q 512 803 1024 765 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_0)\"/><path d=\"M 0 790 Q 512 803 1024 765\" fill=\"none\" stroke=\"#fbbf24\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+      "backgroundSvg": "<svg viewBox='0 0 1024 1024' width='1024' height='1024' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='sky_s0' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#065f46'/><stop offset='45%' stop-color='#10b981'/><stop offset='80%' stop-color='#fbbf24'/><stop offset='100%' stop-color='#fef3c7'/></linearGradient><linearGradient id='hill_s0' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#10b981'/><stop offset='100%' stop-color='#065f46'/></linearGradient><linearGradient id='terrace_s0' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#fef3c7'/><stop offset='25%' stop-color='#fbbf24'/><stop offset='100%' stop-color='#047857'/></linearGradient><radialGradient id='sun_s0' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='#ffffff'/><stop offset='45%' stop-color='#fef08a'/><stop offset='100%' stop-color='#fbbf24' stop-opacity='0'/></radialGradient></defs><rect width='1024' height='1024' fill='url(#sky_s0)'/><circle cx='240' cy='210' r='160' fill='url(#sun_s0)'/><circle cx='240' cy='210' r='58' fill='#fef3c7' fill-opacity='0.9'/><g stroke='#fef3c7' stroke-width='2' stroke-opacity='0.35' fill='none'><line x1='240' y1='210' x2='520' y2='665'/><line x1='240' y1='210' x2='780' y2='665'/><line x1='240' y1='210' x2='960' y2='520'/></g><path d='M 0 665 Q 260 610 512 645 T 1024 665 L 1024 1024 L 0 1024 Z' fill='url(#hill_s0)' fill-opacity='0.88'/><g fill='#064e3b' fill-opacity='0.85'><path d='M 140 650 C 125 560 135 490 148 450 C 161 490 171 560 156 650 Z'/><path d='M 190 655 C 178 580 185 520 196 485 C 207 520 214 580 202 655 Z'/><path d='M 820 655 C 805 565 815 495 828 455 C 841 495 851 565 836 655 Z'/></g><path d='M 0 760 Q 256 735 512 752 T 1024 760 L 1024 1024 L 0 1024 Z' fill='url(#terrace_s0)'/><g fill='#fef3c7' stroke='#fbbf24' stroke-width='3' opacity='0.85'><rect x='80' y='715' width='360' height='16' rx='6'/><rect x='560' y='725' width='380' height='16' rx='6'/><line x1='110' y1='731' x2='110' y2='760' stroke-width='5'/><line x1='170' y1='731' x2='170' y2='760' stroke-width='5'/><line x1='230' y1='731' x2='230' y2='760' stroke-width='5'/><line x1='290' y1='731' x2='290' y2='760' stroke-width='5'/><line x1='350' y1='731' x2='350' y2='760' stroke-width='5'/><line x1='410' y1='731' x2='410' y2='760' stroke-width='5'/><line x1='600' y1='741' x2='600' y2='765' stroke-width='5'/><line x1='660' y1='741' x2='660' y2='765' stroke-width='5'/><line x1='720' y1='741' x2='720' y2='765' stroke-width='5'/><line x1='780' y1='741' x2='780' y2='765' stroke-width='5'/><line x1='840' y1='741' x2='840' y2='765' stroke-width='5'/><line x1='900' y1='741' x2='900' y2='765' stroke-width='5'/></g><g fill='#fbbf24'><circle cx='150' cy='810' r='7'/><circle cx='310' cy='830' r='6'/><circle cx='490' cy='805' r='8'/><circle cx='680' cy='825' r='7'/><circle cx='890' cy='800' r='6'/></g><path d='M 0 760 Q 256 735 512 752 T 1024 760' fill='none' stroke='#fef3c7' stroke-width='5'/></svg>"
     },
     {
       "index": 1,
-      "title": "Segmento 2: Episodio B — «El Canto Festivo de las Aves»",
-      "startTime": 15,
-      "endTime": 33,
-      "musicalSection": "Episodio Solista 1 (Trinos de violines)",
-      "dynamicsAndTempo": "mf — Tres violines solistas con trinos y notas repetidas",
-      "didacticNote": "El bajo continuo calla casi por completo mientras tres violines solistas imitan el gorjeo y vuelo de los pájaros en el registro agudo.",
-      "imagePrompt": "Ilustración panorámica 2D: copas luminosas de árboles primaverales con ramas floridas de cerezo y puentes de madera clara cuyos bordes superiores coinciden exactamente con los rectángulos blancos de la plantilla. Cielo azul celeste despejado con destellos dorados.",
+      "title": "Segmento 2: Episodio Solista I (B) — «El Canto Festivo de las Aves» (Canto degli uccelli)",
+      "startTime": 33,
+      "endTime": 70.5,
+      "musicalSection": "Episodio Solista I (Tres violines concertantes sin bajo continuo)",
+      "dynamicsAndTempo": "mf / p brillante — Virtuosismo de trinos, mordentes y notas repetidas",
+      "didacticNote": "Entre el segundo 33 (00:33) y el 70.5 (01:10.5) los violonchelos, contrabajos y clave callan por completo. Tres violines solistas dialogan en el registro sobreagudo imitando el canto festivo de los pájaros («E festosetti la salutan gl'augei con lieto canto») mediante trinos prolongados, notas picadas repetidas, arpegios en bariolaje y escalas rápidas.",
+      "imagePrompt": "Escenografía vectorial SVG barroca (Segmento 2 de 6): copas de cerezos y almendros en flor con aves canoras y puentes ligeros de jardín tallados cuyos tableros y arcos parabólicos coinciden exactamente con los saltos de trinos y bariolajes de los tres violines solistas.",
+      "svgTheme": "baroque",
+      "trajectoryWaypoints": [
+        { "time": 33, "y": 0 },
+        { "time": 44, "y": -230 },
+        { "time": 55, "y": -110 },
+        { "time": 63, "y": -250 },
+        { "time": 70.5, "y": 0 }
+      ],
       "recommendedPalette": [
         "#0284c7",
         "#38bdf8",
@@ -109,17 +130,25 @@
         "#fde047"
       ],
       "generatedByAgent": true,
-      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_1\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0284c7\"/><stop offset=\"55%\" stop-color=\"#38bdf8\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#f472b6\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#38bdf8\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#0284c7\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_1\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fde047\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#0284c7\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_1)\"/><circle cx=\"310\" cy=\"180\" r=\"78\" fill=\"#f472b6\" fill-opacity=\"0.28\"/><circle cx=\"310\" cy=\"180\" r=\"46\" fill=\"#f472b6\" fill-opacity=\"0.65\"/><g stroke=\"#fde047\" stroke-width=\"3\" fill=\"none\" opacity=\"0.55\"><path d=\"M 140 280 Q 170 250 200 280 Q 230 250 260 280\" /><path d=\"M 680 220 Q 710 190 740 220 Q 770 190 800 220\" /></g><g fill=\"#38bdf8\" fill-opacity=\"0.32\"><ellipse cx=\"260\" cy=\"656\" rx=\"95\" ry=\"65\"/><ellipse cx=\"760\" cy=\"651\" rx=\"110\" ry=\"75\"/></g><path d=\"M 0 681 Q 512 666 1024 681 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_1)\"/><path d=\"M 0 765 Q 512 715 1024 715 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_1)\"/><path d=\"M 0 765 Q 512 715 1024 715\" fill=\"none\" stroke=\"#f472b6\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+      "backgroundSvg": "<svg viewBox='0 0 1024 1024' width='1024' height='1024' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='sky_s1' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#0284c7'/><stop offset='50%' stop-color='#38bdf8'/><stop offset='85%' stop-color='#f472b6' stop-opacity='0.75'/><stop offset='100%' stop-color='#fde047'/></linearGradient><linearGradient id='hill_s1' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#38bdf8'/><stop offset='100%' stop-color='#0369a1'/></linearGradient><linearGradient id='fore_s1' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#f472b6'/><stop offset='35%' stop-color='#0284c7'/><stop offset='100%' stop-color='#0c4a6e'/></linearGradient></defs><rect width='1024' height='1024' fill='url(#sky_s1)'/><g fill='#f472b6' fill-opacity='0.45'><circle cx='140' cy='160' r='95'/><circle cx='260' cy='130' r='110'/><circle cx='780' cy='150' r='105'/><circle cx='900' cy='190' r='85'/></g><g stroke='#fde047' stroke-width='3.5' fill='none' stroke-linecap='round'><path d='M 210 290 Q 235 260 260 285 Q 285 260 310 290'/><path d='M 420 220 Q 445 190 470 215 Q 495 190 520 220'/><path d='M 640 260 Q 665 230 690 255 Q 715 230 740 260'/><path d='M 810 310 Q 830 285 850 305 Q 870 285 890 310'/></g><g fill='#fde047' fill-opacity='0.8'><circle cx='350' cy='250' r='5'/><circle cx='570' cy='195' r='6'/><circle cx='760' cy='240' r='5'/></g><path d='M 0 665 Q 256 620 512 650 T 1024 665 L 1024 1024 L 0 1024 Z' fill='url(#hill_s1)' fill-opacity='0.88'/><path d='M 0 760 Q 256 730 512 748 T 1024 760 L 1024 1024 L 0 1024 Z' fill='url(#fore_s1)'/><g stroke='#fde047' stroke-width='4' fill='none' opacity='0.85'><path d='M 90 710 Q 270 675 450 710'/><path d='M 560 715 Q 740 680 920 715'/></g><path d='M 0 760 Q 256 730 512 748 T 1024 760' fill='none' stroke='#fde047' stroke-width='5'/></svg>"
     },
     {
       "index": 2,
-      "title": "Segmento 3: Ritornello A3 y Episodio C — «Las Fuentes y el Murmullo del Céfiro»",
-      "startTime": 33,
-      "endTime": 52,
-      "musicalSection": "Ritornello A3 + Episodio 2 (Arroyos)",
-      "dynamicsAndTempo": "p — Semicorcheas ligadas ondulantes en cuerdas",
-      "didacticNote": "Tras un breve recordatorio del tema principal, las cuerdas dibujan ondas suaves en semicorcheas que evocan el correr del agua de las fuentes.",
-      "imagePrompt": "Ilustración panorámica 2D: jardín acuático barroco con fuentes cristalinas, cascadas suaves y acueductos de piedra cubierta de musgo cuyas superficies superiores se alinean perfectamente con los rectángulos blancos de la plantilla.",
+      "title": "Segmento 3: Ritornello II y Episodio II (C) — «Las Fuentes y el Murmullo de los Céfiros»",
+      "startTime": 70.5,
+      "endTime": 103,
+      "musicalSection": "Ritornello II (01:10.5 - 01:18.5) + Episodio II: Fuentes y Céfiros (01:18.5 - 01:43)",
+      "dynamicsAndTempo": "f (Ritornello) -> p dolce (Semicorcheas ligadas ondulantes)",
+      "didacticNote": "En 01:10.5 (70.5 s) reaparece brevemente el Ritornello en forte reafirmando Mi mayor. En 01:18.5 (78.5 s) se inicia el segundo episodio descriptivo («E i fonti allo spirar de' Zeffiretti / Con dolce mormorio scorrono intanto»): los violines tejen un murmullo continuo de semicorcheas ligadas en movimiento ondulante que imita el fluir del agua y la brisa, modulando suavemente hacia la dominante (Si mayor) entre 01:34 y 01:43.",
+      "imagePrompt": "Escenografía vectorial SVG barroca (Segmento 3 de 6): jardín acuático con fuentes escalonadas, cascadas cristalinas y acueductos de piedra cuyas rampas ondulantes coinciden exactamente con el fluir de semicorcheas ligadas de las fuentes y los céfiros.",
+      "svgTheme": "baroque",
+      "trajectoryWaypoints": [
+        { "time": 70.5, "y": 0 },
+        { "time": 78.5, "y": -140 },
+        { "time": 87, "y": 80 },
+        { "time": 95, "y": -110 },
+        { "time": 103, "y": 0 }
+      ],
       "recommendedPalette": [
         "#0f172a",
         "#0ea5e9",
@@ -127,17 +156,25 @@
         "#a7f3d0"
       ],
       "generatedByAgent": true,
-      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_2\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0f172a\"/><stop offset=\"55%\" stop-color=\"#0ea5e9\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#22d3ee\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_2\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0ea5e9\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#0f172a\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_2\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#a7f3d0\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#0f172a\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_2)\"/><circle cx=\"400\" cy=\"210\" r=\"78\" fill=\"#22d3ee\" fill-opacity=\"0.28\"/><circle cx=\"400\" cy=\"210\" r=\"46\" fill=\"#22d3ee\" fill-opacity=\"0.65\"/><g stroke=\"#a7f3d0\" stroke-width=\"3\" fill=\"none\" opacity=\"0.55\"><path d=\"M 140 280 Q 170 250 200 280 Q 230 250 260 280\" /><path d=\"M 680 220 Q 710 190 740 220 Q 770 190 800 220\" /></g><g fill=\"#0ea5e9\" fill-opacity=\"0.32\"><ellipse cx=\"260\" cy=\"656\" rx=\"95\" ry=\"65\"/><ellipse cx=\"760\" cy=\"590\" rx=\"110\" ry=\"75\"/></g><path d=\"M 0 681 Q 512 576 1024 620 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_2)\"/><path d=\"M 0 715 Q 512 728 1024 690 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_2)\"/><path d=\"M 0 715 Q 512 728 1024 690\" fill=\"none\" stroke=\"#22d3ee\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+      "backgroundSvg": "<svg viewBox='0 0 1024 1024' width='1024' height='1024' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='sky_s2' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#0f172a'/><stop offset='45%' stop-color='#0284c7'/><stop offset='80%' stop-color='#22d3ee'/><stop offset='100%' stop-color='#a7f3d0'/></linearGradient><linearGradient id='hill_s2' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#0ea5e9'/><stop offset='100%' stop-color='#0f172a'/></linearGradient><linearGradient id='water_s2' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#22d3ee'/><stop offset='50%' stop-color='#0284c7'/><stop offset='100%' stop-color='#0f172a'/></linearGradient></defs><rect width='1024' height='1024' fill='url(#sky_s2)'/><g stroke='#a7f3d0' stroke-width='3' fill='none' stroke-opacity='0.55'><path d='M 80 210 C 220 160, 360 260, 520 200 C 680 140, 820 240, 960 190'/><path d='M 120 290 C 280 240, 420 330, 580 270 C 740 210, 860 300, 980 255'/></g><path d='M 0 665 Q 256 635 512 655 T 1024 665 L 1024 1024 L 0 1024 Z' fill='url(#hill_s2)' fill-opacity='0.9'/><g fill='none' stroke='#a7f3d0' stroke-width='4' stroke-opacity='0.75'><path d='M 310 650 Q 310 510 240 480'/><path d='M 310 650 Q 310 510 380 480'/><path d='M 710 650 Q 710 500 640 470'/><path d='M 710 650 Q 710 500 780 470'/></g><path d='M 0 760 Q 256 740 512 755 T 1024 760 L 1024 1024 L 0 1024 Z' fill='url(#water_s2)'/><g stroke='#a7f3d0' stroke-width='3.5' fill='none' stroke-opacity='0.8'><path d='M 40 820 Q 170 795 300 820 T 560 820 T 820 820 T 1000 820'/><path d='M 60 875 Q 190 850 320 875 T 580 875 T 840 875'/></g><path d='M 0 760 Q 256 740 512 755 T 1024 760' fill='none' stroke='#a7f3d0' stroke-width='5'/></svg>"
     },
     {
       "index": 3,
-      "title": "Segmento 4: Episodio D (Parte 1) — «Truenos y Relámpagos»",
-      "startTime": 52,
-      "endTime": 68,
-      "musicalSection": "Episodio 3 — La Tormenta (Trémolos y escalas veloces)",
-      "dynamicsAndTempo": "ff — Trémolos graves en notas repetidas y escalas ascendentes",
-      "didacticNote": "El cielo se cubre de nubes negras: las cuerdas graves ejecutan un trémolo tempestuoso (trueno) y el violín solista dispara escalas ascendentes (relámpagos).",
-      "imagePrompt": "Ilustración panorámica 2D dramática: cielo de tormenta púrpura y azul oscuro con relámpagos dorados al fondo y plataformas de roca basáltica iluminadas por rayos, alineadas exactamente con los rectángulos blancos de la plantilla.",
+      "title": "Segmento 4: Ritornello III y Episodio III (D) — «La Tempestad: Truenos y Relámpagos»",
+      "startTime": 103,
+      "endTime": 138,
+      "musicalSection": "Ritornello III en Si mayor (01:43 - 01:51) + Episodio III: La Tormenta (01:51 - 02:18)",
+      "dynamicsAndTempo": "ff impetuoso — Trémolos de fusas en el tutti (truenos) y escalas/arpegios solistas (relámpagos)",
+      "didacticNote": "Tras el tenso Ritornello III en Si mayor (01:43 - 01:51), estalla súbitamente la tormenta primaveral en el segundo 111 (01:51): las cuerdas ejecutan un furioso trémolo de notas repetidas en fortissimo que imita el estruendo del trueno («tuoni»), mientras el violín solista dispara vertiginosas escalas ascendentes y arpegios agudos que representan los relámpagos («lampi»), conduciendo en 02:11 - 02:18 a una dramática cadencia en Do sostenido menor.",
+      "imagePrompt": "Escenografía vectorial SVG dramática (Segmento 4 de 6): cielo de tormenta índigo y violeta rasgado por relámpagos dorados y viaductos de basalto y mármol iluminados cuyos desniveles coinciden exactamente con los trémolos de trueno y las escalas ascendentes del violín solista.",
+      "svgTheme": "baroque",
+      "trajectoryWaypoints": [
+        { "time": 103, "y": 0 },
+        { "time": 111, "y": -190 },
+        { "time": 120, "y": 130 },
+        { "time": 129, "y": -260 },
+        { "time": 138, "y": 0 }
+      ],
       "recommendedPalette": [
         "#1e1b4b",
         "#4c1d95",
@@ -145,17 +182,25 @@
         "#facc15"
       ],
       "generatedByAgent": true,
-      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_3\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#1e1b4b\"/><stop offset=\"55%\" stop-color=\"#4c1d95\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#a855f7\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_3\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#4c1d95\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#1e1b4b\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_3\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#facc15\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#1e1b4b\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_3)\"/><circle cx=\"490\" cy=\"180\" r=\"78\" fill=\"#a855f7\" fill-opacity=\"0.28\"/><circle cx=\"490\" cy=\"180\" r=\"46\" fill=\"#a855f7\" fill-opacity=\"0.65\"/><g stroke=\"#facc15\" stroke-width=\"3\" fill=\"none\" opacity=\"0.55\"><path d=\"M 140 280 Q 170 250 200 280 Q 230 250 260 280\" /><path d=\"M 680 220 Q 710 190 740 220 Q 770 190 800 220\" /></g><g fill=\"#4c1d95\" fill-opacity=\"0.32\"><ellipse cx=\"260\" cy=\"595\" rx=\"95\" ry=\"65\"/><ellipse cx=\"760\" cy=\"529\" rx=\"110\" ry=\"75\"/></g><path d=\"M 0 620 Q 512 575 1024 559 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_3)\"/><path d=\"M 0 690 Q 512 678 1024 715 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_3)\"/><path d=\"M 0 690 Q 512 678 1024 715\" fill=\"none\" stroke=\"#a855f7\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+      "backgroundSvg": "<svg viewBox='0 0 1024 1024' width='1024' height='1024' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='sky_s3' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#090d16'/><stop offset='45%' stop-color='#1e1b4b'/><stop offset='80%' stop-color='#4c1d95'/><stop offset='100%' stop-color='#a855f7'/></linearGradient><linearGradient id='hill_s3' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#4c1d95'/><stop offset='100%' stop-color='#1e1b4b'/></linearGradient><linearGradient id='rock_s3' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#a855f7'/><stop offset='20%' stop-color='#312e81'/><stop offset='100%' stop-color='#0f172a'/></linearGradient></defs><rect width='1024' height='1024' fill='url(#sky_s3)'/><g fill='#1e1b4b' fill-opacity='0.8'><ellipse cx='220' cy='150' rx='180' ry='75'/><ellipse cx='540' cy='130' rx='210' ry='85'/><ellipse cx='840' cy='160' rx='170' ry='70'/></g><g stroke='#facc15' stroke-width='6' fill='none' stroke-linejoin='round' stroke-linecap='round'><polyline points='280,95 235,230 295,245 220,430 270,445 195,620'/><polyline points='740,85 690,220 755,235 675,410 725,425 650,610'/></g><g stroke='#fef08a' stroke-width='2.5' fill='none' opacity='0.8'><polyline points='235,230 180,310'/><polyline points='690,220 790,320'/></g><path d='M 0 665 Q 256 615 512 645 T 1024 665 L 1024 1024 L 0 1024 Z' fill='url(#hill_s3)'/><path d='M 0 760 Q 256 725 512 748 T 1024 760 L 1024 1024 L 0 1024 Z' fill='url(#rock_s3)'/><path d='M 0 760 Q 256 725 512 748 T 1024 760' fill='none' stroke='#facc15' stroke-width='5'/></svg>"
     },
     {
       "index": 4,
-      "title": "Segmento 5: Episodio D (Parte 2) — «Virtuosismo bajo la Tormenta»",
-      "startTime": 68,
-      "endTime": 78,
-      "musicalSection": "Clímax de la Tormenta y Transición",
-      "dynamicsAndTempo": "ff > mp — Arpegios agitados del violín solista",
-      "didacticNote": "El violín solista despliega rápidos arpegios en semicorcheas antes de que la tormenta comience a amainar.",
-      "imagePrompt": "Ilustración panorámica 2D: transición entre las últimas nubes de tormenta violeta a la izquierda y los primeros rayos de sol abriéndose paso a la derecha sobre puentes de piedra antigua alineados con los rectángulos blancos.",
+      "title": "Segmento 5: Ritornello IV, Episodio IV («Regreso de las Aves») y Ritornello V",
+      "startTime": 138,
+      "endTime": 176,
+      "musicalSection": "Ritornello IV en Do#m (02:18) + Episodio IV: Regreso de las Aves (02:27) + Ritornello V (02:44.5)",
+      "dynamicsAndTempo": "f sombrío -> p cresc. con trinos cromáticos ascendentes -> f luminoso",
+      "didacticNote": "En 02:18 (138 s) suena el Ritornello IV en modo menor (Do# menor). En 02:27 (147 s), al amainar la tormenta («Indi tacendo questi, gl'augelletti / Tornano di nuovo al lor canoro incanto»), el violín solista asciende paso a paso con notas tenidas y trinos expresivos hasta estallar en arpegios y trinos radiantes (02:37 - 02:44.5). En 02:44.5 (164.5 s) regresa triunfalmente el Ritornello V devolviendo la luz del modo mayor.",
+      "imagePrompt": "Escenografía vectorial SVG barroca (Segmento 5 de 6): transición de nubes violetas a rayos de sol ámbar, aves retomando el vuelo y arcos de jardín escalonados que ascienden matemáticamente siguiendo la progresión cromática ascendente del violín.",
+      "svgTheme": "baroque",
+      "trajectoryWaypoints": [
+        { "time": 138, "y": 0 },
+        { "time": 147, "y": 140 },
+        { "time": 157, "y": -80 },
+        { "time": 166, "y": -220 },
+        { "time": 176, "y": 0 }
+      ],
       "recommendedPalette": [
         "#312e81",
         "#6366f1",
@@ -163,17 +208,25 @@
         "#fde68a"
       ],
       "generatedByAgent": true,
-      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_4\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#312e81\"/><stop offset=\"55%\" stop-color=\"#6366f1\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#f59e0b\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_4\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#6366f1\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#312e81\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_4\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fde68a\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#312e81\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_4)\"/><circle cx=\"580\" cy=\"210\" r=\"78\" fill=\"#f59e0b\" fill-opacity=\"0.28\"/><circle cx=\"580\" cy=\"210\" r=\"46\" fill=\"#f59e0b\" fill-opacity=\"0.65\"/><g stroke=\"#fde68a\" stroke-width=\"3\" fill=\"none\" opacity=\"0.55\"><path d=\"M 140 280 Q 170 250 200 280 Q 230 250 260 280\" /><path d=\"M 680 220 Q 710 190 740 220 Q 770 190 800 220\" /></g><g fill=\"#6366f1\" fill-opacity=\"0.32\"><ellipse cx=\"260\" cy=\"534\" rx=\"95\" ry=\"65\"/><ellipse cx=\"760\" cy=\"529\" rx=\"110\" ry=\"75\"/></g><path d=\"M 0 559 Q 512 484 1024 559 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_4)\"/><path d=\"M 0 715 Q 512 765 1024 765 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_4)\"/><path d=\"M 0 715 Q 512 765 1024 765\" fill=\"none\" stroke=\"#f59e0b\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+      "backgroundSvg": "<svg viewBox='0 0 1024 1024' width='1024' height='1024' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='sky_s4' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#312e81'/><stop offset='45%' stop-color='#6366f1'/><stop offset='80%' stop-color='#f59e0b'/><stop offset='100%' stop-color='#fde68a'/></linearGradient><linearGradient id='hill_s4' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#4338ca'/><stop offset='100%' stop-color='#047857'/></linearGradient><linearGradient id='fore_s4' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='#312e81'/><stop offset='55%' stop-color='#6366f1'/><stop offset='100%' stop-color='#d97706'/></linearGradient></defs><rect width='1024' height='1024' fill='url(#sky_s4)'/><circle cx='780' cy='220' r='110' fill='#fde68a' fill-opacity='0.45'/><circle cx='780' cy='220' r='55' fill='#fef08a' fill-opacity='0.85'/><g stroke='#fde68a' stroke-width='4' stroke-opacity='0.45'><line x1='780' y1='220' x2='380' y2='665'/><line x1='780' y1='220' x2='580' y2='665'/><line x1='780' y1='220' x2='880' y2='665'/></g><g stroke='#fde68a' stroke-width='3.5' fill='none'><path d='M 360 390 Q 385 360 410 385 Q 435 360 460 390'/><path d='M 520 320 Q 545 290 570 315 Q 595 290 620 320'/><path d='M 690 260 Q 715 230 740 255 Q 765 230 790 260'/></g><path d='M 0 665 Q 256 630 512 650 T 1024 665 L 1024 1024 L 0 1024 Z' fill='url(#hill_s4)'/><path d='M 0 760 Q 256 735 512 750 T 1024 760 L 1024 1024 L 0 1024 Z' fill='url(#fore_s4)'/><path d='M 0 760 Q 256 735 512 750 T 1024 760' fill='none' stroke='#fde68a' stroke-width='5'/></svg>"
     },
     {
       "index": 5,
-      "title": "Segmento 6: Ritornello Final A4 — «Vuelve la Calma y el Canto de los Pájaros»",
-      "startTime": 78,
-      "endTime": 90,
-      "musicalSection": "Regreso de las aves y Ritornello de cierre",
-      "dynamicsAndTempo": "mf -> f — Cadencia final luminosa",
-      "didacticNote": "Al callar la tormenta, las avecillas vuelven a su canto encantador y toda la orquesta cierra con el Ritornello luminoso.",
-      "imagePrompt": "Ilustración panorámica 2D: arcoíris brillante sobre un valle primaveral florido con terrazas y caminos dorados alineados con los rectángulos blancos de la plantilla.",
+      "title": "Segmento 6: Último Solo Lírico y Gran Ritornello Final — «Apoteosis de la Primavera»",
+      "startTime": 176,
+      "endTime": 215,
+      "musicalSection": "Episodio Solista V (02:56 - 03:12) + Gran Ritornello Final en Forte, Eco en Piano y Cadencia (03:12 - 03:35)",
+      "dynamicsAndTempo": "mf cantabile -> f majestuoso -> p (eco) -> ff (cadencia final con ritardando)",
+      "didacticNote": "Desde el segundo 176 (02:56) hasta el 192 (03:12), el violín solista entona un último episodio lírico y luminoso seguido de secuencias ascendentes con trinos sobre el bajo continuo. En el segundo 192 (03:12) irrumpe el Gran Ritornello Final en Mi mayor: primero en forte pleno (03:12 - 03:20.5), después su repetición mágica en eco piano (03:20.5 - 03:29) y finalmente la cadencia en forte con ritardando solemne hasta extinguirse en el segundo 215 (03:35).",
+      "imagePrompt": "Escenografía vectorial SVG barroca (Segmento 6 de 6): gran arcoíris sobre el valle italiano en flor, pabellones dorados y balaustradas imperiales alineadas 1:1 con el Gran Ritornello Final en forte, su eco en piano y la cadencia conclusiva.",
+      "svgTheme": "baroque",
+      "trajectoryWaypoints": [
+        { "time": 176, "y": 0 },
+        { "time": 186, "y": -170 },
+        { "time": 195, "y": -230 },
+        { "time": 205, "y": -90 },
+        { "time": 215, "y": 0 }
+      ],
       "recommendedPalette": [
         "#064e3b",
         "#10b981",
@@ -181,24 +234,25 @@
         "#fef08a"
       ],
       "generatedByAgent": true,
-      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_5\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#064e3b\"/><stop offset=\"55%\" stop-color=\"#10b981\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#f59e0b\" stop-opacity=\"0.55\"/></linearGradient><linearGradient id=\"hills_5\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#10b981\" stop-opacity=\"0.65\"/><stop offset=\"100%\" stop-color=\"#064e3b\" stop-opacity=\"0.92\"/></linearGradient><linearGradient id=\"fore_5\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fef08a\" stop-opacity=\"0.48\"/><stop offset=\"100%\" stop-color=\"#064e3b\" stop-opacity=\"0.96\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_5)\"/><circle cx=\"670\" cy=\"180\" r=\"78\" fill=\"#f59e0b\" fill-opacity=\"0.28\"/><circle cx=\"670\" cy=\"180\" r=\"46\" fill=\"#f59e0b\" fill-opacity=\"0.65\"/><g stroke=\"#fef08a\" stroke-width=\"3\" fill=\"none\" opacity=\"0.55\"><path d=\"M 140 280 Q 170 250 200 280 Q 230 250 260 280\" /><path d=\"M 680 220 Q 710 190 740 220 Q 770 190 800 220\" /></g><g fill=\"#10b981\" fill-opacity=\"0.32\"><ellipse cx=\"260\" cy=\"534\" rx=\"95\" ry=\"65\"/><ellipse cx=\"760\" cy=\"590\" rx=\"110\" ry=\"75\"/></g><path d=\"M 0 559 Q 512 575 1024 620 L 1024 1024 L 0 1024 Z\" fill=\"url(#hills_5)\"/><path d=\"M 0 765 Q 512 753 1024 790 L 1024 1024 L 0 1024 Z\" fill=\"url(#fore_5)\"/><path d=\"M 0 765 Q 512 753 1024 790\" fill=\"none\" stroke=\"#f59e0b\" stroke-width=\"4\" stroke-opacity=\"0.6\"/></svg>"
+      "backgroundSvg": "<svg viewBox='0 0 1024 1024' width='1024' height='1024' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='sky_s5' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#064e3b'/><stop offset='45%' stop-color='#10b981'/><stop offset='80%' stop-color='#f59e0b'/><stop offset='100%' stop-color='#fef08a'/></linearGradient><linearGradient id='hill_s5' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#10b981'/><stop offset='100%' stop-color='#064e3b'/></linearGradient><linearGradient id='fore_s5' x1='0%' y1='0%' x2='0%' y2='100%'><stop offset='0%' stop-color='#fef08a'/><stop offset='30%' stop-color='#f59e0b'/><stop offset='100%' stop-color='#064e3b'/></linearGradient></defs><rect width='1024' height='1024' fill='url(#sky_s5)'/><g fill='none' stroke-width='14' stroke-opacity='0.45'><path d='M 80 665 A 450 420 0 0 1 944 665' stroke='#ef4444'/><path d='M 98 665 A 432 402 0 0 1 926 665' stroke='#f59e0b'/><path d='M 116 665 A 414 384 0 0 1 908 665' stroke='#fef08a'/><path d='M 134 665 A 396 366 0 0 1 890 665' stroke='#10b981'/><path d='M 152 665 A 378 348 0 0 1 872 665' stroke='#38bdf8'/><path d='M 170 665 A 360 330 0 0 1 854 665' stroke='#a855f7'/></g><circle cx='512' cy='220' r='90' fill='#fef08a' fill-opacity='0.45'/><circle cx='512' cy='220' r='52' fill='#ffffff' fill-opacity='0.9'/><path d='M 0 665 Q 256 620 512 645 T 1024 665 L 1024 1024 L 0 1024 Z' fill='url(#hill_s5)'/><path d='M 0 760 Q 256 735 512 752 T 1024 760 L 1024 1024 L 0 1024 Z' fill='url(#fore_s5)'/><path d='M 0 760 Q 256 735 512 752 T 1024 760' fill='none' stroke='#fef08a' stroke-width='6'/></svg>"
     }
   ],
   "config": {
     "zoom": 0.85,
-    "platformOpacity": 0.85,
+    "platformOpacity": 0.32,
     "bgOffsetY": 0,
     "cameraSmoothness": 0.82,
     "mosaicSlices": 6,
-    "userKeywords": "Barroco luminoso, La Primavera de Vivaldi, jardines soleados, aves, fuentes cristalinas y tormenta dramática",
+    "svgMode": "segments",
+    "userKeywords": "Antonio Vivaldi, La Primavera, Las Cuatro Estaciones, RV 269, Allegro, Barroco Veneciano, Canto de las aves, Fuentes y céfiros, Tempestad de truenos y relámpagos, Ritornello en eco",
     "ballConfig": {
       "shape": "custom-svg",
       "color": "dynamic",
       "effect": "glow",
       "rotate": true,
-      "opacity": 1,
-      "label": "Sol Barroco (Pulso Principal)",
-      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><defs><radialGradient id=\"sunGrad\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0%\" stop-color=\"#fef08a\"/><stop offset=\"65%\" stop-color=\"#f59e0b\"/><stop offset=\"100%\" stop-color=\"#ea580c\"/></radialGradient></defs><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 50 50\" to=\"360 50 50\" dur=\"8s\" repeatCount=\"indefinite\"/><polygon points=\"50,4 58,24 78,12 72,33 94,35 77,50 94,65 72,67 78,88 58,76 50,96 42,76 22,88 28,67 6,65 23,50 6,35 28,33 22,12 42,24\" fill=\"#fbbf24\" opacity=\"0.85\"/></g><circle cx=\"50\" cy=\"50\" r=\"26\" fill=\"url(#sunGrad)\" stroke=\"#ffffff\" stroke-width=\"3\"><animate attributeName=\"r\" values=\"24;27;24\" dur=\"1.2s\" repeatCount=\"indefinite\"/></circle><circle cx=\"42\" cy=\"44\" r=\"3\" fill=\"#78350f\"/><circle cx=\"58\" cy=\"44\" r=\"3\" fill=\"#78350f\"/><path d=\"M42 56 Q50 63 58 56\" stroke=\"#78350f\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+      "opacity": 1.0,
+      "label": "Sol Barroco Veneciano (Pulso Principal y Tutti)",
+      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><defs><radialGradient id=\"vivaldiSun\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0%\" stop-color=\"#ffffff\"/><stop offset=\"45%\" stop-color=\"#fef08a\"/><stop offset=\"80%\" stop-color=\"#f59e0b\"/><stop offset=\"100%\" stop-color=\"#ea580c\"/></radialGradient></defs><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 50 50\" to=\"360 50 50\" dur=\"8s\" repeatCount=\"indefinite\"/><polygon points=\"50,3 57,23 77,11 71,32 93,34 76,50 93,66 71,68 77,89 57,77 50,97 43,77 23,89 29,68 7,66 24,50 7,34 29,32 23,11 43,23\" fill=\"#fbbf24\" stroke=\"#fef3c7\" stroke-width=\"1.5\" opacity=\"0.9\"/></g><circle cx=\"50\" cy=\"50\" r=\"26\" fill=\"url(#vivaldiSun)\" stroke=\"#ffffff\" stroke-width=\"2.5\"/><circle cx=\"42\" cy=\"45\" r=\"2.8\" fill=\"#78350f\"/><circle cx=\"58\" cy=\"45\" r=\"2.8\" fill=\"#78350f\"/><path d=\"M41 56 Q50 63 59 56\" stroke=\"#78350f\" stroke-width=\"2.8\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
     },
     "extraTracksConfig": {
       "melody": {
@@ -207,8 +261,8 @@
         "effect": "glow",
         "rotate": false,
         "opacity": 0.95,
-        "label": "Ave Canora (Violín Solista / Agudos)",
-        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g><animateTransform attributeName=\"transform\" type=\"translate\" values=\"0,-4; 0,4; 0,-4\" dur=\"0.9s\" repeatCount=\"indefinite\"/><path d=\"M20,55 Q40,30 65,45 Q80,35 90,48 Q75,65 50,65 Q30,65 20,55 Z\" fill=\"#38bdf8\" stroke=\"#e0f2fe\" stroke-width=\"3\"/><path d=\"M35,48 Q50,15 70,35\" fill=\"#7dd3fc\" opacity=\"0.9\"><animate attributeName=\"d\" values=\"M35,48 Q50,12 70,35; M35,48 Q50,65 70,52; M35,48 Q50,12 70,35\" dur=\"0.45s\" repeatCount=\"indefinite\"/></path><circle cx=\"75\" cy=\"46\" r=\"3\" fill=\"#0f172a\"/><polygon points=\"88,46 98,49 88,53\" fill=\"#fbbf24\"/></g></svg>"
+        "label": "Ruiseñor Concertante (Violines Solistas / Agudos)",
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g><path d=\"M16,56 Q38,28 66,44 Q81,34 91,48 Q75,67 48,66 Q28,66 16,56 Z\" fill=\"#38bdf8\" stroke=\"#e0f2fe\" stroke-width=\"2.5\"/><path d=\"M34,48 Q50,12 72,34\" fill=\"#f472b6\" stroke=\"#fce7f3\" stroke-width=\"1.5\" opacity=\"0.95\"><animate attributeName=\"d\" values=\"M34,48 Q50,12 72,34;M34,48 Q52,68 72,46;M34,48 Q50,12 72,34\" dur=\"0.55s\" repeatCount=\"indefinite\"/></path><circle cx=\"76\" cy=\"46\" r=\"3\" fill=\"#0f172a\"/><polygon points=\"89,45 99,49 89,53\" fill=\"#fbbf24\"/></g></svg>"
       },
       "bass": {
         "shape": "custom-svg",
@@ -216,8 +270,8 @@
         "effect": "glow",
         "rotate": true,
         "opacity": 0.9,
-        "label": "Rosetón de Clave (Bajo Continuo)",
-        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g><polygon points=\"50,8 86,29 86,71 50,92 14,71 14,29\" fill=\"#6b21a8\" stroke=\"#d8b4fe\" stroke-width=\"4\"/><circle cx=\"50\" cy=\"50\" r=\"24\" fill=\"none\" stroke=\"#f3e8ff\" stroke-width=\"3\" stroke-dasharray=\"6 4\"/><circle cx=\"50\" cy=\"50\" r=\"10\" fill=\"#c084fc\"><animate attributeName=\"r\" values=\"8;13;8\" dur=\"1s\" repeatCount=\"indefinite\"/></circle></g></svg>"
+        "label": "Rosetón de Clave y Violonchelo (Bajo Continuo)",
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 50 50\" to=\"-360 50 50\" dur=\"10s\" repeatCount=\"indefinite\"/><polygon points=\"50,7 87,28.5 87,71.5 50,93 13,71.5 13,28.5\" fill=\"#581c87\" stroke=\"#e9d5ff\" stroke-width=\"3.5\"/><circle cx=\"50\" cy=\"50\" r=\"25\" fill=\"none\" stroke=\"#facc15\" stroke-width=\"2.8\" stroke-dasharray=\"6 4\"/><circle cx=\"50\" cy=\"50\" r=\"11\" fill=\"#c084fc\"/></g></svg>"
       }
     }
   },
@@ -225,73 +279,184 @@
     "sections": [
       {
         "startTime": 0,
-        "endTime": 7.5,
-        "label": "Ritornello A1 (Forte)",
+        "endTime": 8,
+        "label": "Ritornello I — Frase A1 (Forte y Eco en Piano)",
         "focus": "tutti",
-        "energy": 1.8,
+        "energy": 2.1,
         "subdivision": 1,
         "melodicContour": "ascending",
         "platformStyle": "major"
       },
       {
-        "startTime": 7.5,
-        "endTime": 15,
-        "label": "Ritornello A2 (Repetición en Eco Piano)",
+        "startTime": 8,
+        "endTime": 15.8,
+        "label": "Ritornello I — Repetición de Frase A1 y Cadencia",
         "focus": "melody",
-        "energy": 1.1,
+        "energy": 1.35,
         "subdivision": 1,
         "melodicContour": "wave",
         "platformStyle": "minor"
       },
       {
-        "startTime": 15,
+        "startTime": 15.8,
+        "endTime": 24.2,
+        "label": "Ritornello I — Frase A2 en Forte",
+        "focus": "tutti",
+        "energy": 2.3,
+        "subdivision": 1,
+        "melodicContour": "arch",
+        "platformStyle": "major"
+      },
+      {
+        "startTime": 24.2,
         "endTime": 33,
-        "label": "Episodio B — Canto de las Aves (Trinos)",
+        "label": "Ritornello I — Frase A2 en Eco (Piano)",
         "focus": "melody",
-        "energy": 1.6,
+        "energy": 1.2,
+        "subdivision": 1,
+        "melodicContour": "wave",
+        "platformStyle": "minor"
+      },
+      {
+        "startTime": 33,
+        "endTime": 55,
+        "label": "Episodio I (Parte 1) — El Canto de las Aves: Diálogo de 3 Violines Solistas (Senza Basso)",
+        "focus": "melody",
+        "energy": 1.75,
         "subdivision": 2,
         "melodicContour": "staccato_jumps",
         "platformStyle": "friction"
       },
       {
-        "startTime": 33,
-        "endTime": 52,
-        "label": "Ritornello A3 y Episodio C — Murmullo de las Fuentes",
+        "startTime": 55,
+        "endTime": 70.5,
+        "label": "Episodio I (Parte 2) — Bariolajes y Trinos Agudos de las Aves",
         "focus": "melody",
-        "energy": 1.25,
-        "subdivision": 1,
-        "melodicContour": "sustained_ramp",
+        "energy": 1.95,
+        "subdivision": 2,
+        "melodicContour": "ascending",
         "platformStyle": "minor"
       },
       {
-        "startTime": 52,
-        "endTime": 68,
-        "label": "Episodio D — Estallido de la Tormenta (Trémolos y Relámpagos)",
+        "startTime": 70.5,
+        "endTime": 78.5,
+        "label": "Ritornello II — Tutti en Mi Mayor",
+        "focus": "tutti",
+        "energy": 2.25,
+        "subdivision": 1,
+        "melodicContour": "arch",
+        "platformStyle": "major"
+      },
+      {
+        "startTime": 78.5,
+        "endTime": 94,
+        "label": "Episodio II (Parte 1) — Murmullo de las Fuentes y Brisa de Céfiro (Semicorcheas Ligadas)",
+        "focus": "melody",
+        "energy": 1.15,
+        "subdivision": 1,
+        "melodicContour": "wave",
+        "platformStyle": "minor"
+      },
+      {
+        "startTime": 94,
+        "endTime": 103,
+        "label": "Episodio II (Parte 2) — Modulación Ondulante hacia la Dominante (Si Mayor)",
+        "focus": "tutti",
+        "energy": 1.4,
+        "subdivision": 1,
+        "melodicContour": "sustained_ramp",
+        "platformStyle": "friction"
+      },
+      {
+        "startTime": 103,
+        "endTime": 111,
+        "label": "Ritornello III — Tutti en Si Mayor (Anuncio de la Tormenta)",
+        "focus": "tutti",
+        "energy": 2.2,
+        "subdivision": 1,
+        "melodicContour": "ascending",
+        "platformStyle": "major"
+      },
+      {
+        "startTime": 111,
+        "endTime": 125,
+        "label": "Episodio III (Parte 1) — La Tempestad: Trémolos de Truenos y Escalas de Relámpagos",
         "focus": "bass",
-        "energy": 3.2,
+        "energy": 3.35,
+        "subdivision": 2,
+        "melodicContour": "staccato_jumps",
+        "platformStyle": "accelerator"
+      },
+      {
+        "startTime": 125,
+        "endTime": 138,
+        "label": "Episodio III (Parte 2) — Virtuosismo Solista bajo la Tormenta y Ascenso en Trémolo",
+        "focus": "tutti",
+        "energy": 3.15,
         "subdivision": 2,
         "melodicContour": "arch",
         "platformStyle": "accelerator"
       },
       {
-        "startTime": 68,
-        "endTime": 78,
-        "label": "Clímax Solista y Calma Progresiva",
-        "focus": "tutti",
-        "energy": 2.4,
-        "subdivision": 2,
+        "startTime": 138,
+        "endTime": 147,
+        "label": "Ritornello IV — Tutti Dramático en Do Sostenido Menor",
+        "focus": "bass",
+        "energy": 2.3,
+        "subdivision": 1,
         "melodicContour": "descending",
         "platformStyle": "major"
       },
       {
-        "startTime": 78,
-        "endTime": 90,
-        "label": "Ritornello Final A4 — Regreso de la Primavera",
+        "startTime": 147,
+        "endTime": 164.5,
+        "label": "Episodio IV — El Regreso de las Aves: Trinos Cromáticos Ascendentes y Arpegios Solistas",
+        "focus": "melody",
+        "energy": 1.85,
+        "subdivision": 2,
+        "melodicContour": "ascending",
+        "platformStyle": "friction"
+      },
+      {
+        "startTime": 164.5,
+        "endTime": 176,
+        "label": "Ritornello V — Retorno de la Luz en Modo Mayor",
         "focus": "tutti",
-        "energy": 2,
+        "energy": 2.15,
         "subdivision": 1,
         "melodicContour": "ascending",
         "platformStyle": "major"
+      },
+      {
+        "startTime": 176,
+        "endTime": 192,
+        "label": "Episodio V — Último Solo Lírico del Violín y Secuencias con Trinos",
+        "focus": "melody",
+        "energy": 1.7,
+        "subdivision": 1,
+        "melodicContour": "wave",
+        "platformStyle": "minor"
+      },
+      {
+        "startTime": 192,
+        "endTime": 200.5,
+        "label": "Gran Ritornello Final (Parte 1) — Reexposición Plena en Forte",
+        "focus": "tutti",
+        "energy": 2.6,
+        "subdivision": 1,
+        "melodicContour": "arch",
+        "platformStyle": "major"
+      },
+      {
+        "startTime": 200.5,
+        "endTime": 215,
+        "label": "Gran Ritornello Final (Parte 2) — Último Eco en Piano y Cadencia Solemne (Ritardando)",
+        "focus": "tutti",
+        "energy": 1.45,
+        "bpmOverride": 102,
+        "subdivision": 1,
+        "melodicContour": "sustained_ramp",
+        "platformStyle": "minor"
       }
     ]
   }

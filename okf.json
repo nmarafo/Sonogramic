@@ -1,23 +1,23 @@
 {
-  "$schema": "https://openknowledgeframework.org/schemas/v1.3.0/okf.schema.json",
-  "okfVersion": "1.3.0",
+  "$schema": "https://openknowledgeframework.org/schemas/v1.4.0/okf.schema.json",
+  "okfVersion": "1.4.0",
   "metadata": {
-    "id": "urn:okf:software:sonogramic:2026:v2.0.0",
-    "title": "Sonogramic — Estándar OKF para la Generación de Musicogramas en JSON y Estudio Web de Reproducción y Captura de Vídeo (100% Sin IA en la App)",
-    "shortTitle": "OKF-Sonogramic-v2.0.0",
-    "description": "Paquete de Conocimiento Abierto (Open Knowledge Framework - OKF v1.3.0) diseñado para que cualquier modelo de lenguaje o agente de IA (Google NotebookLM, Gemini, Claude, ChatGPT, Ollama) genere un archivo .JSON estructurado con las indicaciones, los pasos guiados (guideSteps), la estructura musical (musicalStructure), los iconos vectoriales SVG animados (svgContent) y las especificaciones de cada segmento (sliceSpecs). Nuestra aplicación web Sonogramic NO utiliza Inteligencia Artificial: toma únicamente el archivo .JSON junto con las imágenes introducidas por las personas usuarias (y opcionalmente el archivo de audio), reproduce el musicograma interactivo a 60 FPS y devuelve un vídeo HD (.webm) tras capturar su reproducción.",
-    "version": "2.0.0",
+    "id": "urn:okf:software:sonogramic:2026:v2.1.0",
+    "title": "Sonogramic — Estándar OKF para la Generación de Musicogramas con Escenografías Vectoriales SVG Alineadas con los Trayectos y Estudio Web de Reproducción y Captura de Vídeo (100% Sin IA en la App)",
+    "shortTitle": "OKF-Sonogramic-v2.1.0",
+    "description": "Paquete de Conocimiento Abierto (Open Knowledge Framework - OKF v1.4.0) diseñado para que cualquier modelo de lenguaje o agente de IA (Google NotebookLM, Gemini, Claude, ChatGPT, Ollama) genere un archivo .JSON estructurado con las indicaciones, los pasos guiados (guideSteps), la estructura musical (musicalStructure), los iconos vectoriales SVG (svgContent) y las escenografías vectoriales SVG ultradetalladas (uno o varios SVGs en backgroundSvg / masterSceneSvg + svgTheme + trajectoryWaypoints) cuyos puentes, balaustradas, rampas, pilares y curvas parabólicas coinciden exactamente con los trayectos físicos de las esferas, eliminando por completo las imágenes mapa de bits (.png/.jpg) y los zooms tipo pulse en los pulsos. Nuestra aplicación web Sonogramic NO utiliza Inteligencia Artificial: compila y renderiza en coordenadas exactas del mundo los SVGs alineados con los trayectos a 60 FPS con zoom estable y devuelve un vídeo HD (.webm) tras capturar su reproducción.",
+    "version": "2.1.0",
     "created": "2026-11-02",
     "modified": "2026-11-02",
     "language": "es-ES",
-    "domain": "Music Education / Active Listening / Musicograma / Audio Visualization / Video Capture",
+    "domain": "Music Education / Active Listening / Musicograma / Trajectory-Aligned Vector SVG / Audio Visualization / Video Capture",
     "targetApplication": {
-      "name": "Sonogramic — Estudio de Musicogramas OKF (Sin IA)",
-      "version": "2.0.0",
+      "name": "Sonogramic — Estudio de Musicogramas Vectoriales OKF (Sin IA)",
+      "version": "2.1.0",
       "entryPoint": "index.html",
       "repository": "https://github.com/nmarafo/Sonogramic",
       "liveUrl": "https://nmarafo.github.io/Sonogramic/",
-      "runtime": "100% Client-Side Browser HTML5 Canvas 2D + Web Audio API + MediaRecorder API (Zero AI / Zero Backend)"
+      "runtime": "100% Client-Side Browser HTML5 Canvas 2D + Trajectory-Aligned SVG Compiler + Web Audio API + MediaRecorder API (Zero AI / Zero Backend)"
     },
     "authors": [
       {
@@ -36,6 +36,9 @@
       "Open Knowledge Framework",
       "Sonogramic",
       "Musicograma",
+      "Trajectory-Aligned SVG",
+      "Vector Scenography",
+      "Steady Camera Zoom",
       "Educación Musical",
       "Escucha Activa",
       "Doodlechaos Style",
@@ -49,35 +52,43 @@
   "sources": [
     {
       "id": "src-okf-architecture",
-      "title": "Arquitectura y Especificación Técnica OKF de Sonogramic",
+      "title": "Arquitectura y Especificación Técnica OKF de Sonogramic (SVGs Alineados con Trayectos y Cámara sin Pulse Zoom)",
       "path": "okf/arquitectura_okf.md",
       "format": "markdown",
       "category": "architecture-and-agent-manual",
-      "summary": "Documentación técnica exhaustiva del flujo desacoplado: cómo generar el JSON OKF con indicaciones y pasos, cómo funciona el motor físico 2D determinista (800 px/s a 60 FPS), cómo exportar plantillas guía de plataformas y cómo cargar imágenes y capturar el vídeo final sin usar IA en la aplicación."
+      "summary": "Documentación técnica exhaustiva del flujo desacoplado: generación del JSON OKF con uno o varios SVGs detallados alineados con los trayectos (backgroundSvg, masterSceneSvg, svgTheme, trajectoryWaypoints), compilador vectorial en coordenadas exactas del mundo (800 px/s a 60 FPS), eliminación de imágenes mapa de bits y eliminación total de los zooms tipo pulse en los pulsos."
     },
     {
       "id": "src-okf-master-prompt",
-      "title": "Prompt Maestro OKF — Generador de JSON con Indicaciones y Pasos para el Musicograma",
+      "title": "Prompt Maestro OKF — Generador de JSON con Uno o Varios SVGs Detallados Alineados con los Trayectos",
       "path": "okf/prompt_maestro_okf_sonogramic.md",
       "format": "markdown",
       "category": "system-prompt",
-      "summary": "System Prompt oficial listo para copiar y pegar en cualquier LLM (NotebookLM, Gemini, Claude, ChatGPT) para generar el archivo .JSON completo del musicograma con guideSteps, sliceSpecs, SVGs embebidos y estructura musical."
+      "summary": "System Prompt oficial listo para copiar y pegar en cualquier LLM (NotebookLM, Gemini, Claude, ChatGPT) para generar el archivo .JSON completo del musicograma con escenografías vectoriales SVG detalladas (en 1 SVG panorámico único o N SVGs por segmento), puntos de paso (trajectoryWaypoints) y cursores sin animaciones de pulso."
     },
     {
       "id": "src-okf-step-by-step-guide",
-      "title": "Guía Paso a Paso para Crear el Musicograma y Exportar el Vídeo",
+      "title": "Guía Paso a Paso para Crear el Musicograma Vectorial SVG y Exportar el Vídeo",
       "path": "okf/guia_paso_a_paso_musicograma.md",
       "format": "markdown",
       "category": "user-and-pedagogical-guide",
-      "summary": "Manual práctico para docentes y creadores sobre cómo utilizar el JSON y las imágenes en la aplicación para visualizar el musicograma y capturar el vídeo en alta definición."
+      "summary": "Manual práctico para docentes y creadores sobre cómo utilizar el JSON OKF y el compilador de SVGs detallados (1 SVG completo o N SVGs por tramo) para visualizar el musicograma con coincidencia exacta entre dibujo y trayecto y capturar el vídeo en alta definición."
     },
     {
       "id": "src-json-schema",
-      "title": "JSON Schema Oficial del Musicograma OKF (.json)",
+      "title": "JSON Schema Oficial del Musicograma Vectorial OKF (.json)",
       "path": "schema/schema_sonogramic_musicograma.json",
       "format": "json-schema",
       "category": "validation-schema",
-      "summary": "Esquema formal JSON Schema (Draft 2020-12) que valida tanto las recetas JSON generadas mediante el OKF como los proyectos completos exportados por la aplicación."
+      "summary": "Esquema formal JSON Schema (Draft 2020-12) que valida las recetas JSON OKF v1.4.0 con soporte para svgMode ('segments' | 'single'), masterSceneSvg, backgroundSvg, svgTheme y trajectoryWaypoints."
+    },
+    {
+      "id": "src-svg-trajectory-compiler",
+      "title": "Compilador Determinista de Escenografías SVG Alineadas con los Trayectos",
+      "path": "src/utils/svgTrajectoryCompiler.ts",
+      "format": "typescript",
+      "category": "vector-compiler",
+      "summary": "Módulo cliente determinista (0% IA) que sintetiza uno o varios SVGs multicapa en coordenadas exactas del mundo (viewBox='${sliceMinX} -960 ${sliceWorldWidth} 1600') haciendo coincidir puentes, barandillas, pilares románicos, terreno y arcos parabólicos con las trayectorias exactas de las 3 esferas."
     },
     {
       "id": "src-example-vivaldi",
@@ -85,7 +96,7 @@
       "path": "examples/vivaldi_primavera_okf.json",
       "format": "json",
       "category": "example-project",
-      "summary": "Receta JSON OKF completa en 6 segmentos con indicaciones paso a paso, prompts de ilustración barroca, iconos SVG animados embebidos y estructura formal de rondó."
+      "summary": "Receta JSON OKF v1.4.0 en 6 segmentos con escenografía vectorial barroca ('svgTheme': 'baroque'), trajectoryWaypoints y cursores SVG sin pulse-zoom."
     },
     {
       "id": "src-example-grieg",
@@ -93,7 +104,7 @@
       "path": "examples/grieg_rey_montana_okf.json",
       "format": "json",
       "category": "example-project",
-      "summary": "Receta JSON OKF diseñada para trabajar el accelerando y crescendo orquestal en 6 segmentos con plataformas aceleradoras y pasos didácticos."
+      "summary": "Receta JSON OKF v1.4.0 con escenografía vectorial de caverna subterránea ('svgTheme': 'cavern'), puentes de piedra alineados con el accelerando y cámara estable."
     },
     {
       "id": "src-example-isa-canaria",
@@ -101,48 +112,61 @@
       "path": "examples/isa_canaria_okf.json",
       "format": "json",
       "category": "example-project",
-      "summary": "Receta JSON OKF contextualizada en el patrimonio musical de Canarias en compás ternario 3/4 con pintadera/timple en SVG y guía paso a paso."
+      "summary": "Receta JSON OKF v1.4.0 contextualizada en el patrimonio musical de Canarias en compás ternario 3/4 con arquitectura tradicional canaria en SVG ('svgTheme': 'canarias')."
+    },
+    {
+      "id": "src-example-carnaval-lpgc",
+      "title": "Ejemplo OKF 4: Carnaval de Las Palmas de Gran Canaria — Batucada y Murga",
+      "path": "examples/musicograma_carnaval_las_palmas_okf.json",
+      "format": "json",
+      "category": "example-project",
+      "summary": "Receta JSON OKF v1.4.0 en 6 segmentos con escenografía vectorial íntegra del Parque Santa Catalina y Las Canteras ('svgTheme': 'carnival'), sustituyendo las antiguas imágenes mapa de bits por SVGs detallados alineados con los trayectos."
     }
   ],
   "workflowArchitecture": {
-    "corePrinciple": "Desacoplamiento Total (Zero-AI Runtime): La aplicación Sonogramic no contiene dependencias de IA ni claves API. Todo el conocimiento musical, las indicaciones paso a paso (guideSteps), las descripciones de los segmentos (sliceSpecs), los vectores SVG y —cuando el agente generador del JSON dispone de capacidad gráfica— las propias imágenes de fondo (imageUrl / backgroundSvg) residen en el paquete generado bajo el estándar OKF. La aplicación únicamente combina dicho .JSON + las imágenes (generadas por el agente mediante el OKF o introducidas por las personas usuarias) + el archivo de audio para mostrar el musicograma y devolver un archivo de vídeo tras capturar su reproducción.",
+    "corePrinciple": "Desacoplamiento Total (Zero-AI Runtime) y Precisión Vectorial 1:1: La aplicación Sonogramic no contiene dependencias de IA ni claves API, y prescinde por completo de imágenes mapa de bits (.png/.jpg) y de zooms tipo pulse en los pulsos. Todo el conocimiento musical, las indicaciones paso a paso (guideSteps), los temas vectoriales (svgTheme), los puntos de control de altura (trajectoryWaypoints) y los paisajes vectoriales base (backgroundSvg / masterSceneSvg) residen en el archivo .JSON generado bajo el estándar OKF. Al cargarse en Sonogramic, el compilador determinista 'svgTrajectoryCompiler.ts' traza en coordenadas exactas del mundo uno o varios SVGs ultradetallados cuyos puentes, balaustradas, rampas, pilares, arcos y pentagramas coinciden exactamente con los trayectos por donde ruedan y rebotan las esferas.",
     "agentBackgroundGenerationProtocol": {
       "enabled": true,
-      "policy": "MANDATORY_IF_CAPABLE",
-      "description": "Directiva oficial OKF para la generación automática de las imágenes de fondo (backgrounds) por parte del Agente de IA externo que procesa el OKF.",
+      "policy": "PURE_VECTOR_SVG_TRAJECTORY_ALIGNED",
+      "description": "Directiva oficial OKF v1.4.0: Prohibición de imágenes mapa de bits (.png, .jpg, Imagen 3, DALL-E) y de zooms tipo pulse. Sustitución íntegra por uno o varios SVGs vectoriales detallados alineados matemáticamente con los trayectos.",
       "modes": [
         {
-          "mode": "1. Generación Rasterizada con Herramienta de Imagen (Imagen 3 / DALL-E / subagente image-generator)",
-          "when": "El agente dispone de una herramienta nativa de generación de imágenes rasterizadas (.png, .jpg, .webp) o acceso al sistema de archivos.",
-          "action": "El agente DEBE generar automáticamente las N imágenes panorámicas de fondo (una por cada elemento de sliceSpecs) siguiendo fielmente el campo 'imagePrompt' y la paleta 'recommendedPalette', manteniendo continuidad de horizonte entre el borde derecho del segmento i y el borde izquierdo del segmento i+1. Si opera en espacio de trabajo local o puede obtener URLs/Data URIs, DEBE inyectar la ruta o Data URI en 'sliceSpecs[i].imageUrl' (o en 'data.bgImagesBase64') y establecer 'generatedByAgent': true. Si opera en un chat conversacional, entrega las N imágenes numeradas ('01_segmento_1.png'...'0N_segmento_N.png') listas para subir en lote a Sonogramic."
+          "mode": "Modo 1 — Varios SVGs Detallados por Segmento ('config.svgMode': 'segments' y 'config.mosaicSlices': N)",
+          "when": "Se desea dividir el musicograma en N secciones formales (entre 4 y 8 segmentos en 'sliceSpecs').",
+          "action": "El agente define en cada 'sliceSpecs[i]' el tema arquitectónico 'svgTheme' ('baroque' | 'cavern' | 'canarias' | 'carnival' | 'symphonic'), los puntos de control 'trajectoryWaypoints' ([{ 'time': t, 'y': altura }]) y un 'backgroundSvg' vectorial multicapa ('<svg viewBox=\"0 0 1600 1000\">...</svg>') con continuidad de horizonte entre segmentos, sin generar jamás archivos .png o .jpg. El compilador de Sonogramic ensambla cada SVG en su rectángulo exacto del mundo ('viewBox=\"${sliceMinX} -960 ${sliceWorldWidth} 1600\"') haciendo coincidir los dibujos con las plataformas y trayectorias."
         },
         {
-          "mode": "2. Generación de Escenarios Panorámicos Vectoriales Embebidos ('sliceSpecs[i].backgroundSvg')",
-          "when": "El agente genera el archivo .JSON y tiene capacidad de síntesis gráfica vectorial (<svg>).",
-          "action": "El agente DEBE generar e incrustar directamente dentro de cada 'sliceSpecs[i].backgroundSvg' un paisaje o escenario panorámico ilustrado multicapa '<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>' coherente con 'environmentConcept', 'imagePrompt' y 'recommendedPalette', marcando 'generatedByAgent': true. Al importar el .JSON en Sonogramic, la aplicación renderizará automáticamente estos escenarios como background de cada sección sin requerir pasos adicionales."
+          "mode": "Modo 2 — Un Único SVG Panorámico Maestro ('config.svgMode': 'single' y 'config.mosaicSlices': 1)",
+          "when": "Se desea un único lienzo vectorial continuo para toda la obra de principio a fin.",
+          "action": "El agente establece 'config.svgMode': 'single', 'config.mosaicSlices': 1 y proporciona el paisaje vectorial continuo en 'config.masterSceneSvg' (además de 'sliceSpecs'). Sonogramic compila un único SVG panorámico maestro ('viewBox=\"0 -960 ${totalWorldWidth} 1600\"') donde todos los puentes, pilares, relieves y curvas de las 3 voces están dibujados en una sola pieza vectorial continua."
         }
-      ]
+      ],
+      "cameraAndAnimationRules": {
+        "pulseZoomForbidden": true,
+        "steadyCameraZoom": "El zoom de cámara permanece 100% constante en el valor elegido por la persona usuaria ('config.zoom'), sin saltos de escala en los beats ('major', 'accelerator', 'friction') ni destellos blancos de pantalla.",
+        "cursorSvgRules": "En 'ballConfig.svgContent' y 'extraTracksConfig.*.svgContent' se prohíben las animaciones '<animate attributeName=\"r\">' o '<animateTransform type=\"scale\">' que provocaban efectos de bombeo (pulse zoom); solo se admiten rotaciones suaves o diseño vectorial limpio."
+      }
     },
     "steps": [
       {
         "step": 1,
-        "name": "Generar o Cargar el JSON OKF (con Fondos Generados si el Agente es Capaz)",
-        "description": "Usar el Prompt Maestro OKF adjuntando el archivo de audio en cualquier agente o modelo multimodal externo para obtener el archivo .json con las indicaciones (guideSteps), los segmentos (sliceSpecs), los iconos SVG (svgContent), la estructura musical (musicalStructure) y —si el agente tiene capacidad de generar imágenes— las imágenes de fondo ya generadas mediante el OKF (en 'sliceSpecs[i].imageUrl', 'sliceSpecs[i].backgroundSvg' o como lote de archivos)."
+        "name": "Generar o Cargar el JSON OKF Vectorial",
+        "description": "Usar el Prompt Maestro OKF v1.4.0 en cualquier agente o modelo multimodal externo para obtener el archivo .json con guideSteps, sliceSpecs, svgTheme, trajectoryWaypoints y uno o varios SVGs vectoriales (backgroundSvg / masterSceneSvg)."
       },
       {
         "step": 2,
-        "name": "Cargar el Audio y/o Previsualizar la Estructura",
-        "description": "Subir el archivo de audio (.mp3, .wav, .ogg) para que el motor determinista Web Audio API calcule los impactos reales sobre las plataformas, o reproducir directamente la estructura definida en el JSON."
+        "name": "Cargar el Audio y Compilar los SVGs Alineados con los Trayectos",
+        "description": "Subir el archivo de audio (.mp3, .wav, .ogg) o usar el motor rítmico del JSON para que Sonogramic calcule la trayectoria física exacta (800 px/s) y compile automáticamente los SVGs detallados (en N tramos o en 1 SVG único) haciendo coincidir los dibujos con cada rampa, plataforma y salto parabólico."
       },
       {
         "step": 3,
-        "name": "Descargar Plantillas Guía e Introducir las Imágenes",
-        "description": "Opcionalmente descargar las plantillas guía de plataformas (rectángulos blancos sobre fondo negro) de cada segmento para diseñar las ilustraciones, e introducir las imágenes en los segmentos (en lote o una por una) y/o en las esferas."
+        "name": "Alternar entre 1 SVG Único o Varios SVGs y Descargar/Editar los Vectores",
+        "description": "Desde la pestaña 'SVGs' o la barra superior, conmutar libremente entre '1 SVG Panorámico Único' y 'N SVGs por Sección', descargar el SVG completo o los SVGs por tramo (.svg) o subir archivos .svg personalizados."
       },
       {
         "step": 4,
-        "name": "Reproducir, Capturar y Descargar el Vídeo",
-        "description": "Pulsar 'Capturar Musicograma Completo (Auto-Vídeo)' o 'Grabar Vídeo' para capturar en tiempo real el lienzo HTML5 Canvas a 60 FPS junto con el audio y descargar el archivo de vídeo (.webm)."
+        "name": "Reproducir con Zoom Estable y Capturar el Vídeo (.webm)",
+        "description": "Reproducir el musicograma a 60 FPS con cámara suave y zoom 100% estable (sin zooms tipo pulse en los pulsos) y pulsar 'Capturar Musicograma Completo (Auto-Vídeo)' para descargar el archivo de vídeo (.webm)."
       }
     ]
   },
@@ -150,17 +174,17 @@
     {
       "function": "window.applyOkfMusicogramaConfig(jsonData)",
       "arguments": "jsonData: OkfMusicogramaProject",
-      "description": "Carga programáticamente un objeto JSON OKF completo en la aplicación (metadatos, pasos guiados, segmentos, configuración visual, SVGs y estructura musical)."
+      "description": "Carga programáticamente un objeto JSON OKF completo en la aplicación y compila automáticamente el SVG único o los N SVGs detallados alineados con los trayectos."
     },
     {
       "function": "window.exportOkfMusicogramaProject()",
       "arguments": "none",
-      "description": "Devuelve el objeto JSON completo del proyecto actual incluyendo configuración, indicaciones OKF, geometría simulada e imágenes cargadas."
+      "description": "Devuelve el objeto JSON completo del proyecto actual incluyendo configuración, indicaciones OKF, geometría simulada y los SVGs vectoriales alineados."
     },
     {
       "function": "window.startFullMusicogramaVideoCapture()",
       "arguments": "none",
-      "description": "Rebobina el musicograma al segundo 0.0, inicia la grabación de vídeo y audio a 60 FPS y detiene automáticamente la captura al finalizar la pista para devolver el vídeo."
+      "description": "Rebobina el musicograma al segundo 0.0, inicia la grabación de vídeo y audio a 60 FPS con zoom estable y detiene automáticamente la captura al finalizar la pista para devolver el vídeo."
     }
   ]
 }

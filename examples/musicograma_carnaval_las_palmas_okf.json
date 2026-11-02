@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/nmarafo/Sonogramic/main/schema/schema_sonogramic_musicograma.json",
-  "okfVersion": "1.3.0",
+  "okfVersion": "1.4.0",
   "appCompatible": "sonogramic-player-v2",
   "metadata": {
     "id": "carnaval-las-palmas-santa-catalina",
@@ -118,7 +118,13 @@
       "endTime": 5,
       "dynamicsAndTempo": "f, Allegro festivo (124 BPM)",
       "didacticNote": "Entre los segundos 0 y 5 irrumpe la canción directamente en dinámica forte con la exclamación «¡Ay, carnaval! Las Palmas en flor». Suena la voz solista arropada por el ataque brillante de las trompetas, el piano montuno y las congas. Deben colocar aquí una ilustración luminosa de bienvenida con palmeras canarias y flores tropicales.",
-      "imagePrompt": "Wide 16:9 panoramic 2D vibrant digital illustration of Las Palmas de Gran Canaria in full bloom during Carnival at golden sunset, lush canary palm trees decorated with tropical hibiscus flowers and colorful paper garlands, respecting the exact white rectangles of the guide template as floral wooden carnival stages and walkways where the sphere bounces, clear sky above the platforms, seamless left and right edges, no text, no letters, cohesive festive style.",
+      "imagePrompt": "Escenografía vectorial SVG del Carnaval de Las Palmas (Segmento 1 de 6): Parque Santa Catalina con palmeras canarias, flores de hibisco y pasarelas festivas cuyos tableros coinciden 1:1 con el Tema A1 («¡Ay, carnaval! Las Palmas en flor»).",
+      "svgTheme": "carnival",
+      "trajectoryWaypoints": [
+        { "time": 0, "y": 0 },
+        { "time": 2.5, "y": -155 },
+        { "time": 5, "y": 0 }
+      ],
       "recommendedPalette": [
         "#f59e0b",
         "#ec4899",
@@ -136,7 +142,13 @@
       "endTime": 10,
       "dynamicsAndTempo": "f, Allegro bailable",
       "didacticNote": "Del segundo 5 al 10 escuchamos la respuesta melódica «Bailando en Santa Catalina hasta que salga el sol», donde el bajo tumbao y el cencerro impulsan el movimiento de baile y los metales cierran la frase con un motivo sincopado ascendente. Suban aquí una imagen del Parque Santa Catalina lleno de comparsas y luces festivas.",
-      "imagePrompt": "Wide 16:9 panoramic 2D vibrant illustration of Parque Santa Catalina in Las Palmas de Gran Canaria during Carnival dusk, historic colorful buildings and festive string lights, platforms matching the exact white rectangles of the template transformed into illuminated dance floors and carnival float roofs with confetti, seamless horizontal edges with the previous slice, no text, no letters, cohesive festive style.",
+      "imagePrompt": "Escenografía vectorial SVG del Carnaval de Las Palmas (Segmento 2 de 6): edificios históricos del Parque Santa Catalina con guirnaldas luminosas y tarimas de baile alineadas exactamente con el ritmo de tumbao y metales del Tema A2.",
+      "svgTheme": "carnival",
+      "trajectoryWaypoints": [
+        { "time": 5, "y": 0 },
+        { "time": 7.5, "y": -175 },
+        { "time": 10, "y": 0 }
+      ],
       "recommendedPalette": [
         "#06b6d4",
         "#3b82f6",
@@ -154,7 +166,13 @@
       "endTime": 15.5,
       "dynamicsAndTempo": "mf -> f, Espressivo",
       "didacticNote": "Entre los segundos 10 y 15.5 la melodía vocal se vuelve más amplia y sostenida en «Un grito al viento, orgullo y pasión», contrastando las notas largas de la voz con los cortes secos de la sección de vientos. La imagen de esta tarjeta debe reflejar brisa marina, serpentinas volando al viento y banderas de colores.",
-      "imagePrompt": "Wide 16:9 panoramic 2D digital illustration of colorful carnival ribbons, feathers, and swirling confetti carried by the ocean breeze over Las Palmas twilight sky, platforms aligned with the white template rectangles designed as glowing carnival arches and musical ribbons, seamless left and right borders, no text, no letters, cohesive vibrant style.",
+      "imagePrompt": "Escenografía vectorial SVG del Carnaval de Las Palmas (Segmento 3 de 6): serpentinas, plumas y arcos luminosos sobre el cielo de Las Palmas cuyos puentes y rampas coinciden exactamente con el Puente B1.",
+      "svgTheme": "carnival",
+      "trajectoryWaypoints": [
+        { "time": 10, "y": 0 },
+        { "time": 12.8, "y": -190 },
+        { "time": 15.5, "y": 0 }
+      ],
       "recommendedPalette": [
         "#8b5cf6",
         "#ec4899",
@@ -172,7 +190,13 @@
       "endTime": 20.8,
       "dynamicsAndTempo": "f -> ff, Crescendo de timbales",
       "didacticNote": "Desde el segundo 15.5 hasta el 20.8 se homenajea a los dos iconos del carnaval capitalino («La Reina y el Drag me roban el corazón») mientras un redoble de timbales y las trompetas agudas preparan el estribillo. Coloquen aquí una ilustración deslumbrante del gran escenario de la Gala de la Reina y la Gala Drag Queen con coronas de plumas y plataformas de neón.",
-      "imagePrompt": "Wide 16:9 panoramic 2D festive illustration of the grand Carnival stage of Las Palmas featuring giant glittering Carnival Queen feather fantasias and tall colorful Drag Queen platform boots as decorative background motifs, neon spotlights in magenta and gold, the template platform rectangles rendered as sparkling stage catwalks, seamless edges, no text, no letters, cohesive style.",
+      "imagePrompt": "Escenografía vectorial SVG del Carnaval de Las Palmas (Segmento 4 de 6): gran escenario de la Gala de la Reina y la Gala Drag Queen con pasarelas y arcos iluminados alineados 1:1 con el crescendo de timbales y trompetas.",
+      "svgTheme": "carnival",
+      "trajectoryWaypoints": [
+        { "time": 15.5, "y": 0 },
+        { "time": 18.2, "y": -225 },
+        { "time": 20.8, "y": 0 }
+      ],
       "recommendedPalette": [
         "#d946ef",
         "#f43f5e",
@@ -190,7 +214,13 @@
       "endTime": 26,
       "dynamicsAndTempo": "ff, Con fuoco",
       "didacticNote": "Entre los segundos 20.8 y 26 llegamos al clímax cantado en fortissimo: «¡Carnaval, carnaval! De Gran Canaria el motor». Toda la agrupación suena en tutti con acentos rítmicos muy marcados sobre cada sílaba. Suban aquí una lámina de máxima energía visual con carrozas iluminadas, silueta de Gran Canaria y explosión de confeti dorado.",
-      "imagePrompt": "Wide 16:9 panoramic 2D illustration of the grand climax of Gran Canaria Carnival parade in full energy, illuminated carnival floats, golden confetti rain, silhouette of Gran Canaria island glowing with festive lights, platforms matching the exact template rectangles as golden brass and neon bridges, seamless borders, no text, no letters, cohesive style.",
+      "imagePrompt": "Escenografía vectorial SVG del Carnaval de Las Palmas (Segmento 5 de 6): gran cabalgata e iconos de Gran Canaria bajo lluvia de confeti dorado con puentes de bronce y neón alineados 1:1 con los saltos del Estribillo C.",
+      "svgTheme": "carnival",
+      "trajectoryWaypoints": [
+        { "time": 20.8, "y": 0 },
+        { "time": 23.4, "y": -250 },
+        { "time": 26, "y": 0 }
+      ],
       "recommendedPalette": [
         "#ef4444",
         "#f59e0b",
@@ -208,7 +238,13 @@
       "endTime": 31,
       "dynamicsAndTempo": "ff, Presto brillante",
       "didacticNote": "Del segundo 26 al final (31 s) la voz cede el protagonismo al mambo instrumental de trompetas y trombones en registro agudo junto con los timbales, cerrando con un corte seco y brillante. Coloquen aquí la imagen final del amanecer sobre el mar en Las Palmas con fuegos artificiales y trompetas doradas.",
-      "imagePrompt": "Wide 16:9 panoramic 2D illustration of a radiant sunrise over the Atlantic Ocean and Las Canteras / Santa Catalina coast in Las Palmas de Gran Canaria with colorful carnival fireworks and gleaming golden brass instruments in the sky, platforms aligned with the white template rectangles as sunlit golden soundwaves, seamless left edge, no text, no letters, cohesive style.",
+      "imagePrompt": "Escenografía vectorial SVG del Carnaval de Las Palmas (Segmento 6 de 6): amanecer radiante sobre el Atlántico con fuegos artificiales y puentes dorados cuyos tableros coinciden exactamente con el Mambo final de metales.",
+      "svgTheme": "carnival",
+      "trajectoryWaypoints": [
+        { "time": 26, "y": 0 },
+        { "time": 28.5, "y": -235 },
+        { "time": 31, "y": 0 }
+      ],
       "recommendedPalette": [
         "#facc15",
         "#fb923c",
@@ -221,10 +257,11 @@
   ],
   "config": {
     "zoom": 0.85,
-    "platformOpacity": 0.85,
+    "platformOpacity": 0.32,
     "bgOffsetY": 0,
     "cameraSmoothness": 0.84,
     "mosaicSlices": 6,
+    "svgMode": "segments",
     "userKeywords": "Carnaval de Las Palmas de Gran Canaria, Parque Santa Catalina, Gala de la Reina, Gala Drag Queen, Salsa Canaria, Metales, Comparsa",
     "visualStyle": "Creative Theme",
     "colorPalette": [
@@ -260,7 +297,7 @@
       "size": 1.45,
       "trailLength": 18,
       "bounceIntensity": 1.35,
-      "svgContent": "<svg viewBox='0 0 100 100' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><style>@keyframes plumeSway { 0%, 100% { transform: rotate(-4deg) scale(1); } 50% { transform: rotate(4deg) scale(1.06); } } @keyframes maskPulse { 0%, 100% { filter: drop-shadow(0 0 4px #fef08a); } 50% { filter: drop-shadow(0 0 10px #ec4899); } } .plumes { transform-origin: 50px 50px; animation: plumeSway 0.96s ease-in-out infinite; } .mask-body { animation: maskPulse 0.48s ease-in-out infinite; }</style><defs><radialGradient id='carnivalGold' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='#fef08a'/><stop offset='60%' stop-color='#f59e0b'/><stop offset='100%' stop-color='#b45309'/></radialGradient><linearGradient id='featherPink' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#f472b6'/><stop offset='100%' stop-color='#db2777'/></linearGradient><linearGradient id='featherCyan' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#38bdf8'/><stop offset='100%' stop-color='#0284c7'/></linearGradient></defs><g class='plumes'><path d='M50 48 C42 20, 44 6, 50 4 C56 6, 58 20, 50 48 Z' fill='url(#featherPink)'/><path d='M50 48 C30 24, 22 12, 26 8 C34 10, 44 24, 50 48 Z' fill='url(#featherCyan)'/><path d='M50 48 C70 24, 78 12, 74 8 C66 10, 56 24, 50 48 Z' fill='url(#featherCyan)'/><path d='M50 50 C20 34, 10 26, 12 20 C22 20, 36 32, 50 50 Z' fill='#a855f7'/><path d='M50 50 C80 34, 90 26, 88 20 C78 20, 64 32, 50 50 Z' fill='#a855f7'/><animateTransform attributeName='transform' type='scale' values='1;1.07;1' dur='0.48s' repeatCount='indefinite' additive='sum'/></g><g class='mask-body'><path d='M16 54 C16 38, 34 36, 50 46 C66 36, 84 38, 84 54 C84 68, 68 78, 56 72 L50 64 L44 72 C32 78, 16 68, 16 54 Z' fill='url(#carnivalGold)' stroke='#ffffff' stroke-width='2.5'/><ellipse cx='34' cy='55' rx='9' ry='5.5' fill='#1e1b4b' stroke='#fef08a' stroke-width='1.5'/><ellipse cx='66' cy='55' rx='9' ry='5.5' fill='#1e1b4b' stroke='#fef08a' stroke-width='1.5'/><polygon points='50,32 54,40 50,48 46,40' fill='#ec4899' stroke='#ffffff' stroke-width='1.2'/><circle cx='24' cy='46' r='2.5' fill='#38bdf8'/><circle cx='76' cy='46' r='2.5' fill='#38bdf8'/></g></svg>"
+      "svgContent": "<svg viewBox='0 0 100 100' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><radialGradient id='carnivalGold' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='#fef08a'/><stop offset='60%' stop-color='#f59e0b'/><stop offset='100%' stop-color='#b45309'/></radialGradient><linearGradient id='featherPink' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#f472b6'/><stop offset='100%' stop-color='#db2777'/></linearGradient><linearGradient id='featherCyan' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#38bdf8'/><stop offset='100%' stop-color='#0284c7'/></linearGradient></defs><g><path d='M50 48 C42 20, 44 6, 50 4 C56 6, 58 20, 50 48 Z' fill='url(#featherPink)'/><path d='M50 48 C30 24, 22 12, 26 8 C34 10, 44 24, 50 48 Z' fill='url(#featherCyan)'/><path d='M50 48 C70 24, 78 12, 74 8 C66 10, 56 24, 50 48 Z' fill='url(#featherCyan)'/><path d='M50 50 C20 34, 10 26, 12 20 C22 20, 36 32, 50 50 Z' fill='#a855f7'/><path d='M50 50 C80 34, 90 26, 88 20 C78 20, 64 32, 50 50 Z' fill='#a855f7'/></g><g><path d='M16 54 C16 38, 34 36, 50 46 C66 36, 84 38, 84 54 C84 68, 68 78, 56 72 L50 64 L44 72 C32 78, 16 68, 16 54 Z' fill='url(#carnivalGold)' stroke='#ffffff' stroke-width='2.5'/><ellipse cx='34' cy='55' rx='9' ry='5.5' fill='#1e1b4b' stroke='#fef08a' stroke-width='1.5'/><ellipse cx='66' cy='55' rx='9' ry='5.5' fill='#1e1b4b' stroke='#fef08a' stroke-width='1.5'/><polygon points='50,32 54,40 50,48 46,40' fill='#ec4899' stroke='#ffffff' stroke-width='1.2'/><circle cx='24' cy='46' r='2.5' fill='#38bdf8'/><circle cx='76' cy='46' r='2.5' fill='#38bdf8'/></g></svg>"
     },
     "extraTracksConfig": {
       "melody": {
@@ -271,7 +308,7 @@
         "effect": "glow",
         "rotate": false,
         "opacity": 0.95,
-        "svgContent": "<svg viewBox='0 0 100 100' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><style>@keyframes hornVib { 0%, 100% { transform: rotate(-6deg) scale(1); } 50% { transform: rotate(6deg) scale(1.08); } } @keyframes sparkEmit { 0% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0.3; transform: scale(0.8); } } .horn { transform-origin: 50px 50px; animation: hornVib 0.48s ease-in-out infinite; } .sparks { transform-origin: 82px 34px; animation: sparkEmit 0.48s ease-in-out infinite; }</style><defs><linearGradient id='brassGrad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#fef08a'/><stop offset='50%' stop-color='#f59e0b'/><stop offset='100%' stop-color='#d97706'/></linearGradient></defs><circle cx='50' cy='50' r='38' fill='#0284c7' fill-opacity='0.25' stroke='#38bdf8' stroke-width='2'/><g class='horn'><path d='M18 62 L58 44 L76 26 L86 52 L62 52 L22 70 Z' fill='url(#brassGrad)' stroke='#ffffff' stroke-width='2' stroke-linejoin='round'/><ellipse cx='81' cy='39' rx='5' ry='14' transform='rotate(-22 81 39)' fill='#fef08a' stroke='#b45309' stroke-width='2'/><rect x='36' y='44' width='4' height='10' rx='1.5' transform='rotate(-22 38 49)' fill='#ffffff'/><rect x='43' y='41' width='4' height='10' rx='1.5' transform='rotate(-22 45 46)' fill='#ffffff'/><rect x='50' y='38' width='4' height='10' rx='1.5' transform='rotate(-22 52 43)' fill='#ffffff'/></g><g class='sparks'><circle cx='88' cy='24' r='4' fill='#38bdf8'/><circle cx='92' cy='38' r='3.5' fill='#ec4899'/><circle cx='86' cy='50' r='4' fill='#fef08a'/></g></svg>"
+        "svgContent": "<svg viewBox='0 0 100 100' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='brassGrad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#fef08a'/><stop offset='50%' stop-color='#f59e0b'/><stop offset='100%' stop-color='#d97706'/></linearGradient></defs><circle cx='50' cy='50' r='38' fill='#0284c7' fill-opacity='0.25' stroke='#38bdf8' stroke-width='2'/><g><path d='M18 62 L58 44 L76 26 L86 52 L62 52 L22 70 Z' fill='url(#brassGrad)' stroke='#ffffff' stroke-width='2' stroke-linejoin='round'/><ellipse cx='81' cy='39' rx='5' ry='14' transform='rotate(-22 81 39)' fill='#fef08a' stroke='#b45309' stroke-width='2'/><rect x='36' y='44' width='4' height='10' rx='1.5' transform='rotate(-22 38 49)' fill='#ffffff'/><rect x='43' y='41' width='4' height='10' rx='1.5' transform='rotate(-22 45 46)' fill='#ffffff'/><rect x='50' y='38' width='4' height='10' rx='1.5' transform='rotate(-22 52 43)' fill='#ffffff'/></g><g><circle cx='88' cy='24' r='4' fill='#38bdf8'/><circle cx='92' cy='38' r='3.5' fill='#ec4899'/><circle cx='86' cy='50' r='4' fill='#fef08a'/></g></svg>"
       },
       "bass": {
         "shape": "custom-svg",
@@ -281,7 +318,7 @@
         "effect": "glow",
         "rotate": true,
         "opacity": 0.9,
-        "svgContent": "<svg viewBox='0 0 100 100' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><style>@keyframes drumBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } } .drum { transform-origin: 50px 50px; animation: drumBeat 0.48s ease-in-out infinite; }</style><defs><linearGradient id='drumBody' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='#10b981'/><stop offset='50%' stop-color='#34d399'/><stop offset='100%' stop-color='#059669'/></linearGradient></defs><circle cx='50' cy='50' r='44' fill='none' stroke='#a7f3d0' stroke-width='2.5' stroke-dasharray='6 4'><animate attributeName='r' values='38;46;38' dur='0.96s' repeatCount='indefinite'/></circle><g class='drum'><path d='M28 30 L72 30 L64 78 L36 78 Z' fill='url(#drumBody)' stroke='#ffffff' stroke-width='2.5' stroke-linejoin='round'/><polygon points='31,42 50,62 69,42' fill='none' stroke='#fef08a' stroke-width='2.5'/><polygon points='34,64 50,44 66,64' fill='none' stroke='#ec4899' stroke-width='2.5'/><ellipse cx='50' cy='30' rx='22' ry='7' fill='#fef9c3' stroke='#f59e0b' stroke-width='2.5'/><ellipse cx='50' cy='78' rx='14' ry='4.5' fill='#064e3b' stroke='#ffffff' stroke-width='2'/></g></svg>"
+        "svgContent": "<svg viewBox='0 0 100 100' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='drumBody' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='#10b981'/><stop offset='50%' stop-color='#34d399'/><stop offset='100%' stop-color='#059669'/></linearGradient></defs><circle cx='50' cy='50' r='44' fill='none' stroke='#a7f3d0' stroke-width='2.5' stroke-dasharray='6 4'/><g><path d='M28 30 L72 30 L64 78 L36 78 Z' fill='url(#drumBody)' stroke='#ffffff' stroke-width='2.5' stroke-linejoin='round'/><polygon points='31,42 50,62 69,42' fill='none' stroke='#fef08a' stroke-width='2.5'/><polygon points='34,64 50,44 66,64' fill='none' stroke='#ec4899' stroke-width='2.5'/><ellipse cx='50' cy='30' rx='22' ry='7' fill='#fef9c3' stroke='#f59e0b' stroke-width='2.5'/><ellipse cx='50' cy='78' rx='14' ry='4.5' fill='#064e3b' stroke='#ffffff' stroke-width='2'/></g></svg>"
       }
     }
   },

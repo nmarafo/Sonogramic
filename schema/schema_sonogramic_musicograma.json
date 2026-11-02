@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://nmarafo.github.io/Sonogramic/schema/schema_sonogramic_musicograma.json",
   "title": "Sonogramic OKF Musicograma Specification & Project Schema",
-  "description": "Esquema formal JSON Schema (Draft 2020-12) del estándar Open Knowledge Framework (OKF v1.3.0) para generar y ejecutar proyectos de Musicogramas Fluidos en Sonogramic (100% sin IA en la aplicación). Incluye metadatos musicológicos, indicaciones paso a paso (guideSteps), especificaciones de segmentos visuales e instrucciones de imagen (sliceSpecs), configuración estética y vectorial SVG de las esferas (config), estructura musical/rítmica determinista (musicalStructure) y datos opcionales de simulación física y recursos embebidos (data).",
+  "description": "Esquema formal JSON Schema (Draft 2020-12) del estándar Open Knowledge Framework (OKF v1.3.0) para generar y ejecutar proyectos de Musicogramas Fluidos en Sonogramic (100% sin IA en la aplicación). Utiliza exclusivamente uno o varios SVGs vectoriales muy detallados (backgroundSvg por segmento o masterSceneSvg panorámico) cuyos dibujos, puentes, plataformas y curvas coinciden exactamente con las coordenadas matemáticas de los trayectos físicos, manteniendo un zoom de cámara estable sin pulsaciones (sin pulse-zoom).",
   "type": "object",
   "required": [
     "okfVersion",
@@ -206,16 +206,32 @@
           },
           "imageUrl": {
             "type": "string",
-            "description": "URL, ruta local o Data URI (data:image/...) generada por el agente mediante el OKF o predefinida para actuar como imagen de fondo (background) de este segmento."
+            "description": "Ruta o Data URI vectorial opcional (data:image/svg+xml;...) de respaldo para el segmento."
           },
           "backgroundSvg": {
             "type": "string",
-            "description": "Código XML <svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\">...</svg> completo de la ilustración panorámica de fondo generada por el agente mediante el OKF e incrustada directamente en el JSON para este segmento."
+            "description": "Código XML <svg viewBox=\"0 0 1920 1080\" width=\"1920\" height=\"1080\" xmlns=\"http://www.w3.org/2000/svg\">...</svg> de alta precisión con el escenario vectorial multicapa y los elementos escénicos cuyos dibujos coinciden exactamente con las coordenadas del trayecto y las plataformas de este segmento."
+          },
+          "svgTheme": {
+            "type": "string",
+            "description": "Estilo arquitectónico-escénico vectorial para la síntesis exacta de puentes, arcos y soportes sobre el trayecto (ej. 'baroque', 'cavern', 'canarias', 'carnival', 'symphonic')."
+          },
+          "trajectoryWaypoints": {
+            "type": "array",
+            "description": "Puntos de control exactos opcionales (tiempo en segundos y coordenada vertical Y en el rango [-320, 280]) por los que pasa el trayecto dentro del segmento para garantizar coincidencia milimétrica con el dibujo SVG.",
+            "items": {
+              "type": "object",
+              "required": ["time", "y"],
+              "properties": {
+                "time": { "type": "number" },
+                "y": { "type": "number" }
+              }
+            }
           },
           "generatedByAgent": {
             "type": "boolean",
             "default": false,
-            "description": "Indica si la imagen de fondo de este segmento (imageUrl o backgroundSvg) ha sido generada automáticamente por el agente mediante el estándar OKF."
+            "description": "Indica si el SVG detallado de este segmento (backgroundSvg) ha sido generado automáticamente por el agente mediante el estándar OKF."
           }
         }
       }
@@ -261,7 +277,17 @@
           "minimum": 1,
           "maximum": 32,
           "default": 6,
-          "description": "Número total de segmentos horizontales de imagen (debe coincidir con la longitud de sliceSpecs)."
+          "description": "Número total de segmentos horizontales SVG (1 para un único SVG panorámico continuo de toda la obra, o N para múltiples SVGs detallados por sección)."
+        },
+        "svgMode": {
+          "type": "string",
+          "enum": ["segments", "single"],
+          "default": "segments",
+          "description": "Modo de representación vectorial: 'segments' (varios SVGs detallados, uno por sección musical) o 'single' (un único SVG panorámico continuo que abarca todo el trayecto)."
+        },
+        "masterSceneSvg": {
+          "type": "string",
+          "description": "Código XML <svg>...</svg> opcional de un único escenario panorámico continuo de obra completa alineado con la totalidad del trayecto."
         },
         "userKeywords": {
           "type": "string",

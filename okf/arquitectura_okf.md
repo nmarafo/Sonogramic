@@ -1,120 +1,86 @@
-# Arquitectura y Manual Operativo OKF: Sonogramic (`v2.0.0`)
+# Arquitectura y Manual Operativo OKF: Sonogramic (`v2.1.0`)
 
 > **Autor**: Norberto Martín Afonso  
 > **Repositorio**: `https://github.com/nmarafo/Sonogramic`  
 > **Licencia**: GNU Affero General Public License v3.0 (Sección 7b) y Creative Commons CC BY-SA 4.0  
-> **Versión OKF**: `1.3.0` (`urn:okf:software:sonogramic:2026:v2.0.0`)
+> **Versión OKF**: `1.4.0` (`urn:okf:software:sonogramic:2026:v2.1.0`)
 
 ---
 
-## 1. Propósito del Estándar OKF en Sonogramic (Arquitectura 100 % Sin IA en la App)
+## 1. Propósito del Estándar OKF v1.4.0 en Sonogramic (100 % Vectorial SVG Alineado con los Trayectos y Sin Zooms Tipo Pulse)
 
-**Sonogramic** separa de forma radical la **fase de diseño documental (OKF)** de la **fase de reproducción y captura de vídeo en la aplicación web**:
+**Sonogramic** separa la **fase de diseño documental (OKF)** de la **fase de compilación vectorial determinista, reproducción y captura de vídeo en la aplicación web**:
 
-1. **El Estándar OKF (`okf.json`, `okf/`, `schema/`)**: Permite que cualquier persona usuaria o docente utilice su modelo de lenguaje preferido (Google NotebookLM, Gemini, Claude, ChatGPT, Ollama) de forma externa para generar un **archivo `.json` estandarizado** que contiene:
-   - Las **indicaciones y pasos guiados (`guideSteps`)** para elaborar el musicograma.
-   - La **planificación de los segmentos visuales (`sliceSpecs`)** con sus tiempos, notas didácticas y descripciones visuales (*prompts* listos para copiar si desean crear las ilustraciones externamente).
-   - La **configuración visual y vectorial (`config`)**, incluyendo el código XML `<svg>...</svg>` animado de las esferas (*Principal*, *Melodía* y *Bajo*) embebido directamente dentro del JSON.
-   - La **estructura musical y rítmica (`musicalStructure`)** con las secciones formales (`Intro`, `A`, `B`, `A'`, `Coda`), contornos melódicos e hitos rítmicos.
-2. **La Aplicación Web Sonogramic (0 % IA · 100 % Cliente en Navegador)**:
-   - **No utiliza Inteligencia Artificial ni requiere claves API ni servidores externos**.
-   - Recibe únicamente el **archivo `.json` OKF**, las **imágenes que ustedes introduzcan** para cada segmento (y/o para las esferas) y el **archivo de audio** (o sintetiza la guía rítmica directamente desde el JSON si aún no se ha subido el audio).
-   - Muestra en pantalla las indicaciones paso a paso del JSON, permite descargar las **plantillas guía de plataformas** de cada segmento, reproduce el musicograma fluido a **60 FPS** y **devuelve un archivo de vídeo HD (`.webm`)** tras capturar la reproducción completa del musicograma.
+1. **Sustitución Total de Imágenes Mapa de Bits por Uno o Varios SVGs Detallados**:
+   - El estándar **OKF v1.4.0** elimina por completo la generación y el uso de imágenes mapa de bits (`.png`, `.jpg`, `.webp` o generadores de difusión como *Imagen 3* / *DALL-E*), ya que las ilustraciones rasterizadas no podían garantizar coincidencia geométrica exacta con las rampas, plataformas y parábolas del motor físico.
+   - En su lugar, el OKF define **uno o varios SVGs vectoriales multicapa ultradetallados** (`backgroundSvg` por segmento cuando `svgMode: "segments"` o un único `masterSceneSvg` cuando `svgMode: "single"`), acompañados de su **tema arquitectónico (`svgTheme`)** y de **puntos de control de altura (`trajectoryWaypoints`)**.
+   - Al cargarse en **Sonogramic**, el compilador vectorial determinista [`src/utils/svgTrajectoryCompiler.ts`](../src/utils/svgTrajectoryCompiler.ts) construye el dibujo SVG directamente en el **sistema de coordenadas exactas del mundo (`viewBox="${sliceMinX} -960 ${sliceWorldWidth} 1600"`)**, de modo que los puentes, balaustradas, rampas, pilares románicos, terreno esculpido, arcos parabólicos de salto y pentagramas aéreos coinciden con **error `0.0 px`** con los trayectos por donde ruedan y rebotan las tres esferas.
+
+2. **Eliminación Radical de los Zooms Tipo Pulse en los Pulsos**:
+   - Tanto el motor físico/cámara de la aplicación ([`src/components/AudioVisualizer.tsx`](../src/components/AudioVisualizer.tsx)) como la especificación de cursores SVG del JSON OKF **prohíben y eliminan cualquier zoom rítmico tipo *pulse*** en los pulsos musicales:
+     - La cámara mantiene **el 100 % del tiempo el zoom fijo elegido por ustedes** (`userZoomRef.current`), sin saltos bruscos de escala (`1.25`, `1.18`, `1.08`) ni caídas a `0.72` en los impactos.
+     - Se han eliminado los destellos blancos de pantalla (`hitFlash`) y los saltos de resplandor (`shadowBlur`) en los golpes fuertes.
+     - El sanitizador `stripSvgPulseZoomAnimations` elimina automáticamente cualquier etiqueta `<animate attributeName="r">` o `<animateTransform type="scale">` en los cursores SVG para evitar que las esferas «bombeen» con los pulsos.
 
 ---
 
-## 2. Diagrama del Flujo de Trabajo Desacoplado (OKF → JSON + Imágenes → App → Vídeo)
+## 2. Diagrama del Flujo de Trabajo Desacoplado (OKF → JSON Vectorial → Compilador SVG 1:1 → Vídeo)
 
 ```mermaid
 flowchart TD
-    A["1. Diseño con OKF (Opcional en LLM Externo o Manual)<br/>Prompt Maestro OKF + Nombre de la Obra / Estructura"] --> B["Archivo .JSON OKF del Musicograma<br/>• metadata (Obra, BPM, Compás, Forma)<br/>• guideSteps (Indicaciones y pasos guiados)<br/>• sliceSpecs (Segmentos 1..N e indicaciones de imagen)<br/>• config (Cámara + SVGs animados en svgContent)<br/>• musicalStructure (Secciones y acentos)"]
+    A["1. Diseño con OKF v1.4.0 (LLM Externo o Manual)<br/>Prompt Maestro OKF + Audio / Estructura"] --> B["Archivo .JSON OKF del Musicograma<br/>• metadata (Obra, BPM, Compás, Forma)<br/>• guideSteps (Indicaciones y pasos guiados)<br/>• sliceSpecs (svgTheme, trajectoryWaypoints, backgroundSvg)<br/>• config (svgMode: 'segments' | 'single', SVGs sin pulse)<br/>• musicalStructure (Secciones y contornos acotados)"]
     B --> C["2. Carga en la App Web Sonogramic (100% Sin IA)<br/>Lectura del .JSON + Archivo de Audio (.mp3/.wav/.ogg)"]
-    C --> D["3. Motor Físico 2D Determinista (60 FPS)<br/>• Análisis Web Audio API local (Graves 150 Hz / Agudos 800 Hz)<br/>• Generación de Plataformas (Major, Minor, Accelerator, Friction)<br/>• División del recorrido en N Segmentos (Slices)"]
-    D --> E["4. Plantillas Guía e Introducción de Imágenes<br/>• Descarga opcional de Plantillas Guía (plataformas blancas sobre negro)<br/>• Subida de Imágenes por lote o por segmento (1..N)<br/>• Subida opcional de imágenes/SVGs para las 3 esferas"]
-    E --> F["5. Reproducción y Captura de Vídeo (MediaRecorder 60 FPS)<br/>• Reproducción sincronizada del Musicograma<br/>• Captura automática de Inicio a Fin<br/>• Descarga directa del Vídeo HD (.webm) y Proyecto (.json)"]
+    C --> D["3. Motor Físico 2D Determinista (800 px/s a 60 FPS)<br/>• Contornos melódicos acotados por sección (y ∈ [-320, +260])<br/>• Interpolación con trajectoryWaypoints<br/>• Plataformas y trayectorias de Principal, Melodía y Bajo"]
+    D --> E["4. Compilador Vectorial SVG Alineado con los Trayectos<br/>• Modo N SVGs por Sección o 1 SVG Panorámico Único<br/>• Coordenadas del mundo 1:1 (viewBox = sliceMinX -960 width 1600)<br/>• Puentes, barandillas, pilares y curvas exactas sobre los trayectos"]
+    E --> F["5. Reproducción con Zoom Estable y Captura de Vídeo (60 FPS)<br/>• Cámara suave sin zooms tipo pulse en los pulsos<br/>• Descarga de SVGs (.svg) y Vídeo HD (.webm)"]
 ```
 
 ---
 
-## 3. Anatomía del Archivo `.JSON` OKF del Musicograma
+## 3. Anatomía del Archivo `.JSON` OKF v1.4.0
 
-El esquema formal [`schema/schema_sonogramic_musicograma.json`](../schema/schema_sonogramic_musicograma.json) define cinco bloques principales en todo archivo `.json` de Sonogramic:
+El esquema formal [`schema/schema_sonogramic_musicograma.json`](../schema/schema_sonogramic_musicograma.json) define cinco bloques principales:
 
 ### 3.1. `metadata` (Ficha Musicológica y Pedagógica)
-Contiene la información descriptiva de la obra musical:
-- `title`: Título de la obra o canción.
-- `composer`: Compositor, autor o agrupación.
-- `musicalPeriodOrGenre`: Estilo o periodo histórico (ej. *Barroco*, *Romanticismo*, *Folclore Canario*).
-- `educationalStage`: Nivel educativo recomendado (ej. *Primaria*, *ESO*, *Bachillerato*).
-- `durationSeconds`: Duración total en segundos.
-- `bpm`: Tempo en pulsos por minuto.
-- `timeSignature`: Compás (ej. `"4/4"`, `"3/4"`, `"6/8"`).
-- `musicalForm`: Estructura formal (ej. `"Rondó A-B-A-C-A"`).
-- `pedagogicalObjectives`: Lista de objetivos de escucha activa.
-- `emotions`: Etiquetas de carácter musical.
-- `environmentConcept`: Descripción general del paisaje continuo por el que avanza el musicograma.
+- `title`, `composer`, `musicalPeriodOrGenre`, `educationalStage`, `durationSeconds`, `bpm`, `timeSignature`, `musicalForm`, `pedagogicalObjectives`, `emotions` y `environmentConcept`.
 
-### 3.2. `guideSteps` (Indicaciones y Pasos para Generar el Musicograma)
-Es una matriz ordenada de pasos que la aplicación muestra en el **Panel de Guía Paso a Paso OKF**. Cada paso incluye:
-- `step`: Número de orden (`1..N`).
-- `title`: Nombre corto del paso.
-- `phase`: Fase operativa (`"preparacion"`, `"plantillas"`, `"imagenes"`, `"esferas"`, `"sincronizacion"`, `"grabacion"`).
-- `instruction`: Explicación clara de lo que deben hacer ustedes en ese paso.
-- `didacticTip`: Sugerencia metodológica o técnica.
-- `targetAction`: Botón de acción rápida que la aplicación habilita directamente en la tarjeta del paso:
-  - `"upload_audio"`: Abre el selector para cargar el archivo de audio (`.mp3`, `.wav`, `.ogg`).
-  - `"download_layouts"`: Descarga las plantillas guía de plataformas (rectángulos blancos sobre fondo negro) de todos los segmentos.
-  - `"upload_batch_images"`: Abre el selector múltiple para introducir de golpe las imágenes de todos los segmentos (`1..N`).
-  - `"preview_playback"`: Inicia la reproducción de prueba del musicograma.
-  - `"record_full_video"`: Rebobina al segundo `0:00`, captura el vídeo completo del musicograma de principio a fin y habilita su descarga.
-  - `"export_project_json"`: Guarda el proyecto completo (`.json`) con todas las imágenes embebidas.
+### 3.2. `guideSteps` (Indicaciones y Pasos Guiados)
+Matriz ordenada de pasos interactivos en el panel lateral con botones de acción directa (`"upload_audio"`, `"download_layouts"`, `"upload_batch_images"`, `"preview_playback"`, `"record_full_video"`, `"export_project_json"`).
 
-### 3.3. `sliceSpecs` (Especificación de los Segmentos del Mosaico `1..N`)
-El recorrido horizontal completo del musicograma se divide en `mosaicSlices` segmentos consecutivos (`Segmento 1` a `Segmento N`). Cada elemento de `sliceSpecs` define:
-- `index`: Índice del segmento (`0` a `N - 1`).
-- `title`: Título descriptivo del tramo musical.
-- `startTime` y `endTime`: Rango temporal en segundos.
-- `musicalSection`: Sección formal (ej. `"Tema A"`, `"Puente"`, `"Coda"`).
-- `dynamicsAndTempo`: Indicaciones de intensidad y agógica (ej. `"f — Allegro"`).
-- `didacticNote`: Qué elementos sonoros o instrumentales se trabajan en este segmento.
-- `imagePrompt`: Descripción visual detallada para que el agente generador (o la persona usuaria) cree la ilustración de fondo correspondiente a ese segmento, indicando qué atmósfera, colores y superficies deben aparecer sobre las plataformas.
-- `recommendedPalette`: Colores hexadecimales sugeridos.
-- `generatedByAgent`: Booleano (`true` / `false`) que indica si la imagen de fondo del segmento fue generada automáticamente por el agente mediante el estándar OKF.
-- `imageUrl`: URL, ruta relativa o Data URI (`data:image/...;base64,...`) de la imagen de fondo generada por la herramienta de imagen del agente.
-- `backgroundSvg`: Código XML `<svg viewBox="0 0 1024 1024" width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">...</svg>` del escenario panorámico ilustrado multicapa generado por el agente e incrustado directamente en el JSON.
+### 3.3. `sliceSpecs` (Segmentos Vectoriales Alineados con el Trayecto `1..N`)
+Cada elemento de `sliceSpecs` define un tramo formal de la obra:
+- `index`, `title`, `startTime`, `endTime`, `musicalSection`, `dynamicsAndTempo`, `didacticNote`.
+- `svgTheme`: Tema arquitectónico y paisajístico para el compilador vectorial:
+  - `"baroque"`: Jardines barrocos, templetes clásicos, cipreses, fuentes y balaustradas doradas.
+  - `"cavern"`: Gruta subterránea nórdica, estalactitas, cristales minerales, antorchas y puentes de roca tallada.
+  - `"canarias"`: Paisaje volcánico de Canarias, Roque Nublo/Teide, balconadas de madera de tea, cardones, dragos y pintaderas.
+  - `"carnival"`: Escenario del Parque Santa Catalina, olas de Las Canteras, arcos festivos de neón, palmeras y confeti.
+  - `"symphonic"`: Anfiteatro sinfónico, arcos acústicos y pabellones musicales.
+- `trajectoryWaypoints`: Matriz de puntos de paso `[{ "time": segundos, "y": coordenadaY }]` (`y` entre `-320` y `+260`, donde valores negativos son más agudos/altos en pantalla y `0` es el nivel base en los bordes de sección) que moldea la altura exacta de las plataformas para que coincidan con el dibujo pensado para ese tramo.
+- `backgroundSvg`: Código XML `<svg viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg">...</svg>` con el cielo, atmósfera y paisaje lejano del segmento. Al cargarse en **Sonogramic**, el compilador integra este paisaje de fondo con todas las capas geométricas exactas del trayecto (terreno esculpido, pilares románicos, tableros de puente con barandillas y curvas de las 3 esferas).
 
-#### 3.3.1. Protocolo OKF de Generación Automática de Imágenes de Fondo por el Agente
-Cuando el agente que procesa este OKF dispone de capacidad de generación gráfica (herramienta de generación de imágenes rasterizadas como *Imagen 3*, *DALL-E*, subagente `image-generator`, o capacidad de síntesis vectorial `<svg>`), **el estándar OKF le ordena generar automáticamente las imágenes necesarias para actuar de background en todos los segmentos (`sliceSpecs`)**:
-1. **Agente con Herramienta de Imagen Rasterizada**: Genera las $N$ ilustraciones panorámicas siguiendo el `imagePrompt` y la paleta `recommendedPalette` de cada segmento, y las vincula en `sliceSpecs[i].imageUrl` (o las entrega numeradas como `01_segmento_1.png` ... `0N_segmento_N.png` para subida en lote).
-2. **Incrustación Autocontenida en el JSON (`backgroundSvg`)**: El agente genera e incrusta en cada `sliceSpecs[i].backgroundSvg` un escenario panorámico `<svg viewBox="0 0 1024 1024" width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">...</svg>` cuyo horizonte en el borde derecho ($x = 1024$) coincide con el borde izquierdo ($x = 0$) del segmento siguiente. Al importar el `.json` en **Sonogramic**, la aplicación carga y renderiza automáticamente todos los backgrounds sin requerir IA en la web app.
+### 3.4. `config` (Cámara Estable, Modo de SVG y Cursores sin Pulse Zoom)
+- `zoom` (`0.25` a `1.5`): Factor de zoom **100 % fijo y estable** durante toda la reproducción (sin efectos *pulse* en los beats).
+- `platformOpacity` (`0.0` a `1.0`): Por defecto `0.32`, ya que el propio dibujo SVG ya contiene los puentes, tablones, barandillas y pilares en la posición exacta de cada plataforma.
+- `svgMode`:
+  - `"segments"`: Compila y renderiza **varios SVGs detallados** (`mosaicSlices = N`, uno por cada sección musical de `sliceSpecs`).
+  - `"single"`: Compila y renderiza **un único SVG panorámico maestro continuo** (`mosaicSlices = 1`) que abarca de principio a fin toda la obra.
+- `masterSceneSvg`: SVG panorámico continuo opcional para el modo `"single"`.
+- `ballConfig` y `extraTracksConfig` (`melody` y `bass`): Iconos vectoriales `svgContent` **libres de animaciones de escala o radio** (`<animate attributeName="r">` o `<animateTransform type="scale">`).
 
-### 3.4. `config` (Cámara, Plataformas y Esferas con `svgContent` Embebido)
-Controla el aspecto visual del lienzo sin necesidad de IA:
-- `zoom` (`0.25` a `1.5`), `platformOpacity` (`0.0` a `1.0`), `bgOffsetY` (`-1000` a `1000`), `cameraSmoothness` (`0.0` a `0.98`) y `mosaicSlices` (`1` a `32`).
-- `ballConfig` (Esfera principal) y `extraTracksConfig` (`melody` para agudos y `bass` para graves):
-  - `shape`: `"circle"` | `"square"` | `"hexagon"` | `"star"` | `"music-note"` | `"custom-svg"`.
-  - `color`: Color hexadecimal o `"dynamic"`.
-  - `effect`: `"glow"` | `"outline"` | `"none"`.
-  - `rotate`: `true` | `false`.
-  - `opacity`: `0.0` a `1.0`.
-  - `svgContent`: Código XML `<svg viewBox="0 0 100 100">...</svg>` (incluyendo animaciones nativas `<animate>` o `<animateTransform>`) que el JSON proporciona directamente para que la aplicación dibuje personajes, instrumentos o símbolos musicales animados sin llamar a ningún servicio externo.
-
-### 3.5. `musicalStructure` (Coreografía Rítmica y Secciones)
-Permite que el archivo `.json` funcione **tanto con un archivo de audio externo como de forma autónoma**:
-- Cuando se sube un archivo de audio (`.mp3`, `.wav`, `.ogg`), el motor DSP local de **Sonogramic** filtra en el navegador la banda grave (`< 150 Hz`) y la banda melódica/aguda (`> 800 Hz`) mediante `OfflineAudioContext`, detecta los picos rítmicos reales y aplica los estilos de plataforma y energía definidos en `musicalStructure.sections`.
-- Si se carga primero el archivo `.json` (antes de subir el audio), el motor construye instantáneamente las plataformas y la trayectoria a 60 FPS a partir de `metadata.bpm`, `metadata.durationSeconds` y `musicalStructure.sections` (o `customBeats`), permitiendo previsualizar el recorrido, descargar las plantillas guía de plataformas e introducir las imágenes de inmediato.
+### 3.5. `musicalStructure` (Coreografía Rítmica Acotada por Sección)
+- Cada sección define `startTime`, `endTime`, `label`, `focus`, `energy`, `subdivision`, `melodicContour` y `platformStyle`.
+- El motor físico evalúa los contornos melódicos de forma **relativa a cada sección (`uSec ∈ [0, 1]`) y a cada segmento (`uSlice ∈ [0, 1]`)**, aplicando una envolvente suave $\sin^{\,0.7}(\pi \cdot u_{\text{slice}})$ que hace converger la altura $Y$ hacia `0` en las fronteras entre segmentos. De este modo, el recorrido se mantiene siempre dentro de la banda visual óptima ($y \in [-320, +260]$) y los bordes izquierdo y derecho de los SVGs contiguos encajan sin saltos.
 
 ---
 
-## 4. Geometría del Motor Físico y Plantillas Guía de Plataformas
+## 4. Geometría Exacta 1:1 entre los SVGs y los Trayectos (`svgTrajectoryCompiler.ts`)
 
-Para que las imágenes introducidas encajen con precisión con el movimiento de las esferas:
-1. **Velocidad Horizontal Constante**: La esfera principal avanza a `SPEED = 800 px/s` en el eje $X$. Por tanto, un segundo de música equivale exactamente a `800 píxeles` horizontales en el mundo virtual.
-2. **Gravedad Parabólica y Rampas**:
-   - Cuando la melodía desciende (`nextY > prevY`), el motor genera una **rampa continua (`mode: "ramp"`)** por la que la esfera rueda.
-   - Cuando la melodía asciende o salta (`nextY <= prevY`), el motor calcula una **trayectoria parabólica exacta (`mode: "jump"`, $g = 2500\text{ px/s}^2$)** para que la esfera aterrice en el centro de la siguiente plataforma justo en el instante del pulso musical.
-3. **Plantillas Guía de Plataformas (`1024 × 1024 px`)**:
-   - Desde cada segmento del musicograma, ustedes pueden pulsar **«📐 Descargar Plantilla Guía»**.
-   - La aplicación exporta una imagen con fondo negro (`#000000`) y las plataformas dibujadas como rectángulos blancos (`#ffffff`), incluyendo en el borde izquierdo una franja de referencia si el segmento anterior ya tiene una imagen cargada.
-   - Al usar esa plantilla como guía para dibujar o componer la imagen de ese segmento y volver a subirla en ese mismo segmento, la esfera rodará y rebotará exactamente sobre las superficies de su ilustración.
-   - Una vez colocadas las imágenes, pueden reducir el control **«Opacidad de Plataformas»** a `0.0`–`0.2` para que solo se vean sus ilustraciones de fondo mientras las esferas rebotan sobre ellas.
+1. **Escala Espacial Determinista**:
+   - La esfera principal avanza a `SPEED = 800 px/s` en el eje $X$.
+   - El segmento $i$ abarca en el mundo el intervalo horizontal $[x_{\min}, x_{\max}]$ y el intervalo vertical $[-960, +640]$ (altura de mundo `1600 px`).
+2. **Sistema de Coordenadas Compartido (`viewBox` de Mundo)**:
+   - El compilador [`compileDetailedSliceSvg`](../src/utils/svgTrajectoryCompiler.ts) genera cada SVG con `viewBox="${sliceMinX} -960 ${sliceWorldWidth} 1600"` y `preserveAspectRatio="none"`, renderizándolo en el lienzo exactamente en `(sliceMinX, -960 + bgOffsetY, sliceWorldWidth, 1600)`.
+   - Así, **1 unidad del SVG equivale exactamente a 1 píxel del mundo físico**:
+     - Cada plataforma `{ x, y, width, height, angle, type }` se dibuja en el SVG mediante `<g transform="translate(x, y) rotate(angleDeg)">` con su tablero arquitectónico, su barandilla superior en `y = -height/2` (`-10 px`, línea exacta de contacto de la esfera de radio `20 px`) y sus pilares de piedra y arcos románicos descendiendo hasta el suelo (`y = 640`).
+     - Las trayectorias completas `positions`, `melodyPositions` y `bassPositions` se trazan en el SVG como caminos de guía dorados, pentagramas aéreos de 5 líneas con notas musicales en los ápices y cimientos rítmicos de bajo, coincidiendo al 100 % con el movimiento de las esferas a 60 FPS.

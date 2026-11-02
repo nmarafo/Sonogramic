@@ -1,5 +1,5 @@
 {
-  "okfVersion": "1.3.0",
+  "okfVersion": "1.4.0",
   "metadata": {
     "id": "urn:okf:musicograma:grieg-rey-montana:2026",
     "title": "En la Gruta del Rey de la Montaña (Peer Gynt, Op. 23)",
@@ -83,7 +83,13 @@
       "musicalSection": "Intro + Tema A1 (Pianissimo)",
       "dynamicsAndTempo": "pp — Alla marcia e molto marcato (Violonchelos y contrabajos en pizzicato)",
       "didacticNote": "Acorde inicial de trompas y marcha sigilosa en el registro grave con fagotes y cuerdas en pizzicato.",
-      "imagePrompt": "Ilustración panorámica 2D oscura y misteriosa: entrada a una caverna nórdica subterránea con estalactitas azules y plataformas de piedra musgosa cuyos bordes superiores coinciden exactamente con los rectángulos blancos de la plantilla. Hongos bioluminiscentes tenues.",
+      "imagePrompt": "Escenografía vectorial SVG subterránea (Segmento 1 de 6): entrada a la caverna nórdica con estalactitas, cristales esmeralda y puentes de roca cuyos tableros superiores coinciden exactamente (1:1) con los pasos sigilosos en pizzicato del Tema A1.",
+      "svgTheme": "cavern",
+      "trajectoryWaypoints": [
+        { "time": 0, "y": 0 },
+        { "time": 8, "y": -90 },
+        { "time": 16, "y": 0 }
+      ],
       "recommendedPalette": [
         "#090d16",
         "#0f172a",
@@ -101,7 +107,13 @@
       "musicalSection": "Tema A2 (Piano -> Mezzo-piano)",
       "dynamicsAndTempo": "p — Se suman los violines y maderas",
       "didacticNote": "El tema se repite una quinta más aguda incorporando más instrumentos de la orquesta sin perder el carácter misterioso.",
-      "imagePrompt": "Ilustración panorámica 2D: galería subterránea con cristales de cuarzo esmeralda y puentes de roca tallada alineados exactamente con el borde superior de los rectángulos blancos de la plantilla.",
+      "imagePrompt": "Escenografía vectorial SVG subterránea (Segmento 2 de 6): galería de cuarzo turquesa con arcos de roca tallada y rampas ascendentes alineadas matemáticamente con la repetición del tema una quinta superior.",
+      "svgTheme": "cavern",
+      "trajectoryWaypoints": [
+        { "time": 16, "y": 0 },
+        { "time": 24, "y": -145 },
+        { "time": 32, "y": 0 }
+      ],
       "recommendedPalette": [
         "#0f172a",
         "#115e59",
@@ -119,7 +131,14 @@
       "musicalSection": "Episodio Central B",
       "dynamicsAndTempo": "mp -> mf — Poco a poco accelerando",
       "didacticNote": "Motivo secundario repetitivo con diálogo entre maderas agudas y cuerdas graves mientras comienza a acelerarse el pulso.",
-      "imagePrompt": "Ilustración panorámica 2D: gran salón subterráneo del Rey de la Montaña con columnas ciclópeas, antorchas encendidas y pasarelas de piedra alineadas con los rectángulos blancos de la plantilla.",
+      "imagePrompt": "Escenografía vectorial SVG subterránea (Segmento 3 de 6): gran salón del Rey de la Montaña con columnas ciclópeas, antorchas y pasarelas de piedra cuyos tableros coinciden 1:1 con el diálogo rítmico de la Sección B.",
+      "svgTheme": "cavern",
+      "trajectoryWaypoints": [
+        { "time": 32, "y": 0 },
+        { "time": 38, "y": -175 },
+        { "time": 43, "y": 75 },
+        { "time": 48, "y": 0 }
+      ],
       "recommendedPalette": [
         "#1e1b4b",
         "#3730a3",
@@ -137,7 +156,14 @@
       "musicalSection": "Tema A3 en Forte y Stringendo",
       "dynamicsAndTempo": "f — Stringendo (Más rápido y vigoroso)",
       "didacticNote": "Toda la orquesta ataca el tema principal con fuerza mientras el tempo se acelera notablemente.",
-      "imagePrompt": "Ilustración panorámica 2D: fragua subterránea con ríos de magma al fondo y puentes de hierro forjado y roca volcánica cuyos bordes superiores coinciden con los rectángulos blancos de la plantilla.",
+      "imagePrompt": "Escenografía vectorial SVG subterránea (Segmento 4 de 6): fragua volcánica con puentes de hierro forjado y arcos de basalto alineados exactamente con la aceleración en forte del Tema A3.",
+      "svgTheme": "cavern",
+      "trajectoryWaypoints": [
+        { "time": 48, "y": 0 },
+        { "time": 54, "y": -210 },
+        { "time": 60, "y": -120 },
+        { "time": 64, "y": 0 }
+      ],
       "recommendedPalette": [
         "#31102f",
         "#7c2d12",
@@ -155,7 +181,14 @@
       "musicalSection": "Clímax con Platillos, Bombo y Metales",
       "dynamicsAndTempo": "ff — Più vivo (Síncopas y acentos violentos)",
       "didacticNote": "Golpes de platillos y metales estridentes marcan los saltos más altos del musicograma.",
-      "imagePrompt": "Ilustración panorámica 2D épica: caverna en derrumbe iluminada por chispas doradas y grietas incandescentes, con plataformas de obsidiana alineadas con los rectángulos blancos de la plantilla.",
+      "imagePrompt": "Escenografía vectorial SVG subterránea (Segmento 5 de 6): caverna incandescente con puentes de obsidiana y arcos parabólicos que coinciden 1:1 con los grandes saltos sincopados de platillos y metales.",
+      "svgTheme": "cavern",
+      "trajectoryWaypoints": [
+        { "time": 64, "y": 0 },
+        { "time": 69, "y": -250 },
+        { "time": 74, "y": 110 },
+        { "time": 78, "y": 0 }
+      ],
       "recommendedPalette": [
         "#450a0a",
         "#991b1b",
@@ -173,7 +206,14 @@
       "musicalSection": "Coda Final (Presto / Fortissimo)",
       "dynamicsAndTempo": "fff — Presto y acordes secos finales",
       "didacticNote": "Carrera vertiginosa en semicorcheas que desemboca en los grandes golpes finales de toda la orquesta.",
-      "imagePrompt": "Ilustración panorámica 2D: salida de la caverna hacia un fiordo iluminado, con los últimos puentes de roca volcánica alineados exactamente con los rectángulos blancos de la plantilla.",
+      "imagePrompt": "Escenografía vectorial SVG subterránea (Segmento 6 de 6): salida explosiva de la caverna hacia la luz del fiordo con rampas y puentes volcánicos alineados exactamente con la Coda Presto final.",
+      "svgTheme": "cavern",
+      "trajectoryWaypoints": [
+        { "time": 78, "y": 0 },
+        { "time": 83, "y": -260 },
+        { "time": 87, "y": -140 },
+        { "time": 90, "y": 0 }
+      ],
       "recommendedPalette": [
         "#4c0519",
         "#e11d48",
@@ -185,11 +225,12 @@
     }
   ],
   "config": {
-    "zoom": 0.8,
-    "platformOpacity": 0.85,
+    "zoom": 0.85,
+    "platformOpacity": 0.32,
     "bgOffsetY": 0,
-    "cameraSmoothness": 0.8,
+    "cameraSmoothness": 0.82,
     "mosaicSlices": 6,
+    "svgMode": "segments",
     "userKeywords": "Caverna nórdica misteriosa, cristales esmeralda, salón del Rey de la Montaña, lava incandescente y huida épica",
     "ballConfig": {
       "shape": "custom-svg",
@@ -198,7 +239,7 @@
       "rotate": true,
       "opacity": 1,
       "label": "Orbe Rúnico (Peer Gynt)",
-      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"#064e3b\" stroke=\"#34d399\" stroke-width=\"5\"/><polygon points=\"50,14 81,32 81,68 50,86 19,68 19,32\" fill=\"none\" stroke=\"#a7f3d0\" stroke-width=\"3\"/><circle cx=\"50\" cy=\"50\" r=\"16\" fill=\"#10b981\"><animate attributeName=\"r\" values=\"12;20;12\" dur=\"0.8s\" repeatCount=\"indefinite\"/><animate attributeName=\"fill\" values=\"#10b981;#fde047;#f43f5e;#10b981\" dur=\"3s\" repeatCount=\"indefinite\"/></circle></svg>"
+      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"#064e3b\" stroke=\"#34d399\" stroke-width=\"5\"/><polygon points=\"50,14 81,32 81,68 50,86 19,68 19,32\" fill=\"none\" stroke=\"#a7f3d0\" stroke-width=\"3\"/><circle cx=\"50\" cy=\"50\" r=\"16\" fill=\"#10b981\"><animate attributeName=\"fill\" values=\"#10b981;#fde047;#f43f5e;#10b981\" dur=\"3s\" repeatCount=\"indefinite\"/></circle></svg>"
     },
     "extraTracksConfig": {
       "melody": {
@@ -208,7 +249,7 @@
         "rotate": false,
         "opacity": 0.95,
         "label": "Chispa de Antorcha (Maderas y Violines)",
-        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M50,10 C70,35 80,55 65,78 C55,90 45,90 35,78 C20,55 30,35 50,10 Z\" fill=\"#f59e0b\" stroke=\"#fef08a\" stroke-width=\"3\"><animateTransform attributeName=\"transform\" type=\"scale\" values=\"1,1; 1.08,0.94; 1,1\" additive=\"sum\" dur=\"0.5s\" repeatCount=\"indefinite\"/></path><circle cx=\"50\" cy=\"62\" r=\"12\" fill=\"#fef08a\"/></svg>"
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M50,10 C70,35 80,55 65,78 C55,90 45,90 35,78 C20,55 30,35 50,10 Z\" fill=\"#f59e0b\" stroke=\"#fef08a\" stroke-width=\"3\"/><circle cx=\"50\" cy=\"62\" r=\"12\" fill=\"#fef08a\"/></svg>"
       },
       "bass": {
         "shape": "custom-svg",

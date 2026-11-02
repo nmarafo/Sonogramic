@@ -1,5 +1,5 @@
 {
-  "okfVersion": "1.3.0",
+  "okfVersion": "1.4.0",
   "metadata": {
     "id": "urn:okf:musicograma:isa-canaria-parrandera:2026",
     "title": "Isa Parrandera Canaria — Folclore Tradicional de Canarias",
@@ -83,7 +83,13 @@
       "musicalSection": "Introducción Instrumental",
       "dynamicsAndTempo": "f — Allegro festivo (132 BPM en 3/4)",
       "didacticNote": "Entrada brillante de la parranda con el rasgueo característico del timple y la melodía en bandurrias y laúdes.",
-      "imagePrompt": "Ilustración panorámica 2D luminosa de un paisaje canario con cardones, tabaibas y muros de piedra volcánica seca cuyos bordes superiores coinciden exactamente con los rectángulos blancos de la plantilla. Cielo azul Atlántico con mar de nubes al fondo.",
+      "imagePrompt": "Escenografía vectorial SVG canaria (Segmento 1 de 5): paisaje con cardones, tabaibas y muros de piedra volcánica seca cuyos tableros superiores coinciden exactamente (1:1) con el rasgueo de timple y el punteo de bandurria.",
+      "svgTheme": "canarias",
+      "trajectoryWaypoints": [
+        { "time": 0, "y": 0 },
+        { "time": 7.5, "y": -160 },
+        { "time": 15, "y": 0 }
+      ],
       "recommendedPalette": [
         "#0369a1",
         "#38bdf8",
@@ -101,7 +107,14 @@
       "musicalSection": "Copla 1",
       "dynamicsAndTempo": "mf — Cantabile y rítmico",
       "didacticNote": "La voz solista entona la copla octosilábica mientras las cuerdas mantienen el acompañamiento ternario.",
-      "imagePrompt": "Ilustración panorámica 2D: calle tradicional canaria con casas blancas y balcones de madera de tea cuyos tejados y pasarelas coinciden exactamente con el borde superior de los rectángulos blancos de la plantilla.",
+      "imagePrompt": "Escenografía vectorial SVG canaria (Segmento 2 de 5): calle tradicional con casas blancas y balcones de madera de tea cuyas pasarelas coinciden 1:1 con el fraseo ternario de la primera copla.",
+      "svgTheme": "canarias",
+      "trajectoryWaypoints": [
+        { "time": 15, "y": 0 },
+        { "time": 21, "y": -130 },
+        { "time": 26, "y": 65 },
+        { "time": 30, "y": 0 }
+      ],
       "recommendedPalette": [
         "#1e3a8a",
         "#60a5fa",
@@ -119,7 +132,13 @@
       "musicalSection": "Estribillo Colectivo",
       "dynamicsAndTempo": "ff — Coro a voces y cuerpo de baile",
       "didacticNote": "Se une todo el coro en el estribillo mientras los bailadores forman corros y puentes.",
-      "imagePrompt": "Ilustración panorámica 2D festiva: plaza de pueblo canario engalanada con banderines de colores de romería y plataformas de cantería azul alineadas con los rectángulos blancos de la plantilla.",
+      "imagePrompt": "Escenografía vectorial SVG canaria (Segmento 3 de 5): plaza engalanada con banderines de romería y puentes de cantería azul cuyos arcos coinciden exactamente con el estribillo coral colectivo.",
+      "svgTheme": "canarias",
+      "trajectoryWaypoints": [
+        { "time": 30, "y": 0 },
+        { "time": 37.5, "y": -210 },
+        { "time": 45, "y": 0 }
+      ],
       "recommendedPalette": [
         "#1d4ed8",
         "#f59e0b",
@@ -137,7 +156,14 @@
       "musicalSection": "Puente Instrumental",
       "dynamicsAndTempo": "f — Virtuosismo de cuerda pulsada",
       "didacticNote": "Rápidas escalas en corcheas de las bandurrias y laúdes respondidas por el rasgueo sincopado del timple.",
-      "imagePrompt": "Ilustración panorámica 2D: mirador sobre una caldera volcánica canaria al atardecer con senderos empedrados cuyas superficies superiores coinciden con los rectángulos blancos de la plantilla.",
+      "imagePrompt": "Escenografía vectorial SVG canaria (Segmento 4 de 5): mirador sobre caldera volcánica al atardecer con senderos empedrados cuyos saltos coinciden 1:1 con el diálogo de timple y laúd.",
+      "svgTheme": "canarias",
+      "trajectoryWaypoints": [
+        { "time": 45, "y": 0 },
+        { "time": 50, "y": -190 },
+        { "time": 55, "y": 80 },
+        { "time": 60, "y": 0 }
+      ],
       "recommendedPalette": [
         "#312e81",
         "#ea580c",
@@ -155,7 +181,13 @@
       "musicalSection": "Coda Festiva",
       "dynamicsAndTempo": "ff — Aceleración final y acorde de cierre",
       "didacticNote": "Cierre jubiloso con toda la agrupación folclórica marcando los tres pulsos finales.",
-      "imagePrompt": "Ilustración panorámica 2D: costa volcánica canaria con charcos naturales y faro iluminado al atardecer, con pasarelas de basalto alineadas exactamente con los rectángulos blancos de la plantilla.",
+      "imagePrompt": "Escenografía vectorial SVG canaria (Segmento 5 de 5): costa volcánica con charcos naturales y pasarelas de basalto alineadas exactamente con la rueda final y coda de la parranda.",
+      "svgTheme": "canarias",
+      "trajectoryWaypoints": [
+        { "time": 60, "y": 0 },
+        { "time": 68, "y": -240 },
+        { "time": 75, "y": 0 }
+      ],
       "recommendedPalette": [
         "#0c4a6e",
         "#0284c7",
@@ -168,10 +200,11 @@
   ],
   "config": {
     "zoom": 0.85,
-    "platformOpacity": 0.85,
+    "platformOpacity": 0.32,
     "bgOffsetY": 0,
     "cameraSmoothness": 0.82,
     "mosaicSlices": 5,
+    "svgMode": "segments",
     "userKeywords": "Folclore de Canarias, Isa Parrandera, pintadera canaria, timple, balcones de madera y paisaje volcánico",
     "ballConfig": {
       "shape": "custom-svg",
@@ -180,7 +213,7 @@
       "rotate": true,
       "opacity": 1,
       "label": "Pintadera Canaria (Pulso Ternario)",
-      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"44\" fill=\"#9a3412\" stroke=\"#fde047\" stroke-width=\"4\"/><g fill=\"#fef08a\"><polygon points=\"50,10 60,28 40,28\"/><polygon points=\"50,90 60,72 40,72\"/><polygon points=\"10,50 28,60 28,40\"/><polygon points=\"90,50 72,60 72,40\"/><polygon points=\"22,22 38,26 26,38\"/><polygon points=\"78,22 62,26 74,38\"/><polygon points=\"22,78 38,74 26,62\"/><polygon points=\"78,78 62,74 74,62\"/></g><circle cx=\"50\" cy=\"50\" r=\"16\" fill=\"#ea580c\" stroke=\"#fef08a\" stroke-width=\"3\"><animate attributeName=\"r\" values=\"14;18;14\" dur=\"0.9s\" repeatCount=\"indefinite\"/></circle></svg>"
+      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"44\" fill=\"#9a3412\" stroke=\"#fde047\" stroke-width=\"4\"/><g fill=\"#fef08a\"><polygon points=\"50,10 60,28 40,28\"/><polygon points=\"50,90 60,72 40,72\"/><polygon points=\"10,50 28,60 28,40\"/><polygon points=\"90,50 72,60 72,40\"/><polygon points=\"22,22 38,26 26,38\"/><polygon points=\"78,22 62,26 74,38\"/><polygon points=\"22,78 38,74 26,62\"/><polygon points=\"78,78 62,74 74,62\"/></g><circle cx=\"50\" cy=\"50\" r=\"16\" fill=\"#ea580c\" stroke=\"#fef08a\" stroke-width=\"3\"/></svg>"
     },
     "extraTracksConfig": {
       "melody": {

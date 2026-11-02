@@ -15,6 +15,11 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { OkfMusicogramaProject, OkfSliceSpec } from "../types/okf";
+import {
+  compileDetailedSliceSvg,
+  compileFullMasterSvg,
+  TrajectoryCompilerInput,
+} from "../utils/svgTrajectoryCompiler";
 
 export interface AudioVisualizerHandle {
   play: () => Promise<void>;
@@ -27,6 +32,7 @@ export interface AudioVisualizerHandle {
   exportVideo: () => void;
   downloadSliceLayout: (index: number) => void;
   downloadAllSliceLayouts: () => void;
+  downloadMasterSvg: () => void;
   downloadSlice: (index: number) => void;
   replaceSlice: (index: number, file: File) => void;
   replaceSlicesBatch: (files: FileList | File[]) => void;
@@ -80,6 +86,16 @@ const base64ToBlob = (base64Str: string, contentType = "image/jpeg") => {
   return new Blob(byteArrays, { type: contentType });
 };
 
+const stripSvgPulseZoomAnimations = (svgText: string): string => {
+  if (!svgText.trim().startsWith("<svg")) return svgText;
+  return svgText
+    .replace(/<animate\b[^>]*\battributeName=["']r["'][^>]*>[\s\S]*?<\/animate>/gi, "")
+    .replace(/<animate\b[^>]*\battributeName=["']r["'][^>]*\/?>/gi, "")
+    .replace(/<animateTransform\b[^>]*\btype=["']scale["'][^>]*>[\s\S]*?<\/animateTransform>/gi, "")
+    .replace(/<animateTransform\b[^>]*\btype=["']scale["'][^>]*\/?>/gi, "")
+    .replace(/scale\([^)]+\)/gi, "scale(1)");
+};
+
 const preloadCustomGraphic = (
   content: string,
   callback: (img: HTMLImageElement, url: string) => void,
@@ -89,7 +105,8 @@ const preloadCustomGraphic = (
   let isBlobUrl = false;
 
   if (content.trim().startsWith("<svg")) {
-    const blob = new Blob([content], { type: "image/svg+xml" });
+    const cleanedSvg = stripSvgPulseZoomAnimations(content);
+    const blob = new Blob([cleanedSvg], { type: "image/svg+xml" });
     url = URL.createObjectURL(blob);
     isBlobUrl = true;
   }
@@ -244,6 +261,7 @@ export const AudioVisualizer = forwardRef<
     {},
   );
   const svgUrlCacheRef = useRef<{ [key: string]: string }>({});
+  const compiledSliceSvgsRef = useRef<string[]>([]);
 
   const analysisDataRef = useRef<{
     positions: {
@@ -418,32 +436,94 @@ export const AudioVisualizer = forwardRef<
         else if (beat.zcr > 2.8 && beat.focus === "melody") type = "friction";
       }
 
-      // Deterministic pseudo-variation based on index so identical JSON produces consistent layouts
+      // Deterministic musical contour bounded within [-320, +260] so trajectories align 1:1 with SVG art
       const detSin = Math.sin(idx * 1.73 + beatTime * 2.1);
-      let nextYBeat = pY;
 
-      if (beat.contour === "ascending") {
-        nextYBeat -= 90 * Math.min(beat.energy, 2.2) + detSin * 30;
-      } else if (beat.contour === "descending") {
-        nextYBeat += 85 * Math.min(beat.energy, 2.2) + detSin * 30;
-      } else if (beat.contour === "sustained_ramp") {
-        nextYBeat += 65 + Math.abs(detSin) * 35;
-      } else if (beat.contour === "staccato_jumps") {
-        nextYBeat += (idx % 2 === 0 ? -1 : 0.85) * (140 * beat.energy);
-      } else if (beat.isMajorSectionShift) {
-        const strength = Math.min(beat.energy * 180, 750);
-        const drift = detSin > -0.2 ? strength : -strength * 0.8;
-        nextYBeat += drift;
+      const specs = sliceSpecsRef.current || [];
+      let sliceStartT = 0;
+      let sliceEndT = duration;
+      let activeSpec: OkfSliceSpec | undefined;
+
+      if (specs.length > 0) {
+        const matched = specs.find(
+          (s) => beatTime >= s.startTime && beatTime <= s.endTime,
+        );
+        if (matched) {
+          activeSpec = matched;
+          sliceStartT = matched.startTime;
+          sliceEndT = matched.endTime;
+        } else {
+          const sIdx = Math.min(
+            specs.length - 1,
+            Math.max(0, Math.floor((beatTime / Math.max(1, duration)) * specs.length)),
+          );
+          activeSpec = specs[sIdx];
+          sliceStartT = activeSpec?.startTime ?? (sIdx * duration) / specs.length;
+          sliceEndT = activeSpec?.endTime ?? ((sIdx + 1) * duration) / specs.length;
+        }
       } else {
-        const targetY = -(beat.energy - 1.0) * 520;
-        const dy = (targetY - pY) * 0.38 + detSin * 85;
-        nextYBeat += dy;
+        const sc = Math.max(1, mosaicSlicesCount || 6);
+        const sIdx = Math.min(
+          sc - 1,
+          Math.max(0, Math.floor((beatTime / Math.max(1, duration)) * sc)),
+        );
+        sliceStartT = (sIdx * duration) / sc;
+        sliceEndT = ((sIdx + 1) * duration) / sc;
       }
 
-      // Clamp vertical drift so platforms remain comfortably inside camera view
-      nextYBeat = Math.max(-1400, Math.min(1400, nextYBeat));
+      const sliceSpan = Math.max(0.5, sliceEndT - sliceStartT);
+      const uSlice = Math.max(0, Math.min(1, (beatTime - sliceStartT) / sliceSpan));
+      // Smooth arch envelope that tapers toward y = 0 at segment boundaries for seamless SVG transitions
+      const boundaryEnvelope = Math.pow(Math.sin(uSlice * Math.PI), 0.7);
 
-      const mode: "ramp" | "jump" = nextYBeat > pY ? "ramp" : "jump";
+      let targetYBeat = 0;
+      if (
+        activeSpec?.trajectoryWaypoints &&
+        activeSpec.trajectoryWaypoints.length >= 2
+      ) {
+        const wps = activeSpec.trajectoryWaypoints;
+        if (beatTime <= wps[0].time) {
+          targetYBeat = wps[0].y;
+        } else if (beatTime >= wps[wps.length - 1].time) {
+          targetYBeat = wps[wps.length - 1].y;
+        } else {
+          for (let w = 0; w < wps.length - 1; w++) {
+            if (beatTime >= wps[w].time && beatTime <= wps[w + 1].time) {
+              const dtW = Math.max(0.01, wps[w + 1].time - wps[w].time);
+              const fW = (beatTime - wps[w].time) / dtW;
+              targetYBeat = wps[w].y + (wps[w + 1].y - wps[w].y) * fW;
+              break;
+            }
+          }
+        }
+        targetYBeat += detSin * 22;
+      } else if (beat.contour === "ascending") {
+        targetYBeat = (180 - 400 * uSlice) * boundaryEnvelope + detSin * 32;
+      } else if (beat.contour === "descending") {
+        targetYBeat = (-240 + 420 * uSlice) * boundaryEnvelope + detSin * 32;
+      } else if (beat.contour === "sustained_ramp") {
+        targetYBeat = (-200 + 360 * uSlice) * boundaryEnvelope + detSin * 18;
+      } else if (beat.contour === "staccato_jumps") {
+        const alt = idx % 2 === 0 ? -1 : 0.85;
+        targetYBeat =
+          alt * (95 * Math.min(beat.energy, 2.0)) * boundaryEnvelope +
+          Math.sin(uSlice * Math.PI * 2) * 55;
+      } else {
+        // Wave / default contour
+        const wave = Math.sin(uSlice * Math.PI * 2) * 165;
+        const energyOffset = -(Math.min(beat.energy, 2.2) - 1.1) * 95;
+        targetYBeat = (wave + energyOffset + detSin * 36) * boundaryEnvelope;
+      }
+
+      const nextYBeat = Math.max(
+        -320,
+        Math.min(260, pY * 0.25 + targetYBeat * 0.75),
+      );
+      const mode: "ramp" | "jump" =
+        beat.contour === "sustained_ramp" ||
+        (nextYBeat > pY && beat.contour !== "staccato_jumps")
+          ? "ramp"
+          : "jump";
       pY = nextYBeat;
 
       allBeats.push({ time: beatTime, type, mode, y: pY });
@@ -559,20 +639,8 @@ export const AudioVisualizer = forwardRef<
         py = targetY0 + 0.5 * GRAVITY * localT * localT;
       }
 
-      let targetZoom = 1.0;
-      if (bStart.type === "major") {
-        targetZoom = 0.72;
-      } else if (bStart.mode === "ramp") {
-        targetZoom = 0.85;
-      }
-
-      if (isImpact) {
-        if (hitType === "major") currentZoom = 1.25;
-        else if (hitType === "accelerator") currentZoom = 1.18;
-        else currentZoom = 1.08;
-      }
-
-      currentZoom += (targetZoom - currentZoom) * 0.05;
+      // Steady camera zoom (1.0): pulse zooms on beats are strictly disabled
+      const currentZoom = 1.0;
 
       const angle = px / radius;
       positions.push({ x: px, y: py, angle, isImpact, zoom: currentZoom });
@@ -673,33 +741,10 @@ export const AudioVisualizer = forwardRef<
       buildAuxTrack(160, "bass", 1.4),
     ];
 
-    let minX = 0;
-    let maxX = duration * SPEED;
-    let minY = positions.length ? positions[0].y : 0;
-    let maxY = minY;
-
-    positions.forEach((p) => {
-      if (p.y < minY) minY = p.y;
-      if (p.y > maxY) maxY = p.y;
-    });
-
-    extraTracks.forEach((t) =>
-      t.positions.forEach((p: any) => {
-        if (p.y < minY) minY = p.y;
-        if (p.y > maxY) maxY = p.y;
-      }),
-    );
-
-    platforms.forEach((p) => {
-      if (p.y - p.h / 2 < minY) minY = p.y - p.h / 2;
-      if (p.y + p.h / 2 > maxY) maxY = p.y + p.h / 2;
-    });
-
-    const centerY = (minY + maxY) / 2;
-    const rangeY = maxY - minY;
-    const paddedHalfHeight = Math.max(rangeY / 2, 900) + 1200;
-    minY = centerY - paddedHalfHeight;
-    maxY = centerY + paddedHalfHeight;
+    const minX = 0;
+    const maxX = duration * SPEED;
+    const minY = -960;
+    const maxY = 640;
 
     const slicesCount = Math.max(1, mosaicSlicesCount || 6);
     const bgImages: (HTMLImageElement | HTMLVideoElement | null)[] = new Array(
@@ -721,6 +766,8 @@ export const AudioVisualizer = forwardRef<
       bgImages,
       bounds: { minX, maxX, minY, maxY },
     };
+
+    compileAndAssignAlignedSvgs(slicesCount, !existingBgImages);
   };
 
   // Generate beats directly from the OKF JSON musicalStructure (when no audio file is loaded yet)
@@ -728,7 +775,9 @@ export const AudioVisualizer = forwardRef<
     const duration = project.metadata?.durationSeconds || 90;
     const baseBpm = project.metadata?.bpm || 116;
     const slicesCount =
-      project.config?.mosaicSlices || project.sliceSpecs?.length || 6;
+      project.config?.svgMode === "single"
+        ? 1
+        : project.config?.mosaicSlices || project.sliceSpecs?.length || 6;
 
     // If the JSON already contains pre-calculated positions/platforms (saved full project), restore them
     if (
@@ -741,9 +790,11 @@ export const AudioVisualizer = forwardRef<
       const newBgImages: (HTMLImageElement | HTMLVideoElement | null)[] =
         new Array(slicesCount).fill(null);
 
+      let hasSavedBg = false;
       if (d.bgImagesBase64 && d.bgImagesBase64.length > 0) {
         d.bgImagesBase64.forEach((b64: string, index: number) => {
-          if (!b64) return;
+          if (!b64 || index >= slicesCount) return;
+          hasSavedBg = true;
           const img = new Image();
           img.onload = () => updateState();
           try {
@@ -756,16 +807,23 @@ export const AudioVisualizer = forwardRef<
         });
       }
 
+      // Normalize any legacy saved positions so zoom is always steady 1.0
+      const normalizedPositions = d.positions.map((p: any) => ({
+        ...p,
+        zoom: 1.0,
+      }));
+
       analysisDataRef.current = {
-        positions: d.positions as any,
+        positions: normalizedPositions,
         platforms: d.platforms as any,
         extraTracks: d.extraTracks || [],
         duration: d.duration || duration,
         frames: d.frames || Math.ceil(duration * 60),
-        bounds: d.bounds || { minX: 0, maxX: duration * 800, minY: -2000, maxY: 2000 },
+        bounds: d.bounds || { minX: 0, maxX: duration * 800, minY: -960, maxY: 640 },
         particles: [],
         bgImages: newBgImages,
       };
+      compileAndAssignAlignedSvgs(slicesCount, !hasSavedBg);
       updateState();
       return;
     }
@@ -835,23 +893,6 @@ export const AudioVisualizer = forwardRef<
 
     const existingImgs = analysisDataRef.current?.bgImages;
     simulatePhysicsFromBeats(beats, duration, slicesCount, existingImgs);
-
-    // If sliceSpecs provide imageUrl or backgroundSvg generated via OKF, load them automatically
-    if (project.sliceSpecs && analysisDataRef.current?.bgImages) {
-      project.sliceSpecs.forEach((spec, idx) => {
-        if (
-          (spec.imageUrl || spec.backgroundSvg) &&
-          analysisDataRef.current?.bgImages &&
-          !analysisDataRef.current.bgImages[idx]
-        ) {
-          const img = buildImageElementFromOkfSlice(spec, () => updateState());
-          if (img) {
-            analysisDataRef.current.bgImages[idx] = img;
-          }
-        }
-      });
-    }
-
     updateState();
   };
 
@@ -1110,30 +1151,15 @@ export const AudioVisualizer = forwardRef<
       }
 
       const desiredSlices =
-        project?.config?.mosaicSlices ||
-        project?.sliceSpecs?.length ||
-        analysisDataRef.current?.bgImages?.length ||
-        Math.max(4, Math.min(16, Math.round(duration / 15)));
+        project?.config?.svgMode === "single"
+          ? 1
+          : project?.config?.mosaicSlices ||
+            project?.sliceSpecs?.length ||
+            analysisDataRef.current?.bgImages?.length ||
+            Math.max(4, Math.min(16, Math.round(duration / 15)));
 
       const existingImgs = analysisDataRef.current?.bgImages;
       simulatePhysicsFromBeats(beats, duration, desiredSlices, existingImgs);
-
-      if (project?.sliceSpecs && analysisDataRef.current?.bgImages) {
-        project.sliceSpecs.forEach((spec, idx) => {
-          if (
-            (spec.imageUrl || spec.backgroundSvg) &&
-            analysisDataRef.current?.bgImages &&
-            !analysisDataRef.current.bgImages[idx]
-          ) {
-            const img = buildImageElementFromOkfSlice(spec, () =>
-              updateState(),
-            );
-            if (img) {
-              analysisDataRef.current.bgImages[idx] = img;
-            }
-          }
-        });
-      }
     } catch (e) {
       console.error("Audio analysis failed, falling back to OKF trajectory:", e);
       if (project) {
@@ -1603,55 +1629,191 @@ export const AudioVisualizer = forwardRef<
     sliceIndex: number,
     slices: number,
   ) => {
-    const sliceWorldWidth = (data.bounds.maxX - data.bounds.minX) / slices;
-    const sliceMinX = data.bounds.minX + sliceIndex * sliceWorldWidth;
-    const sliceMaxX = sliceMinX + sliceWorldWidth;
+    const WORLD_MIN_Y = -960;
+    const WORLD_MAX_Y = 640;
+    const WORLD_HEIGHT = WORLD_MAX_Y - WORLD_MIN_Y; // 1600
 
-    let sliceMinY = Infinity;
-    let sliceMaxY = -Infinity;
+    const totalWidth = Math.max(800, data.bounds.maxX - data.bounds.minX);
+    const duration = data.duration || totalWidth / 800;
+    const specs = sliceSpecsRef.current || [];
 
-    const allTrackPlatforms = [
-      data.platforms,
-      ...(data.extraTracks || []).map((t: any) => t.platforms),
-    ];
+    let sliceMinX = data.bounds.minX + (sliceIndex * totalWidth) / slices;
+    let sliceMaxX = data.bounds.minX + ((sliceIndex + 1) * totalWidth) / slices;
 
-    for (const group of allTrackPlatforms) {
-      for (const p of group) {
-        if (p.x + p.w < sliceMinX || p.x - p.w > sliceMaxX) continue;
-        if (p.y - p.h * 2 < sliceMinY) sliceMinY = p.y - p.h * 2;
-        if (p.y + p.h * 2 > sliceMaxY) sliceMaxY = p.y + p.h * 2;
+    if (slices === specs.length && specs[sliceIndex] && duration > 0) {
+      const spec = specs[sliceIndex];
+      if (
+        typeof spec.startTime === "number" &&
+        typeof spec.endTime === "number" &&
+        spec.endTime > spec.startTime
+      ) {
+        sliceMinX = (spec.startTime / duration) * totalWidth;
+        sliceMaxX =
+          sliceIndex === slices - 1
+            ? totalWidth
+            : (spec.endTime / duration) * totalWidth;
       }
     }
 
-    if (data.positions) {
-      for (const pos of data.positions) {
-        if (pos.x < sliceMinX || pos.x > sliceMaxX) continue;
-        if (pos.y < sliceMinY) sliceMinY = pos.y;
-        if (pos.y > sliceMaxY) sliceMaxY = pos.y;
-      }
-    }
-
-    if (sliceMinY === Infinity) {
-      sliceMinY = data.bounds.minY;
-      sliceMaxY = data.bounds.maxY;
-    } else {
-      sliceMinY -= 1200;
-      sliceMaxY += 1200;
-    }
-
-    const localH = sliceMaxY - sliceMinY;
-    const size = Math.max(sliceWorldWidth * 1.3, localH);
-
-    const cx = sliceMinX + sliceWorldWidth / 2;
-    const cy = (sliceMinY + sliceMaxY) / 2;
+    const sliceWorldWidth = Math.max(400, sliceMaxX - sliceMinX);
 
     return {
-      x: cx - size / 2,
-      y: cy - size / 2,
-      size: size,
+      x: sliceMinX,
+      y: WORLD_MIN_Y,
+      width: sliceWorldWidth,
+      height: WORLD_HEIGHT,
+      size: sliceWorldWidth,
       sliceMinX,
+      sliceMaxX,
       sliceWorldWidth,
+      worldMinY: WORLD_MIN_Y,
+      worldMaxY: WORLD_MAX_Y,
     };
+  };
+
+  // Compiles 100% trajectory-aligned detailed SVGs (either 1 unified panoramic SVG or N segment SVGs)
+  const compileAndAssignAlignedSvgs = (
+    slicesOverride?: number,
+    forceRebuild: boolean = true,
+  ) => {
+    const data = analysisDataRef.current;
+    if (!data || !data.bounds || !data.platforms) return;
+
+    const specs = sliceSpecsRef.current || [];
+    const slices = Math.max(
+      1,
+      slicesOverride || data.bgImages?.length || specs.length || 6,
+    );
+
+    if (!data.bgImages || data.bgImages.length !== slices) {
+      const oldImages = data.bgImages || [];
+      const nextImgs: (HTMLImageElement | HTMLVideoElement | null)[] = new Array(
+        slices,
+      ).fill(null);
+      if (!forceRebuild) {
+        for (let i = 0; i < Math.min(slices, oldImages.length); i++) {
+          nextImgs[i] = oldImages[i];
+        }
+      } else {
+        oldImages.forEach((img) => {
+          if (img && (img as any).src?.startsWith("blob:")) {
+            URL.revokeObjectURL((img as any).src);
+          }
+        });
+      }
+      data.bgImages = nextImgs;
+    }
+
+    const melodyColor = extraTracksConfigRef.current?.melody?.color || "#fbbf24";
+    const bassColor = extraTracksConfigRef.current?.bass?.color || "#38bdf8";
+
+    if (slices === 1) {
+      // Single Unified Panoramic SVG Mode (1 SVG covering the entire musicogram)
+      const totalWidth = Math.max(800, data.bounds.maxX - data.bounds.minX);
+      const duration = data.duration || totalWidth / 800;
+      const sectionCount = Math.max(1, specs.length);
+      const sliceInputs: TrajectoryCompilerInput[] = [];
+
+      for (let i = 0; i < sectionCount; i++) {
+        const spec = specs[i];
+        let sMinX = (i * totalWidth) / sectionCount;
+        let sMaxX = ((i + 1) * totalWidth) / sectionCount;
+        if (
+          spec &&
+          typeof spec.startTime === "number" &&
+          typeof spec.endTime === "number" &&
+          spec.endTime > spec.startTime &&
+          duration > 0
+        ) {
+          sMinX = (spec.startTime / duration) * totalWidth;
+          sMaxX =
+            i === sectionCount - 1
+              ? totalWidth
+              : (spec.endTime / duration) * totalWidth;
+        }
+        sliceInputs.push({
+          sliceIndex: i,
+          totalSlices: sectionCount,
+          sliceMinX: sMinX,
+          sliceMaxX: sMaxX,
+          worldMinY: -960,
+          worldMaxY: 640,
+          positions: data.positions,
+          platforms: data.platforms,
+          extraTracks: data.extraTracks,
+          spec,
+          projectTitle: okfProjectRef.current?.metadata?.title,
+          environmentConcept: environmentConceptRef.current,
+          melodyColor,
+          bassColor,
+        });
+      }
+
+      const masterSvgXml =
+        okfProjectRef.current?.config?.masterSceneSvg &&
+        okfProjectRef.current.config.masterSceneSvg.includes(
+          'data-sonogramic-aligned="true"',
+        )
+          ? okfProjectRef.current.config.masterSceneSvg
+          : compileFullMasterSvg(
+              sliceInputs,
+              data.bounds.minX,
+              data.bounds.maxX,
+              -960,
+              640,
+            );
+
+      compiledSliceSvgsRef.current = [masterSvgXml];
+
+      if (forceRebuild || !data.bgImages[0]) {
+        const blobUrl = svgStringToBlobUrl(masterSvgXml);
+        if (blobUrl) {
+          const img = new Image();
+          img.onload = () => updateState();
+          img.src = blobUrl;
+          data.bgImages[0] = img;
+        }
+      }
+      return;
+    }
+
+    // Multiple Segment SVGs Mode (N detailed SVGs aligned with each section's exact trajectory)
+    const compiledList: string[] = new Array(slices).fill("");
+    for (let i = 0; i < slices; i++) {
+      const sb = computeSliceBounds(data, i, slices);
+      const spec = specs[i];
+
+      const input: TrajectoryCompilerInput = {
+        sliceIndex: i,
+        totalSlices: slices,
+        sliceMinX: sb.sliceMinX,
+        sliceMaxX: sb.sliceMaxX,
+        worldMinY: sb.worldMinY,
+        worldMaxY: sb.worldMaxY,
+        positions: data.positions,
+        platforms: data.platforms,
+        extraTracks: data.extraTracks,
+        spec,
+        projectTitle: okfProjectRef.current?.metadata?.title,
+        environmentConcept: environmentConceptRef.current,
+        melodyColor,
+        bassColor,
+      };
+
+      const svgXml = compileDetailedSliceSvg(input);
+      compiledList[i] = svgXml;
+
+      if (forceRebuild || !data.bgImages[i]) {
+        const blobUrl = svgStringToBlobUrl(svgXml);
+        if (blobUrl) {
+          const img = new Image();
+          img.onload = () => updateState();
+          img.src = blobUrl;
+          data.bgImages[i] = img;
+        }
+      }
+    }
+    compiledSliceSvgsRef.current = compiledList;
   };
 
   // Algorithmic local Reinhard Color Transfer to harmonize adjacent slices (Zero AI)
@@ -1864,6 +2026,17 @@ export const AudioVisualizer = forwardRef<
   };
 
   const downloadSliceLayout = (index: number) => {
+    const svgXml = compiledSliceSvgsRef.current[index];
+    if (svgXml) {
+      const blob = new Blob([svgXml], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `segmento_${index + 1}_trayecto_exacto.svg`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 500);
+      return;
+    }
     const dataUrl = renderSliceLayoutDataUrl(index);
     if (!dataUrl) return;
     const a = document.createElement("a");
@@ -1881,7 +2054,86 @@ export const AudioVisualizer = forwardRef<
     }
   };
 
+  const downloadMasterSvg = () => {
+    const data = analysisDataRef.current;
+    if (!data || !data.bounds || !data.platforms) return;
+    const specs = sliceSpecsRef.current || [];
+    const totalWidth = Math.max(800, data.bounds.maxX - data.bounds.minX);
+    const duration = data.duration || totalWidth / 800;
+    const sectionCount = Math.max(1, specs.length);
+    const melodyColor = extraTracksConfigRef.current?.melody?.color || "#fbbf24";
+    const bassColor = extraTracksConfigRef.current?.bass?.color || "#38bdf8";
+
+    const sliceInputs: TrajectoryCompilerInput[] = [];
+    for (let i = 0; i < sectionCount; i++) {
+      const spec = specs[i];
+      let sMinX = (i * totalWidth) / sectionCount;
+      let sMaxX = ((i + 1) * totalWidth) / sectionCount;
+      if (
+        spec &&
+        typeof spec.startTime === "number" &&
+        typeof spec.endTime === "number" &&
+        spec.endTime > spec.startTime &&
+        duration > 0
+      ) {
+        sMinX = (spec.startTime / duration) * totalWidth;
+        sMaxX =
+          i === sectionCount - 1
+            ? totalWidth
+            : (spec.endTime / duration) * totalWidth;
+      }
+      sliceInputs.push({
+        sliceIndex: i,
+        totalSlices: sectionCount,
+        sliceMinX: sMinX,
+        sliceMaxX: sMaxX,
+        worldMinY: -960,
+        worldMaxY: 640,
+        positions: data.positions,
+        platforms: data.platforms,
+        extraTracks: data.extraTracks,
+        spec,
+        projectTitle: okfProjectRef.current?.metadata?.title,
+        environmentConcept: environmentConceptRef.current,
+        melodyColor,
+        bassColor,
+      });
+    }
+
+    const masterSvgXml = compileFullMasterSvg(
+      sliceInputs,
+      data.bounds.minX,
+      data.bounds.maxX,
+      -960,
+      640,
+    );
+    const blob = new Blob([masterSvgXml], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const safeTitle = (okfProjectRef.current?.metadata?.title || "musicograma")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_|_$/g, "");
+    a.href = url;
+    a.download = `musicograma_completo_${safeTitle}_trayecto_exacto.svg`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 500);
+  };
+
   const downloadSlice = (index: number) => {
+    const svgXml = compiledSliceSvgsRef.current[index];
+    if (svgXml) {
+      const blob = new Blob([svgXml], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `escena_svg_segmento_${index + 1}.svg`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 500);
+      return;
+    }
     const img = analysisDataRef.current?.bgImages?.[index];
     if (isMediaReady(img)) {
       const c = document.createElement("canvas");
@@ -1906,6 +2158,17 @@ export const AudioVisualizer = forwardRef<
 
   const replaceSlice = (index: number, file: File) => {
     if (!analysisDataRef.current) return;
+    if (
+      file.type === "image/svg+xml" ||
+      file.name.toLowerCase().endsWith(".svg")
+    ) {
+      file
+        .text()
+        .then((txt) => {
+          compiledSliceSvgsRef.current[index] = txt;
+        })
+        .catch(() => {});
+    }
     const url = URL.createObjectURL(file);
 
     const isVideo = file.type.startsWith("video/");
@@ -1962,24 +2225,11 @@ export const AudioVisualizer = forwardRef<
   };
 
   const restoreOkfBackgrounds = () => {
-    if (!analysisDataRef.current || !okfProjectRef.current?.sliceSpecs) return;
-    const specs = okfProjectRef.current.sliceSpecs;
+    if (!analysisDataRef.current) return;
+    const specs = okfProjectRef.current?.sliceSpecs || [];
     const count =
       analysisDataRef.current.bgImages?.length || specs.length || 6;
-    const newImages: (HTMLImageElement | HTMLVideoElement | null)[] = new Array(
-      count,
-    ).fill(null);
-
-    specs.forEach((spec, idx) => {
-      if (idx < count && (spec.imageUrl || spec.backgroundSvg)) {
-        const img = buildImageElementFromOkfSlice(spec, () => updateState());
-        if (img) {
-          newImages[idx] = img;
-        }
-      }
-    });
-
-    analysisDataRef.current.bgImages = newImages;
+    compileAndAssignAlignedSvgs(count, true);
     updateState();
   };
 
@@ -1994,6 +2244,7 @@ export const AudioVisualizer = forwardRef<
     exportVideo,
     downloadSliceLayout,
     downloadAllSliceLayouts,
+    downloadMasterSvg,
     downloadSlice,
     replaceSlice,
     replaceSlicesBatch,
@@ -2001,19 +2252,7 @@ export const AudioVisualizer = forwardRef<
     harmonizeAllSlicesColors,
     setMosaicSlices: (count: number) => {
       if (analysisDataRef.current && count > 0) {
-        const oldImages = analysisDataRef.current.bgImages || [];
-        if (oldImages.length === count) return;
-        const newImages = new Array(count).fill(null);
-        for (let i = 0; i < Math.min(count, oldImages.length); i++) {
-          newImages[i] = oldImages[i];
-        }
-        for (let i = count; i < oldImages.length; i++) {
-          const img = oldImages[i];
-          if (img && (img as any).src?.startsWith("blob:")) {
-            URL.revokeObjectURL((img as any).src);
-          }
-        }
-        analysisDataRef.current.bgImages = newImages;
+        compileAndAssignAlignedSvgs(count, true);
         updateState();
       }
     },
@@ -2218,7 +2457,7 @@ export const AudioVisualizer = forwardRef<
     ctx.fillStyle = fillColor;
 
     if (effect === "glow") {
-      ctx.shadowBlur = hitFlash > 0 ? 50 : 20;
+      ctx.shadowBlur = 20;
       ctx.shadowColor = hitFlash > 0 ? "#fde047" : fillColor;
     } else if (effect === "outline") {
       ctx.shadowBlur = 0;
@@ -2370,18 +2609,18 @@ export const AudioVisualizer = forwardRef<
       ctx.save();
       ctx.translate(targetCx, targetCy);
 
-      const dynamicZoom = ballPos.zoom || 1.0;
-      const zoom = dynamicZoom * userZoomRef.current;
+      // Steady non-pulsing camera zoom: only user-configured zoom is applied
+      const zoom = userZoomRef.current;
       ctx.scale(zoom, zoom);
       ctx.translate(-topCamX, -topCamY);
 
       const viewMinX = topCamX - (width * 0.35) / zoom;
       const viewMaxX = topCamX + (width * 0.75) / zoom;
 
-      // Draw Background Mosaic Slices
+      // Draw Trajectory-Aligned Vector SVG Background Slices
       if (data.bgImages && data.bgImages.length > 0 && data.bounds) {
         ctx.save();
-        ctx.globalAlpha = 0.9;
+        ctx.globalAlpha = 0.98;
 
         for (let i = 0; i < data.bgImages.length; i++) {
           const bgImg = data.bgImages[i];
@@ -2408,8 +2647,8 @@ export const AudioVisualizer = forwardRef<
               imgEl,
               sb.x,
               sb.y + bgOffsetYRef.current,
-              sb.size,
-              sb.size,
+              sb.width,
+              sb.height,
             );
             ctx.restore();
           } else {
@@ -2513,27 +2752,33 @@ export const AudioVisualizer = forwardRef<
           if (p.x + p.w > viewMinX && p.x - p.w < viewMaxX) {
             let isCovered = false;
             if (
-              group.isMain &&
               data.bgImages &&
               data.bgImages.length > 0 &&
               data.bounds
             ) {
-              const worldW =
-                (data.bounds.maxX - data.bounds.minX) / data.bgImages.length;
-              const targetIndex = Math.floor(
-                (p.x - data.bounds.minX) / worldW,
-              );
-              if (isMediaReady(data.bgImages[targetIndex])) {
-                isCovered = true;
+              for (let sIdx = 0; sIdx < data.bgImages.length; sIdx++) {
+                const sbCheck = computeSliceBounds(
+                  data,
+                  sIdx,
+                  data.bgImages.length,
+                );
+                if (
+                  p.x >= sbCheck.sliceMinX &&
+                  p.x <= sbCheck.sliceMaxX &&
+                  isMediaReady(data.bgImages[sIdx])
+                ) {
+                  isCovered = true;
+                  break;
+                }
               }
             }
 
-            if (isCovered && platformOpacityRef.current > 0.2) {
-              ctx.globalAlpha = platformOpacityRef.current * 0.55;
+            if (isCovered) {
+              ctx.globalAlpha = platformOpacityRef.current * 0.25;
             } else {
               ctx.globalAlpha = platformOpacityRef.current;
             }
-            if (!group.isMain) ctx.globalAlpha = Math.min(ctx.globalAlpha, 0.4);
+            if (!group.isMain) ctx.globalAlpha = Math.min(ctx.globalAlpha, 0.25);
 
             if (ctx.globalAlpha > 0) {
               ctx.save();
@@ -2741,11 +2986,6 @@ export const AudioVisualizer = forwardRef<
       }
 
       ctx.restore(); // camera restore
-
-      if (hitFlash > 0) {
-        ctx.fillStyle = `rgba(255, 255, 255, ${hitFlash * 0.14})`;
-        ctx.fillRect(0, 0, width, height);
-      }
     }
 
     animationFrameIdRef.current = requestAnimationFrame(() =>
@@ -2831,7 +3071,10 @@ export const AudioVisualizer = forwardRef<
                   } flex justify-center items-center`}
                 >
                   <span className="text-[11px] font-medium text-slate-200 truncate px-1">
-                    {isReady ? "🖼️ " : "📐 "}S{i + 1}
+                    {isReady ? "✒️ " : "📐 "}
+                    {slicesInfo.count === 1
+                      ? "SVG Panorámico Completo (100%)"
+                      : `SVG S${i + 1}`}
                   </span>
 
                   {/* Hover Toolbar for each segment */}
@@ -2843,19 +3086,19 @@ export const AudioVisualizer = forwardRef<
                       <button
                         onClick={() => downloadSliceLayout(i)}
                         className="p-1.5 text-amber-300 hover:bg-slate-800 rounded transition-colors"
-                        title={`Descargar plantilla guía de plataformas (Segmento ${i + 1})`}
+                        title={`Descargar SVG detallado con trayectos exactos (Segmento ${i + 1})`}
                       >
                         <LayoutGrid className="w-3.5 h-3.5" />
                       </button>
 
                       <label
                         className="p-1.5 text-purple-300 hover:bg-slate-800 rounded transition-colors cursor-pointer"
-                        title={`Subir imagen o vídeo para el Segmento ${i + 1}`}
+                        title={`Subir archivo SVG personalizado para el Segmento ${i + 1}`}
                       >
                         <Upload className="w-3.5 h-3.5" />
                         <input
                           type="file"
-                          accept="image/*,video/*"
+                          accept=".svg,image/svg+xml,image/*,video/*"
                           className="hidden"
                           onChange={(e) => {
                             if (e.target.files && e.target.files[0]) {
@@ -2870,7 +3113,7 @@ export const AudioVisualizer = forwardRef<
                         <button
                           onClick={() => downloadSlice(i)}
                           className="p-1.5 text-emerald-300 hover:bg-slate-800 rounded transition-colors"
-                          title={`Descargar imagen actual del Segmento ${i + 1}`}
+                          title={`Descargar SVG actual del Segmento ${i + 1}`}
                         >
                           <Download className="w-3.5 h-3.5" />
                         </button>

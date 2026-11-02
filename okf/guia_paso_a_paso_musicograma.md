@@ -1,53 +1,57 @@
-# Guía Paso a Paso: Cómo Crear un Musicograma con JSON + Imágenes y Exportar el Vídeo en Sonogramic
+# Guía Paso a Paso: Cómo Crear un Musicograma con SVGs Detallados Alineados con los Trayectos y Exportar el Vídeo en Sonogramic
 
 > **Autor**: Norberto Martín Afonso  
-> **Aplicación Web (100 % Sin IA)**: `https://nmarafo.github.io/Sonogramic/`
+> **Aplicación Web (100 % Sin IA · 100 % Vectorial SVG)**: `https://nmarafo.github.io/Sonogramic/`
 
 ---
 
 ## 🎯 Resumen del Flujo de Trabajo
 
-**Sonogramic** ha sido diseñado para que la aplicación de reproducción y grabación sea **100 % determinista, rápida, privada y libre de llamadas a Inteligencia Artificial**. Ustedes tienen el control absoluto de los recursos visuales y sonoros siguiendo estos **4 pasos**:
+**Sonogramic v2.1.0 (OKF v1.4.0)** sustituye las antiguas imágenes mapa de bits (`.png`/`.jpg`) por **uno o varios SVGs vectoriales ultradetallados cuyos puentes, balaustradas, rampas, pilares románicos, pentagramas y arcos parabólicos coinciden exactamente con los trayectos de las esferas**, manteniendo además un **zoom de cámara 100 % estable (sin molestos zooms tipo *pulse* en los pulsos)**:
 
 ---
 
-### Paso 1: Obtener o Cargar el Archivo `.JSON` con las Indicaciones y Pasos
+### Paso 1: Obtener o Cargar el Archivo `.JSON` OKF Vectorial
 
 Tienen dos formas de empezar:
-1. **Con cualquier Agente de IA externo (NotebookLM, Gemini, ChatGPT, Claude)**:
-   - Copien el [**Prompt Maestro OKF**](prompt_maestro_okf_sonogramic.md) y pidan a su IA externa el musicograma de la obra que deseen trabajar en el aula (ej. *"La Primavera de Vivaldi, primeros 90 segundos"* o *"En la gruta del rey de la montaña de Grieg"*).
-   - Guarden el bloque JSON devuelto como un archivo `.json` (por ejemplo, `mi_musicograma.json`) y cárguenlo en **Sonogramic** (o péguenlo directamente en el modal **«📋 Pegar JSON OKF»** de la aplicación).
-2. **Con los Ejemplos OKF Integrados en la Aplicación**:
-   - En la pantalla principal de **Sonogramic**, hagan clic en cualquiera de las recetas OKF de demostración (*Vivaldi — La Primavera*, *Grieg — Peer Gynt* o *Folclore Canario — Isa Parrandera*).
+1. **Con los 4 Proyectos OKF Integrados en la Aplicación**:
+   - En la barra superior de **Sonogramic**, hagan clic en cualquiera de las recetas OKF de demostración:
+     - *Vivaldi — La Primavera* (`svgTheme: "baroque"`)
+     - *Grieg — El Rey de la Montaña* (`svgTheme: "cavern"`)
+     - *Folclore Canario — Isa Parrandera* (`svgTheme: "canarias"`)
+     - *Carnaval de Las Palmas de GC — Batucada* (`svgTheme: "carnival"`)
+2. **Con cualquier Agente de IA externo (NotebookLM, Gemini, ChatGPT, Claude)**:
+   - Copien el [**Prompt Maestro OKF v1.4.0**](prompt_maestro_okf_sonogramic.md), adjunten su archivo de audio y pidan el archivo `.json` del musicograma.
+   - Cárguenlo con **«1. Cargar JSON OKF»** o péguenlo directamente en **«Pegar JSON»**.
 
 ---
 
-### Paso 2: Cargar el Archivo de Audio (Opcional o Sincronizado)
+### Paso 2: Sincronizar el Archivo de Audio (Opcional) y Compilación Vectorial 1:1
 
-- Al cargar el archivo `.json`, **Sonogramic** construye inmediatamente el escenario de plataformas, aplica los iconos vectoriales SVG de las tres esferas y muestra el **Panel de Indicaciones y Pasos (`guideSteps`)** junto con las tarjetas de los **Segmentos (`1..N`)**.
-- Si suben a continuación su archivo de audio (`.mp3`, `.wav`, `.ogg`, `.m4a`), el motor matemático local del navegador (**Web Audio API**, sin IA) analizará las frecuencias graves (`< 150 Hz`) y agudas (`> 800 Hz`) para sincronizar cada bote y rampa con el audio real, conservando intactas todas las indicaciones, segmentos y configuraciones de su `.json`.
-- Si aún no disponen del archivo de audio, pueden previsualizar y grabar igualmente el musicograma utilizando el **Sintetizador Rítmico Web Audio** integrado que sigue el tempo (`BPM`) y la estructura del JSON.
-
----
-
-### Paso 3: Descargar Plantillas Guía (Opcional) e Introducir sus Imágenes
-
-En el panel **«🖼️ Segmentos e Imágenes del Musicograma (`sliceSpecs`)»** verán cada tramo horizontal de la obra:
-
-1. **Descargar Plantilla Guía del Segmento (`📐 Plantilla`)**:
-   - Descarga un lienzo de `1024 × 1024 px` con fondo negro y los rectángulos blancos exactos de las plataformas por donde pasan las esferas en ese segmento.
-   - Pueden usar esa plantilla como guía en cualquier editor gráfico (Photoshop, GIMP, Krita, Canva) o como imagen de referencia en un generador externo junto con el **`imagePrompt`** que incluye la tarjeta del segmento en el JSON.
-2. **Introducir las Imágenes en la Aplicación**:
-   - **Por Lote (Recomendado)**: Pulsen **«🖼️ Subir Imágenes en Lote (Segmentos 1..N)»** y seleccionen todas sus imágenes a la vez (`segmento1.jpg`, `segmento2.jpg`, ...). La aplicación las colocará en orden automáticamente.
-   - **Individualmente por Segmento**: En cada tarjeta de segmento o en la barra inferior del reproductor, pulsen **«Subir Imagen/Vídeo»** para asignar cualquier archivo `.jpg`, `.png`, `.webp`, `.svg` o `.mp4`/`.webm`.
-   - **Para las Esferas (Principal, Melodía y Bajo)**: Además de las formas geométricas y de los iconos SVG animados que ya vienen dentro del JSON OKF (`svgContent`), pueden subir cualquier imagen `.png`/`.svg` con fondo transparente para personalizar cada esfera.
+- Al cargar el archivo `.json`, el compilador determinista de **Sonogramic** (`svgTrajectoryCompiler.ts`) calcula todas las plataformas y las trayectorias de las 3 esferas (*Principal*, *Melodía* y *Bajo*) y **genera automáticamente en memoria los SVGs detallados en coordenadas exactas del mundo (`viewBox="${sliceMinX} -960 ${sliceWorldWidth} 1600"`)**.
+- Si suben su archivo de audio (`.mp3`, `.wav`, `.ogg`, `.m4a`) con **«3. Subir Audio»**, el motor **Web Audio API** detecta los ataques reales de graves (`< 150 Hz`) y agudos (`> 800 Hz`), recalcula las plataformas y **re-compila al instante los SVGs** para que todos los puentes, pilares y curvas del dibujo coincidan exactamente con los botes del audio real.
 
 ---
 
-### Paso 4: Capturar la Reproducción del Musicograma y Descargar el Vídeo
+### Paso 3: Elegir entre Varios SVGs por Sección o 1 SVG Panorámico Único (y Descargar/Editar `.svg`)
 
-Una vez cargadas sus imágenes y el JSON:
-1. Ajusten, si lo desean, el **Zoom**, la **Opacidad de Plataformas** (pueden bajarla a `0.0`–`0.2` si sus imágenes ya muestran los caminos dibujados) y la **Suavidad de Cámara**.
-2. Pulsen el botón **«🎬 Capturar Musicograma Completo (Auto-Vídeo)»** (o **«🔴 Grabar Vídeo»** para grabar un fragmento manual).
-3. La aplicación rebobinará al instante `00:00`, reproducirá el musicograma completo capturando el lienzo a **60 fotogramas por segundo** junto con el audio, detendrá la grabación automáticamente al finalizar la pieza y les devolverá el **archivo de vídeo en alta definición (`.webm`)** listo para descargar.
-4. Asimismo, pueden pulsar **«💾 Guardar Proyecto Completo (`.json`)»** para exportar un único archivo `.json` que conserva el JSON OKF, la trayectoria física, las imágenes en Base64 y el audio.
+En la barra superior o en la pestaña **«SVGs»** del panel derecho disponen de control total sobre la escenografía vectorial:
+
+1. **Conmutar entre `N SVGs por Sección` y `1 SVG Panorámico Único`**:
+   - **Varios SVGs (`N SVGs por Sección`)**: Divide la obra en los segmentos formales de `sliceSpecs` (`Segmento 1` a `Segmento N`), cada uno con su propia paleta, arquitectura temática (`baroque`, `cavern`, `canarias`, `carnival`, `symphonic`) y puenteado exacto, unidos sin costuras en `y = 0`.
+   - **Un Único SVG (`1 SVG Panorámico Único`)**: Funde toda la obra de principio a fin en un solo lienzo SVG panorámico continuo.
+2. **Descargar o Personalizar los Archivos `.svg`**:
+   - Pulsen **«1 SVG Completo»** para descargar un único archivo `.svg` panorámico de toda la obra con los trayectos y puentes dibujados.
+   - Pulsen **«SVGs por Tramo»** (o el botón `📐 SVG` de cada tarjeta) para descargar los archivos `.svg` individuales de cada sección.
+   - Pueden abrir cualquiera de esos `.svg` en **Inkscape, Adobe Illustrator o Figma**, añadir detalles artísticos respetando las coordenadas de los puentes y volver a subirlos con **«2. Subir SVGs»**.
+
+---
+
+### Paso 4: Reproducir sin Zooms Tipo Pulse y Capturar el Vídeo HD (`.webm`)
+
+1. **Cámara Suave y Zoom 100 % Estable**:
+   - El deslizador **«Zoom Cámara»** ajusta el encuadre fijo sin que existan bombeos ni *pulse zooms* en los pulsos musicales.
+   - El deslizador **«Opacidad Plataformas»** viene ajustado por defecto al `32 %` (`0.32`) para que las esferas rueden directamente sobre los tableros y barandillas dibujados en el SVG.
+2. **Capturar el Vídeo de Principio a Fin**:
+   - Pulsen **«🎬 Capturar Musicograma Completo (Auto-Vídeo Inicio a Fin)»**.
+   - La aplicación rebobinará al instante `00:00`, reproducirá el musicograma completo a **60 FPS** junto con el audio y descargará automáticamente el **archivo de vídeo en alta definición (`.webm`)**.

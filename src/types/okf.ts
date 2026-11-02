@@ -42,6 +42,8 @@ export interface OkfSliceSpec {
   recommendedPalette?: string[];
   imageUrl?: string;
   backgroundSvg?: string;
+  svgTheme?: string;
+  trajectoryWaypoints?: { time: number; y: number }[];
   generatedByAgent?: boolean;
 }
 
@@ -93,6 +95,8 @@ export interface OkfMusicogramaConfig {
   bgOffsetY: number;
   cameraSmoothness: number;
   mosaicSlices: number;
+  svgMode?: "segments" | "single";
+  masterSceneSvg?: string;
   userKeywords?: string;
   ballConfig: TrackVisualConfig;
   extraTracksConfig: {

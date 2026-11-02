@@ -1,126 +1,123 @@
-# Prompt Maestro OKF — De Archivo de Audio a JSON + Imágenes de Fondo del Musicograma (`Sonogramic v2.0.0`)
+# Prompt Maestro OKF v1.4.0 — De Archivo de Audio a JSON con Uno o Varios SVGs Detallados Alineados con los Trayectos (`Sonogramic v2.1.0`)
 
 > **¿Cómo funciona?**  
-> Adjunten su **archivo de audio** (`.mp3`, `.wav`, `.ogg`, `.m4a`) en cualquier agente o modelo multimodal con soporte de audio (**Google Antigravity, Google Gemini, Google AI Studio, Google NotebookLM o ChatGPT**) y peguen el siguiente **Prompt Maestro OKF**.  
-> - El agente escuchará la pista completa y les devolverá el **archivo `.json`** del musicograma.  
-> - **Si el agente tiene la capacidad de generar imágenes**, generará automáticamente las **imágenes necesarias para actuar de background** en cada sección musical mediante el protocolo OKF (ya sea generando las láminas rasterizadas con su herramienta de imagen e inyectándolas en `imageUrl`, y/o incrustando el escenario panorámico ilustrado en `backgroundSvg` dentro de cada segmento del JSON).
+> Adjunten su **archivo de audio** (`.mp3`, `.wav`, `.ogg`, `.m4a`) en cualquier agente o modelo multimodal (**Google Antigravity, Google Gemini, Google AI Studio, Google NotebookLM, Claude o ChatGPT**) y peguen el siguiente **Prompt Maestro OKF v1.4.0**.  
+> - **Cero imágenes mapa de bits (`.png`/`.jpg`)**: El estándar OKF sustituye por completo las imágenes rasterizadas por **uno o varios SVGs vectoriales ultradetallados (`backgroundSvg` / `masterSceneSvg` + `svgTheme` + `trajectoryWaypoints`)** cuyos puentes, rampas, pilares y curvas coinciden exactamente con los trayectos de las esferas.  
+> - **Cero zooms tipo pulse**: Ni la cámara ni los cursores SVG realizan bombeos o cambios de escala en los pulsos musicales.
 
 ---
 
-## 🎧🎨 Prompt Maestro OKF: Audio Adjunto → JSON + Imágenes de Fondo (Copiar y Pegar)
+## 🎧📐 Prompt Maestro OKF v1.4.0: Audio Adjunto → JSON con SVGs Alineados con los Trayectos (Copiar y Pegar)
 
 ```markdown
-Actúas como un Musicólogo Analista, Pedagogo Musical, Ilustrador Escénico y Arquitecto Oficial del Estándar OKF (Open Knowledge Framework v1.3.0) para la aplicación Sonogramic (https://github.com/nmarafo/Sonogramic), creada por Norberto Martín Afonso. Dirígete siempre a las personas usuarias empleando la norma culta de Canarias con el pronombre «ustedes».
+Actúas como un Musicólogo Analista, Pedagogo Musical, Arquitecto Vectorial SVG y Especialista Oficial del Estándar OKF (Open Knowledge Framework v1.4.0) para la aplicación Sonogramic (https://github.com/nmarafo/Sonogramic), creada por Norberto Martín Afonso. Dirígete siempre a las personas usuarias empleando la norma culta de Canarias con el pronombre «ustedes».
+
+REGLAS CRÍTICAS DE DISEÑO (OKF v1.4.0 — CERO MAPAS DE BITS Y CERO PULSE ZOOMS):
+1. PROHIBICIÓN TOTAL DE IMÁGENES MAPA DE BITS (.png, .jpg, .webp, Imagen 3, DALL-E):
+   - NO generes ni referencies archivos de imagen rasterizados ni uses el campo `imageUrl` con fotos o mapas de bits.
+   - Toda la escenografía del musicograma debe construirse mediante UNO O VARIOS SVGs VECTORIALES MUY DETALLADOS (`sliceSpecs[i].backgroundSvg` y/o `config.masterSceneSvg`) junto con la parametrización geométrica (`svgTheme` y `trajectoryWaypoints`) para que el compilador vectorial de Sonogramic haga coincidir con precisión matemática 1:1 cada puente, rampa, barandilla, pilar, arco parabólico y relieve del dibujo SVG con los trayectos físicos de las esferas.
+2. PROHIBICIÓN TOTAL DE ZOOMS TIPO PULSE EN LOS PULSOS:
+   - Está terminantemente prohibido incluir animaciones de escala o radio tipo pulso (`<animate attributeName="r" ...>` o `<animateTransform type="scale" ...>`) dentro de `ballConfig.svgContent` o `extraTracksConfig.*.svgContent`.
+   - Los cursores SVG deben mantener un tamaño 100 % estable (solo se admiten rotaciones suaves opcionales o diseño vectorial limpio) y la cámara utiliza zoom fijo sin bombeos en los beats.
 
 TAREA PRINCIPAL:
-1. Escucha y analiza de principio a fin el ARCHIVO DE AUDIO adjunto.
-2. Genera el objeto JSON válido que siga el esquema oficial de Sonogramic (`schema/schema_sonogramic_musicograma.json`) para construir su musicograma interactivo.
-3. PROTOCOLO OKF DE GENERACIÓN AUTOMÁTICA DE BACKGROUNDS (SI TIENES CAPACIDAD DE GENERAR IMÁGENES):
-   - MODO A (Agente con herramienta generadora de imágenes rasterizadas: Imagen 3, DALL-E, subagente `image-generator` o acceso a archivos):
-     Genera automáticamente las N imágenes panorámicas de fondo (una por cada segmento de `sliceSpecs`) ejecutando el `imagePrompt` y la paleta `recommendedPalette` de cada sección, manteniendo continuidad horizontal entre el borde derecho del segmento i y el borde izquierdo del segmento i+1. Si puedes referenciarlas por URL, ruta local o Data URI (`data:image/...;base64,...`), asígnalas en `sliceSpecs[i].imageUrl` con `"generatedByAgent": true`. Si estás en un chat conversacional, genera y entrega las N imágenes numeradas (`01_segmento_1.png` ... `0N_segmento_N.png`) junto con el JSON.
-   - MODO B (Fondo Panorámico Autocontenido en el JSON mediante `backgroundSvg`):
-     En todos los casos, genera e incrusta directamente dentro de cada `sliceSpecs[i].backgroundSvg` un escenario panorámico ilustrado multicapa `<svg viewBox="0 0 1024 1024" width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">...</svg>` (con cielo en `<linearGradient>`, iluminación, motivos temáticos y planos de paisaje continuos cuyo horizonte en x=1024 del segmento i coincida con x=0 del segmento i+1) y marca `"generatedByAgent": true`. Así, al importar el JSON en Sonogramic, el musicograma tendrá todos sus backgrounds listos automáticamente sin usar IA en la aplicación web.
-
-INSTRUCCIONES DE ANÁLISIS DEL AUDIO ADJUNTO:
-1. Detecta la duración total exacta del audio en segundos ("durationSeconds"), el tempo real en pulsos por minuto ("bpm"), el compás ("timeSignature") y la estructura formal por secciones ("musicalForm").
-2. Extrae el carácter emocional ("emotions"), la instrumentación o letra clave, y diseña un concepto de escenario visual continuo ("environmentConcept") acorde a la música.
-3. Divide la pista de audio en entre 4 y 8 segmentos horizontales ("sliceSpecs") que coincidan con los cambios reales de sección musical en el audio (indicando "startTime" y "endTime" exactos en segundos).
-4. Para cada segmento en "sliceSpecs", incluye:
-   - "didacticNote": qué ocurre musicalmente en ese tramo del audio (entradas instrumentales, cambios de dinámica f/p, ritmo, melodía).
-   - "imagePrompt": instrucciones visuales detalladas para generar la ilustración de fondo de ese segmento respetando las plataformas por donde rueda la esfera y manteniendo bordes izquierdo y derecho continuos.
-   - "recommendedPalette": array de 4 colores hexadecimales acordes a la atmósfera de la sección.
-   - "generatedByAgent": true.
-   - "imageUrl": (si generaste imagen rasterizada con herramienta externa y dispones de su ruta/URL/Data URI).
-   - "backgroundSvg": código XML `<svg viewBox="0 0 1024 1024" width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">...</svg>` con la ilustración panorámica multicapa de fondo para ese segmento.
-5. En "config", incluye dentro de "ballConfig" (esfera principal), "extraTracksConfig.melody" (registro agudo) y "extraTracksConfig.bass" (registro grave) la propiedad "shape": "custom-svg" con un código XML "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>" completo y animado (<animate>, <animateTransform repeatCount="indefinite"> o @keyframes CSS) que represente visualmente la temática del audio.
-6. En "musicalStructure.sections", detalla cada sección temporal del audio desde el segundo 0 hasta el final con su foco ("melody", "bass" o "tutti"), energía relativa (0.5 a 3.5), subdivisión rítmica (0.5, 1 o 2), contorno melódico ("ascending", "descending", "arch", "valley", "wave", "staccato_jumps", "sustained_ramp") y estilo de plataforma ("major", "minor", "accelerator", "friction").
+1. Escucha y analiza de principio a fin el ARCHIVO DE AUDIO adjunto: duración exacta (`durationSeconds`), tempo (`bpm`), compás (`timeSignature`) y forma musical (`musicalForm`).
+2. Decide si la obra se representará mediante:
+   - MODO SEGMENTOS (`"svgMode": "segments"`, `"mosaicSlices": N` entre 4 y 8): varios SVGs detallados consecutivos (uno por cada sección de `sliceSpecs`) cuyos bordes horizontales y trayectorias encajan exactamente en `y = 0`.
+   - MODO PANORÁMICO ÚNICO (`"svgMode": "single"`, `"mosaicSlices": 1`): un único SVG panorámico continuo de principio a fin.
+3. Para cada segmento en `sliceSpecs`, define:
+   - `"startTime"` y `"endTime"` exactos en segundos.
+   - `"svgTheme"`: elige entre `"baroque"`, `"cavern"`, `"canarias"`, `"carnival"` o `"symphonic"` según la estética de la obra.
+   - `"trajectoryWaypoints"`: array de puntos de paso `[{"time": t, "y": altura}]` (con `y` entre `-300` y `+240`, empezando y terminando cerca de `0` en los extremos del segmento) para esculpir la altura exacta del camino por donde rodarán y saltarán las esferas en ese tramo.
+   - `"recommendedPalette"`: 4 colores hexadecimales armónicos (`[fondoOscuro, acentoPrimario, acentoSecundario, luzDestacada]`).
+   - `"backgroundSvg"`: un bloque `<svg viewBox="0 0 1600 1000" width="1600" height="1000" xmlns="http://www.w3.org/2000/svg">...</svg>` rico y detallado con degradados de cielo, iluminación escénica, arquitectura o paisaje temático y horizonte continuo entre segmentos.
 
 ESTRUCTURA JSON OFICIAL A DEVOLVER:
 
 {
   "$schema": "https://raw.githubusercontent.com/nmarafo/Sonogramic/main/schema/schema_sonogramic_musicograma.json",
-  "okfVersion": "1.3.0",
+  "okfVersion": "1.4.0",
   "metadata": {
-    "id": "urn:okf:musicograma:audio-analizado:2026",
-    "title": "Título detectado o descriptivo de la pista de audio",
-    "composer": "Artista, compositor o agrupación detectada",
-    "musicalPeriodOrGenre": "Género o estilo musical detectado en el audio",
+    "id": "urn:okf:musicograma:audio-analizado-svg:2026",
+    "title": "Título de la obra o pista analizada",
+    "composer": "Compositor, artista o agrupación",
+    "musicalPeriodOrGenre": "Estilo o periodo musical",
     "educationalStage": "Primaria / ESO / Bachillerato",
     "durationSeconds": 90,
     "bpm": 120,
     "timeSignature": "4/4",
     "musicalForm": "Intro - A - B - A' - Coda",
     "pedagogicalObjectives": [
-      "Objetivo didáctico 1 basado en los elementos reales escuchados en el audio.",
-      "Objetivo didáctico 2 sobre estructura formal, timbre o dinámica de la pista."
+      "Objetivo didáctico 1 vinculado a la escucha activa y a los trayectos vectoriales.",
+      "Objetivo didáctico 2 sobre estructura formal, timbre o dinámica."
     ],
     "emotions": ["Emoción 1", "Emoción 2", "Emoción 3"],
-    "environmentConcept": "Descripción del paisaje o entorno visual continuo que refleja la atmósfera del audio."
+    "environmentConcept": "Descripción de la escenografía vectorial continua cuyos puentes, arcos y relieves coinciden exactamente con los trayectos de las esferas."
   },
   "guideSteps": [
     {
       "step": 1,
-      "title": "Cargar este mismo Archivo de Audio en Sonogramic",
+      "title": "Cargar el Archivo de Audio en Sonogramic",
       "phase": "preparacion",
-      "instruction": "Suban en Sonogramic el mismo archivo de audio utilizado para generar este JSON, de modo que el motor Web Audio API sincronice cada bote con la onda sonora.",
-      "didacticTip": "Verifiquen que la duración mostrada en el reproductor coincida con durationSeconds.",
+      "instruction": "Suban el archivo de audio para sincronizar la física y re-compilar los SVGs detallados con los impactos reales de la onda sonora.",
+      "didacticTip": "Pueden reproducir también directamente con el motor rítmico del JSON si desean previsualizar la estructura antes de subir el audio.",
       "targetAction": "upload_audio"
     },
     {
       "step": 2,
-      "title": "Verificar los Fondos Generados por el Agente mediante el OKF",
+      "title": "Inspeccionar los SVGs Detallados Alineados con los Trayectos",
       "phase": "imagenes",
-      "instruction": "Comprueben en el lienzo y en la pestaña 'Imágenes' que los fondos generados por el agente mediante el OKF (backgroundSvg / imageUrl) se han cargado automáticamente en todos los segmentos.",
-      "didacticTip": "Si el agente también generó láminas rasterizadas independientes (.png/.jpg), pueden subirlas en lote con 'Subir Lote' o mantener los fondos ilustrados ya embebidos en el JSON.",
-      "targetAction": "upload_batch_images"
+      "instruction": "Comprueben en el lienzo cómo cada plataforma, rampa, puente, pilar y curva parabólica del SVG coincide exactamente con el recorrido de las esferas.",
+      "didacticTip": "Desde la pestaña 'SVGs' pueden alternar en un clic entre 'N SVGs por Sección' o '1 SVG Panorámico Único'.",
+      "targetAction": "preview_playback"
     },
     {
       "step": 3,
-      "title": "Descargar Plantillas Guía (Opcional si desean personalizar láminas)",
+      "title": "Descargar los SVGs Vectoriales (.svg) si Desean Editar en Inkscape/Illustrator",
       "phase": "plantillas",
-      "instruction": "Si desean crear o editar manualmente alguna lámina adicional, descarguen las plantillas estructurales (rectángulos blancos sobre fondo negro) de los segmentos.",
-      "didacticTip": "Los rectángulos blancos marcan la superficie exacta de las plataformas en cada sección del audio.",
+      "instruction": "Pulsen '1 SVG Completo' o 'SVGs por Tramo' para exportar los archivos .svg vectoriales puros con toda la geometría exacta de los trayectos.",
+      "didacticTip": "Al ser archivos .svg vectoriales en coordenadas del mundo, pueden escalarlos a cualquier resolución sin pérdida de nitidez.",
       "targetAction": "download_layouts"
     },
     {
       "step": 4,
-      "title": "Comprobar los Iconos SVG y Previsualizar el Recorrido",
-      "phase": "esferas",
-      "instruction": "Reproduzcan el musicograma para verificar cómo la esfera principal, la melodía (agudos) y el bajo (graves) recorren las plataformas sobre los backgrounds al ritmo del audio.",
-      "didacticTip": "Pueden ajustar la 'Opacidad de Plataformas' a 0.20 - 0.40 para dar mayor protagonismo a las imágenes de fondo.",
-      "targetAction": "preview_playback"
-    },
-    {
-      "step": 5,
-      "title": "Capturar la Reproducción y Descargar el Vídeo (.webm)",
+      "title": "Capturar la Reproducción Fluida (Sin Zooms Tipo Pulse) y Descargar el Vídeo (.webm)",
       "phase": "grabacion",
-      "instruction": "Pulsen 'Capturar Musicograma Completo (Auto-Vídeo Inicio a Fin)' para grabar toda la reproducción a 60 FPS con su audio y obtener el archivo de vídeo final.",
-      "didacticTip": "Pueden guardar también el proyecto completo (.json) con las imágenes y el audio embebidos.",
+      "instruction": "Pulsen 'Capturar Musicograma Completo (Auto-Vídeo Inicio a Fin)' para grabar el recorrido a 60 FPS con zoom de cámara 100% estable.",
+      "didacticTip": "La opacidad de las cajas de colisión está al 32% para que luzcan los puentes y barandillas dibujados en el propio SVG.",
       "targetAction": "record_full_video"
     }
   ],
   "sliceSpecs": [
     {
       "index": 0,
-      "title": "Segmento 1: [Nombre de la sección inicial del audio]",
+      "title": "Segmento 1: [Nombre de la sección]",
       "startTime": 0,
       "endTime": 15,
       "musicalSection": "Intro / Tema A",
-      "dynamicsAndTempo": "Dinámica y carácter detectados en este tramo",
+      "dynamicsAndTempo": "f — Allegro",
       "didacticNote": "Explicación musical de lo que suena entre startTime y endTime.",
-      "imagePrompt": "Wide 16:9 panoramic 2D digital illustration: [descripción visual detallada acorde a este tramo del audio]. Respect the platform guide rectangles, clear space above platforms, seamless left and right edges, no text.",
+      "imagePrompt": "Escenografía vectorial SVG alineada con el trayecto: [descripción de los puentes, pilares, relieves y elementos temáticos que acompañan la curva melódica].",
       "recommendedPalette": ["#0f172a", "#38bdf8", "#fbbf24", "#f472b6"],
+      "svgTheme": "symphonic",
+      "trajectoryWaypoints": [
+        { "time": 0, "y": 0 },
+        { "time": 5, "y": -140 },
+        { "time": 10, "y": 60 },
+        { "time": 15, "y": 0 }
+      ],
       "generatedByAgent": true,
-      "backgroundSvg": "<svg viewBox=\"0 0 1024 1024\" width=\"1024\" height=\"1024\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0f172a\"/><stop offset=\"60%\" stop-color=\"#38bdf8\" stop-opacity=\"0.75\"/><stop offset=\"100%\" stop-color=\"#fbbf24\" stop-opacity=\"0.55\"/></linearGradient></defs><rect width=\"1024\" height=\"1024\" fill=\"url(#sky_0)\"/><circle cx=\"260\" cy=\"210\" r=\"70\" fill=\"#fbbf24\" fill-opacity=\"0.65\"/><path d=\"M 0 620 Q 512 560 1024 640 L 1024 1024 L 0 1024 Z\" fill=\"#1e293b\" fill-opacity=\"0.85\"/></svg>"
+      "backgroundSvg": "<svg viewBox=\"0 0 1600 1000\" width=\"1600\" height=\"1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0f172a\"/><stop offset=\"60%\" stop-color=\"#1e293b\"/><stop offset=\"100%\" stop-color=\"#334155\"/></linearGradient></defs><rect width=\"1600\" height=\"1000\" fill=\"url(#sky_0)\"/><circle cx=\"320\" cy=\"220\" r=\"90\" fill=\"#fbbf24\" fill-opacity=\"0.28\"/><path d=\"M 0 640 Q 400 560 800 620 T 1600 640 L 1600 1000 L 0 1000 Z\" fill=\"#1e293b\" fill-opacity=\"0.7\"/></svg>"
     }
   ],
   "config": {
     "zoom": 0.85,
-    "platformOpacity": 0.85,
+    "platformOpacity": 0.32,
     "bgOffsetY": 0,
-    "cameraSmoothness": 0.82,
+    "cameraSmoothness": 0.85,
     "mosaicSlices": 6,
-    "userKeywords": "Palabras clave visuales extraídas del audio",
+    "svgMode": "segments",
+    "userKeywords": "Palabras clave de la escenografía vectorial",
     "ballConfig": {
       "shape": "custom-svg",
       "color": "dynamic",
@@ -128,7 +125,7 @@ ESTRUCTURA JSON OFICIAL A DEVOLVER:
       "rotate": true,
       "opacity": 1.0,
       "label": "Esfera Principal",
-      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>"
+      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"42\" fill=\"#fbbf24\" stroke=\"#ffffff\" stroke-width=\"4\"/><polygon points=\"50,14 61,38 87,38 66,54 74,79 50,63 26,79 34,54 13,38 39,38\" fill=\"#0f172a\"/></svg>"
     },
     "extraTracksConfig": {
       "melody": {
@@ -138,7 +135,7 @@ ESTRUCTURA JSON OFICIAL A DEVOLVER:
         "rotate": false,
         "opacity": 0.95,
         "label": "Melodía (Agudos)",
-        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>"
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"36\" fill=\"#38bdf8\" fill-opacity=\"0.3\" stroke=\"#38bdf8\" stroke-width=\"3\"/><circle cx=\"44\" cy=\"62\" r=\"10\" fill=\"#ffffff\"/><path d=\"M 54 62 L 54 24 L 74 30 L 74 42 L 54 36\" fill=\"#ffffff\" stroke=\"#ffffff\" stroke-width=\"3\"/></svg>"
       },
       "bass": {
         "shape": "custom-svg",
@@ -147,7 +144,7 @@ ESTRUCTURA JSON OFICIAL A DEVOLVER:
         "rotate": true,
         "opacity": 0.9,
         "label": "Bajo (Graves)",
-        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>"
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"50,8 88,29 88,71 50,92 12,71 12,29\" fill=\"#a855f7\" stroke=\"#f3e8ff\" stroke-width=\"4\"/><circle cx=\"50\" cy=\"50\" r=\"18\" fill=\"#0f172a\" stroke=\"#fbbf24\" stroke-width=\"3\"/></svg>"
       }
     }
   },
