@@ -9,7 +9,7 @@
 
 **Sonogramic** es un ecosistema abierto basado en el estándar **Open Knowledge Framework (OKF v1.4.0)** que proporciona:
 
-1. **Un Estándar OKF Vectorial (`okf.json`, `okf/`, `schema/`)** para generar un **archivo `.json`** en el que **las imágenes mapa de bits (`.png`/`.jpg`) han sido sustituidas íntegramente por uno o varios SVGs vectoriales muy detallados (`backgroundSvg` / `masterSceneSvg`, `svgTheme` y `trajectoryWaypoints`)** cuyos dibujos coinciden exactamente con los trayectos de las esferas.
+1. **Un Estándar OKF Vectorial (`okf.json`, `okf/`, `schema/`)** para generar un **único archivo `.json` autocontenido** en el que **las imágenes mapa de bits (`.png`/`.jpg`) han sido sustituidas íntegramente por uno o varios SVGs vectoriales muy detallados (`backgroundSvg` / `masterSceneSvg`, `svgTheme`, `trajectoryWaypoints` y cursores `svgContent`) ya incrustados dentro del propio JSON**, cuyos dibujos coinciden exactamente con los trayectos de las esferas.
 2. **Un Compilador Vectorial Determinista 1:1 y Reproductor 60 FPS Sin IA (`src/utils/svgTrajectoryCompiler.ts` + `src/components/AudioVisualizer.tsx`)**:
    - **Coincidencia matemática exacta (`0.0 px` de error)**: Construye en el cliente **uno o varios SVGs** en coordenadas exactas del mundo (`viewBox="${sliceMinX} -960 ${sliceWorldWidth} 1600"`), dibujando puentes inclinados, barandillas en la cota exacta de rodadura (`y = -10`), pilares y arcos románicos de soporte, relieve topográfico, arcos parabólicos de salto y pentagramas aéreos para las 3 voces (*Principal*, *Melodía* y *Bajo*).
    - **Cámara suave sin zooms tipo *pulse***: Se han eliminado por completo los bombeos de zoom en los pulsos musicales (`zooms tipo pulse`), los destellos blancos de impacto y las animaciones de escala en los cursores SVG, garantizando una visualización limpia, estable y descansada a **60 FPS**.
@@ -22,45 +22,188 @@
 
 ```mermaid
 flowchart LR
-    A["1. Diseño Documental OKF v1.4.0\n(Prompt Maestro OKF o Manual)"] --> B["Archivo .JSON del Musicograma\n• Indicaciones y pasos (guideSteps)\n• Temas y Waypoints (sliceSpecs)\n• 1 o N SVGs base (backgroundSvg)\n• Cursores SVG sin pulse-zoom"]
+    A["1. Diseño Documental OKF v1.4.0\n(Prompt Maestro OKF o Manual)"] --> B["Archivo .JSON Único Autocontenido\n• Indicaciones y pasos (guideSteps)\n• Temas y Waypoints (sliceSpecs)\n• 1 o N SVGs integrados (backgroundSvg)\n• Cursores SVG sin pulse-zoom"]
     B --> C["2. Compilador Vectorial Sonogramic (0% IA)\nTraza 1 SVG Panorámico o N SVGs\nen coordenadas exactas del mundo"]
     C --> D["3. Reproducción 60 FPS (Zoom Estable)\nLas esferas ruedan y rebotan con precisión\nsobre los puentes y curvas del SVG"]
-    D --> E["4. Exportación de Vídeo y Vectores\nDevuelve Vídeo HD (.webm) y\narchivos .SVG escalables"]
+    D --> E["4. Exportación de Vídeo y Vectores\nDevuelve Vídeo HD (.webm) y\narchivos .SVG / .JSON"]
 ```
-
-### Novedades Clave de la Arquitectura OKF v1.4.0
-- **Sustitución total de mapas de bits por SVGs alineados con los trayectos**: Ya no se emplean archivos `.png`/`.jpg` estáticos cuyos dibujos quedaban desalineados respecto a las plataformas. Ahora cada tramo (o el musicograma entero en modo de **1 SVG Panorámico Único**) es un documento vectorial `<svg>` cuyas estructuras arquitectónicas se ensamblan exactamente sobre las coordenadas `{ x, y, width, height, angle }` de cada plataforma y sobre las curvas `{ time, x, y }` de cada esfera.
-- **Modo Dual de Escenografía SVG (`svgMode`)**:
-  - **Varios SVGs por Sección (`N SVGs`)**: Genera un SVG detallado e independiente para cada sección formal de la obra (`Intro`, `Tema A`, `Tema B`, `Coda`), con transiciones suaves que convergen en `y = 0` en los bordes de sección.
-  - **Un Único SVG Panorámico (`1 SVG`)**: Compila un único documento SVG continuo (`viewBox="0 -960 ${totalWorldWidth} 1600"`) para toda la pieza musical.
-- **Eliminación de los zooms tipo *pulse* en los pulsos**:
-  - La cámara mantiene un factor de zoom 100 % constante (`config.zoom`), sin sacudidas ni cambios de escala en los pulsos fuertes, aceleradores o de fricción.
-  - Los iconos SVG de las esferas (`svgContent`) se sanitizan automáticamente para impedir animaciones `<animate attributeName="r">` o `<animateTransform type="scale">`.
 
 ---
 
-## 2. Estándar OKF (Open Knowledge Framework v1.4.0)
+## 2. Prompt Maestro OKF v1.4.0 (Copiar y Pegar para Generar el JSON con Todos los SVGs Incluidos)
+
+Adjunten su **archivo de audio** (`.mp3`, `.wav`, `.ogg`, `.m4a`) en cualquier agente o modelo multimodal (**Google Antigravity, Google Gemini, Google AI Studio, NotebookLM, Claude o ChatGPT**) y copien el siguiente **Prompt Maestro OKF v1.4.0** (también disponible con botón de copiado directo en la barra superior de la aplicación y en [`okf/prompt_maestro_okf_sonogramic.md`](okf/prompt_maestro_okf_sonogramic.md)):
+
+```markdown
+Actúas como un Musicólogo Analista, Pedagogo Musical, Arquitecto Vectorial SVG y Especialista Oficial del Estándar OKF (Open Knowledge Framework v1.4.0) para la aplicación Sonogramic (https://github.com/nmarafo/Sonogramic), creada por Norberto Martín Afonso. Dirígete siempre a las personas usuarias empleando la norma culta de Canarias con el pronombre «ustedes».
+
+REGLAS CRÍTICAS DE DISEÑO (OKF v1.4.0 — TODOS LOS SVGs INTEGRADOS EN EL MISMO JSON, CERO MAPAS DE BITS Y CERO PULSE ZOOMS):
+1. TODOS LOS SVGs DEBEN IR INCLUIDOS DENTRO DEL MISMO ARCHIVO .JSON GENERADO:
+   - NO generes archivos de imagen mapa de bits (.png, .jpg, .webp, Imagen 3, DALL-E) ni archivos externos sueltos.
+   - Todo el arte visual debe ir incrustado como código XML "<svg>...</svg>" directamente dentro del único objeto JSON devuelto:
+     a) Escenografías vectoriales detalladas por tramo en "sliceSpecs[i].backgroundSvg" (y opcionalmente el escenario continuo en "config.masterSceneSvg").
+     b) Cursores vectoriales en "config.ballConfig.svgContent" (Principal), "config.extraTracksConfig.melody.svgContent" (Melodía/Agudos) y "config.extraTracksConfig.bass.svgContent" (Bajo/Graves).
+2. ALINEACIÓN MATEMÁTICA 1:1 ENTRE LOS SVGs Y LOS TRAYECTOS:
+   - Define en cada "sliceSpecs[i]" el tema arquitectónico "svgTheme" ("baroque", "cavern", "canarias", "carnival" o "symphonic"), la paleta "recommendedPalette" (4 colores hexadecimales) y los puntos de control de altura "trajectoryWaypoints": [{ "time": seg, "y": px }] (con "y" entre -280 y +220, empezando y terminando en "y": 0 en las fronteras de cada segmento para garantizar unión continua sin saltos).
+   - Dentro de cada "sliceSpecs[i].backgroundSvg", incrusta un escenario vectorial multicapa muy detallado "<svg viewBox='0 0 1600 1000' width='1600' height='1000' xmlns='http://www.w3.org/2000/svg'>...</svg>" con cielo en <linearGradient>, iluminación, arquitectura temática, horizonte continuo y caminos/puentes que acompañen los "trajectoryWaypoints". Al cargarse en Sonogramic, el compilador vectorial trazará en coordenadas exactas del mundo (viewBox="${sliceMinX} -960 ${sliceWidth} 1600") cada puente, barandilla, pilar románico, rampa y arco parabólico coincidiendo con error 0.0 px con los trayectos de las 3 esferas.
+   - Puedes configurar varios SVGs por sección ("config.svgMode": "segments", "config.mosaicSlices": N entre 4 y 8) o un único SVG panorámico para toda la obra ("config.svgMode": "single", "config.mosaicSlices": 1).
+3. PROHIBICIÓN ESTRICTA DE ZOOMS TIPO PULSE EN LOS PULSOS:
+   - Está terminantemente prohibido incluir efectos de bombeo o zoom en los pulsos ("zooms tipo pulse"), así como etiquetas "<animate attributeName='r'>" o "<animateTransform type='scale'>" dentro de los SVGs. El zoom de cámara es 100 % fijo y estable.
+
+INSTRUCCIONES DE ANÁLISIS DEL AUDIO ADJUNTO:
+1. Detecta la duración total exacta del audio en segundos ("durationSeconds"), el tempo real en pulsos por minuto ("bpm"), el compás ("timeSignature") y la estructura formal por secciones ("musicalForm").
+2. Extrae el carácter emocional ("emotions"), la instrumentación o letra clave, y diseña un concepto de escenario vectorial continuo ("environmentConcept") acorde a la música.
+3. Divide la pista de audio en entre 4 y 8 secciones ("sliceSpecs") que coincidan con los cambios reales de sección musical en el audio ("startTime" y "endTime" exactos en segundos).
+4. En "musicalStructure.sections", detalla cada sección temporal del audio desde el segundo 0 hasta el final con su foco ("melody", "bass" o "tutti"), energía relativa (0.5 a 3.5), subdivisión rítmica (0.5, 1 o 2), contorno melódico ("ascending", "descending", "arch", "valley", "wave", "staccato_jumps", "sustained_ramp") y estilo de plataforma ("major", "minor", "accelerator", "friction").
+
+ESTRUCTURA JSON OFICIAL A DEVOLVER (UN ÚNICO BLOQUE JSON CON TODOS LOS SVGs INCLUIDOS):
+
+{
+  "$schema": "https://raw.githubusercontent.com/nmarafo/Sonogramic/main/schema/schema_sonogramic_musicograma.json",
+  "okfVersion": "1.4.0",
+  "metadata": {
+    "id": "urn:okf:musicograma:audio-analizado-svg:2026",
+    "title": "Título de la obra o pista analizada",
+    "composer": "Compositor, artista o agrupación",
+    "musicalPeriodOrGenre": "Estilo o periodo musical",
+    "educationalStage": "Primaria / ESO / Bachillerato",
+    "durationSeconds": 90,
+    "bpm": 120,
+    "timeSignature": "4/4",
+    "musicalForm": "Intro - A - B - A' - Coda",
+    "pedagogicalObjectives": [
+      "Objetivo didáctico 1 vinculado a la escucha activa y a los trayectos vectoriales.",
+      "Objetivo didáctico 2 sobre estructura formal, timbre o dinámica."
+    ],
+    "emotions": ["Emoción 1", "Emoción 2", "Emoción 3"],
+    "environmentConcept": "Descripción de la escenografía vectorial continua cuyos puentes, arcos y relieves coinciden exactamente con los trayectos de las esferas."
+  },
+  "guideSteps": [
+    {
+      "step": 1,
+      "title": "Cargar el Archivo de Audio en Sonogramic",
+      "phase": "preparacion",
+      "instruction": "Suban el archivo de audio para sincronizar la física con la onda sonora real.",
+      "didacticTip": "Todos los SVGs de fondo y de las esferas ya están incluidos dentro de este mismo archivo .JSON.",
+      "targetAction": "upload_audio"
+    },
+    {
+      "step": 2,
+      "title": "Inspeccionar los SVGs Detallados Alineados con los Trayectos",
+      "phase": "imagenes",
+      "instruction": "Comprueben en el lienzo cómo cada plataforma, rampa, puente, pilar y curva parabólica del SVG coincide exactamente con el recorrido de las esferas.",
+      "didacticTip": "Desde la pestaña 'SVGs' pueden alternar en un clic entre 'N SVGs por Sección' o '1 SVG Panorámico Único'.",
+      "targetAction": "preview_playback"
+    },
+    {
+      "step": 3,
+      "title": "Capturar la Reproducción Fluida (Sin Zooms Tipo Pulse) y Descargar el Vídeo (.webm)",
+      "phase": "grabacion",
+      "instruction": "Pulsen 'Capturar Musicograma Completo (Auto-Vídeo Inicio a Fin)' para grabar el recorrido a 60 FPS con zoom de cámara 100% estable.",
+      "didacticTip": "La opacidad de las cajas de colisión está al 32% para que luzcan los puentes y barandillas dibujados en el propio SVG.",
+      "targetAction": "record_full_video"
+    }
+  ],
+  "sliceSpecs": [
+    {
+      "index": 0,
+      "title": "Segmento 1: [Nombre de la sección]",
+      "startTime": 0,
+      "endTime": 15,
+      "musicalSection": "Intro / Tema A",
+      "dynamicsAndTempo": "f — Allegro",
+      "didacticNote": "Explicación musical de lo que suena entre startTime y endTime.",
+      "imagePrompt": "Escenografía vectorial SVG alineada con el trayecto: [descripción detallada de los puentes, pilares, relieves y elementos temáticos que acompañan la curva melódica].",
+      "recommendedPalette": ["#0f172a", "#38bdf8", "#fbbf24", "#f472b6"],
+      "svgTheme": "symphonic",
+      "trajectoryWaypoints": [
+        { "time": 0, "y": 0 },
+        { "time": 5, "y": -140 },
+        { "time": 10, "y": 60 },
+        { "time": 15, "y": 0 }
+      ],
+      "generatedByAgent": true,
+      "backgroundSvg": "<svg viewBox=\"0 0 1600 1000\" width=\"1600\" height=\"1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"sky_0\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#0f172a\"/><stop offset=\"60%\" stop-color=\"#1e293b\"/><stop offset=\"100%\" stop-color=\"#334155\"/></linearGradient></defs><rect width=\"1600\" height=\"1000\" fill=\"url(#sky_0)\"/><circle cx=\"320\" cy=\"220\" r=\"90\" fill=\"#fbbf24\" fill-opacity=\"0.28\"/><path d=\"M 0 640 Q 400 560 800 620 T 1600 640 L 1600 1000 L 0 1000 Z\" fill=\"#1e293b\" fill-opacity=\"0.7\"/></svg>"
+    }
+  ],
+  "config": {
+    "zoom": 0.85,
+    "platformOpacity": 0.32,
+    "bgOffsetY": 0,
+    "cameraSmoothness": 0.85,
+    "mosaicSlices": 6,
+    "svgMode": "segments",
+    "userKeywords": "Palabras clave de la escenografía vectorial",
+    "ballConfig": {
+      "shape": "custom-svg",
+      "color": "dynamic",
+      "effect": "glow",
+      "rotate": true,
+      "opacity": 1.0,
+      "label": "Esfera Principal",
+      "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"42\" fill=\"#fbbf24\" stroke=\"#ffffff\" stroke-width=\"4\"/><polygon points=\"50,14 61,38 87,38 66,54 74,79 50,63 26,79 34,54 13,38 39,38\" fill=\"#0f172a\"/></svg>"
+    },
+    "extraTracksConfig": {
+      "melody": {
+        "shape": "custom-svg",
+        "color": "#38bdf8",
+        "effect": "glow",
+        "rotate": false,
+        "opacity": 0.95,
+        "label": "Melodía (Agudos)",
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"50\" cy=\"50\" r=\"36\" fill=\"#38bdf8\" fill-opacity=\"0.3\" stroke=\"#38bdf8\" stroke-width=\"3\"/><circle cx=\"44\" cy=\"62\" r=\"10\" fill=\"#ffffff\"/><path d=\"M 54 62 L 54 24 L 74 30 L 74 42 L 54 36\" fill=\"#ffffff\" stroke=\"#ffffff\" stroke-width=\"3\"/></svg>"
+      },
+      "bass": {
+        "shape": "custom-svg",
+        "color": "#a855f7",
+        "effect": "glow",
+        "rotate": true,
+        "opacity": 0.9,
+        "label": "Bajo (Graves)",
+        "svgContent": "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><polygon points=\"50,8 88,29 88,71 50,92 12,71 12,29\" fill=\"#a855f7\" stroke=\"#f3e8ff\" stroke-width=\"4\"/><circle cx=\"50\" cy=\"50\" r=\"18\" fill=\"#0f172a\" stroke=\"#fbbf24\" stroke-width=\"3\"/></svg>"
+      }
+    }
+  },
+  "musicalStructure": {
+    "sections": [
+      {
+        "startTime": 0,
+        "endTime": 15,
+        "label": "Sección 1",
+        "focus": "melody",
+        "energy": 1.4,
+        "subdivision": 1,
+        "melodicContour": "ascending",
+        "platformStyle": "major"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 3. Estándar OKF (Open Knowledge Framework v1.4.0)
 
 | Archivo OKF | Propósito |
 | :--- | :--- |
 | [`okf.json`](okf.json) | Manifiesto raíz legible por máquina (`urn:okf:software:sonogramic:2026:v2.1.0`) con el protocolo de escenografía vectorial SVG alineada con los trayectos y reglas de cámara sin *pulse zoom*. |
 | [`okf/arquitectura_okf.md`](okf/arquitectura_okf.md) | Especificación técnica del motor físico 2D determinista (`800 px/s`, `60 FPS`), el compilador vectorial `svgTrajectoryCompiler.ts` y la anatomía del archivo `.json`. |
-| [`okf/prompt_maestro_okf_sonogramic.md`](okf/prompt_maestro_okf_sonogramic.md) | **Prompt Maestro OKF v1.4.0** listo para copiar y pegar en cualquier asistente externo para generar el `.json` con uno o varios SVGs detallados alineados con los trayectos y sin zooms tipo *pulse*. |
+| [`okf/prompt_maestro_okf_sonogramic.md`](okf/prompt_maestro_okf_sonogramic.md) | **Prompt Maestro OKF v1.4.0** listo para copiar y pegar en cualquier asistente externo para generar el `.json` con todos los SVGs detallados ya incluidos y sin zooms tipo *pulse*. |
 | [`okf/guia_paso_a_paso_musicograma.md`](okf/guia_paso_a_paso_musicograma.md) | Guía práctica paso a paso para docentes y creadores sobre cómo alternar entre 1 o varios SVGs, exportar los vectores `.svg` y capturar el vídeo `.webm`. |
 | [`schema/schema_sonogramic_musicograma.json`](schema/schema_sonogramic_musicograma.json) | Esquema formal **JSON Schema (Draft 2020-12)** que valida `svgMode`, `masterSceneSvg`, `svgTheme`, `trajectoryWaypoints` y `backgroundSvg`. |
 | [`src/utils/svgTrajectoryCompiler.ts`](src/utils/svgTrajectoryCompiler.ts) | Compilador vectorial determinista que genera los SVGs multicapa en coordenadas exactas del mundo a partir de las plataformas y trayectorias simuladas. |
-| [`examples/`](examples/) | Cuatro proyectos OKF v1.4.0 completos listos para usar: *La Primavera* (Vivaldi), *En la Gruta del Rey de la Montaña* (Grieg), *Isa Parrandera Canaria* (Folclore de Canarias en 3/4) y *Carnaval de Las Palmas de Gran Canaria* (Batucada y Murga). |
+| [`examples/`](examples/) | Cuatro proyectos OKF v1.4.0 completos con todos los SVGs embebidos dentro del `.json`: *La Primavera* (Vivaldi), *En la Gruta del Rey de la Montaña* (Grieg), *Isa Parrandera Canaria* (Folclore de Canarias en 3/4) y *Carnaval de Las Palmas de Gran Canaria* (Batucada y Murga). |
 
 ---
 
-## 3. Cómo Usar la Aplicación (JSON Vectorial → SVGs Alineados → Vídeo)
+## 4. Cómo Usar la Aplicación (JSON con SVGs Incluidos → Vídeo)
 
-1. **Cargar un Proyecto JSON OKF o Ejemplo Integrado**:
-   - Seleccionen cualquiera de las **4 Recetas OKF** de la barra superior (*Vivaldi*, *Grieg*, *Isa Canaria* o *Carnaval LPGC*) o carguen su propio archivo con **«1. Cargar JSON OKF»** / **«Pegar JSON»**.
+1. **Copiar el Prompt Maestro o Cargar un JSON OKF**:
+   - Pulsen **«Copiar Prompt Maestro OKF»** en la barra superior de la aplicación para generar su `.json` en cualquier IA externa, o seleccionen cualquiera de las **4 Recetas OKF** de ejemplo (*Vivaldi*, *Grieg*, *Isa Canaria* o *Carnaval LPGC*).
 2. **Conmutar o Descargar los SVGs Alineados con los Trayectos**:
-   - En la barra superior o en la pestaña **«SVGs»** pueden alternar en tiempo real entre **«N SVGs por Sección»** y **«1 SVG Panorámico Único»**, o pulsar **«Re-compilar SVGs»**.
-   - Pulsen **«1 SVG Completo»** o **«SVGs por Tramo»** para descargar los archivos `.svg` vectoriales con todos los puentes, pilares, relieves y curvas de trayectoria exactamente trazados.
-   - Si editan un archivo `.svg` en Inkscape o Illustrator, pueden volver a cargarlo con **«2. Subir SVGs»**.
+   - Todos los SVGs ya vienen incluidos dentro del archivo `.json` (`sliceSpecs[i].backgroundSvg` y `svgContent`).
+   - En la barra superior o en la pestaña **«SVGs»** pueden alternar en tiempo real entre **«N SVGs por Sección»** y **«1 SVG Panorámico Único»**, o descargar los archivos `.svg` con **«1 SVG Completo»** / **«SVGs por Tramo»**.
 3. **Sincronizar Audio (Opcional)**:
    - Pulsen **«3. Subir Audio»** (`.mp3`, `.wav`, `.ogg`) para que el motor matemático Web Audio API sincronice los rebotes con las frecuencias reales de su pista y re-compile automáticamente los SVGs con la nueva geometría.
 4. **Capturar la Reproducción (Sin Pulse Zoom) y Obtener el Vídeo**:
@@ -68,82 +211,9 @@ flowchart LR
 
 ---
 
-## 4. Estructura del Repositorio
+## 👤 Autoría, Créditos y Licencia
 
-```text
-Sonogramic/
-├── index.html                                  # Punto de entrada de la aplicación web (100 % Sin IA)
-├── okf.json                                    # Manifiesto raíz Open Knowledge Framework (OKF v1.4.0)
-├── okf/
-│   ├── arquitectura_okf.md                     # Manual técnico del compilador SVG 1:1 y motor físico sin pulse-zoom
-│   ├── prompt_maestro_okf_sonogramic.md        # System Prompt oficial OKF v1.4.0 (100 % SVG, 0 % mapas de bits)
-│   └── guia_paso_a_paso_musicograma.md         # Guía práctica de creación vectorial y captura de vídeo
-├── schema/
-│   └── schema_sonogramic_musicograma.json      # JSON Schema (Draft 2020-12) para validar recetas OKF v1.4.0
-├── examples/
-│   ├── vivaldi_primavera_okf.json              # Receta OKF: La Primavera (Allegro) — Antonio Vivaldi (Baroque SVG)
-│   ├── grieg_rey_montana_okf.json              # Receta OKF: En la Gruta del Rey de la Montaña — Edvard Grieg (Cavern SVG)
-│   ├── isa_canaria_okf.json                    # Receta OKF: Isa Parrandera Canaria (Canarias SVG)
-│   └── musicograma_carnaval_las_palmas_okf.json# Receta OKF: Carnaval de Las Palmas de GC (Carnival SVG)
-├── src/
-│   ├── App.tsx                                 # Interfaz principal, gestor de SVGs por tramo o único y exportación
-│   ├── main.tsx                                # Inicialización React
-│   ├── index.css                               # Estilos Tailwind CSS
-│   ├── types/
-│   │   └── okf.ts                              # Definiciones TypeScript del estándar OKF v1.4.0
-│   ├── utils/
-│   │   └── svgTrajectoryCompiler.ts            # Compilador de SVGs detallados en coordenadas exactas de los trayectos
-│   ├── data/
-│   │   └── exampleProjects.ts                  # 4 Recetas OKF vectoriales precargadas
-│   └── components/
-│       └── AudioVisualizer.tsx                 # Motor físico 60 FPS (sin pulse-zoom), renderizador SVG y MediaRecorder
-├── LICENSE                                     # Licencia GNU AGPL-3.0 con cláusula de atribución (Sección 7b)
-├── LICENSE.md                                  # Resumen de licencia dual GNU AGPL-3.0 + Creative Commons CC BY-SA 4.0
-├── package.json                                # Dependencias limpias de cliente (Vite + React + Tailwind, sin IA)
-└── vite.config.ts                              # Configuración de compilación estática para GitHub Pages
-```
-
----
-
-## 5. Ejecución en Local
-
-1. Instalar dependencias:
-   ```bash
-   npm install
-   ```
-2. Iniciar el servidor de desarrollo local:
-   ```bash
-   npm run dev
-   ```
-3. Generar la compilación estática de producción (`dist/`):
-   ```bash
-   npm run build
-   ```
-
----
-
-## 👤 Autoría, Créditos y Redes Sociales
-
-- **Autor**: **Norberto Martín Afonso**
+- **Autor**: **Norberto Martín Afonso** ([`@nmarafo`](https://github.com/nmarafo))
 - **Repositorio oficial**: [https://github.com/nmarafo/Sonogramic](https://github.com/nmarafo/Sonogramic)
 - **Aplicación en GitHub Pages**: [https://nmarafo.github.io/Sonogramic/](https://nmarafo.github.io/Sonogramic/)
-- **Redes sociales**:
-  - 🐦 **X (Twitter)**: [@NorbertoMartnAf](https://x.com/NorbertoMartnAf)
-  - 💼 **GitHub**: [@nmarafo](https://github.com/nmarafo)
-  - 🤗 **Hugging Face**: [@nmarafo](https://huggingface.co/nmarafo)
-  - 📸 **Instagram**: [@nmar_afo](https://instagram.com/nmar_afo)
-
----
-
-## 📄 Licencia y Cláusula de Atribución Obligatoria
-
-- **Software y código fuente**: Distribuido bajo los términos de la licencia **GNU Affero General Public License v3.0 (AGPL-3.0-or-later)** con preservación obligatoria de atribución de autoría conforme a la **Sección 7(b)**.
-- **Especificación OKF, esquemas JSON, guías y prompts**: Distribuidos bajo licencia **Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)**.
-
-### Cláusula de Atribución Obligatoria (Sección 7b AGPL-3.0 y CC BY-SA 4.0)
-
-Conforme a la Sección 7(b) de la licencia GNU Affero General Public License v3.0 y a los términos de atribución de CC BY-SA 4.0, cualquier redistribución, modificación, obra derivada, adaptación o integración de este software o de su especificación OKF en otros sistemas, cuadernos RAG o agentes de IA debe preservar de forma visible el aviso de copyright original y la atribución expresa a su autor en el código fuente, en la documentación y en la interfaz de usuario:
-
-> *Basado en [Sonogramic](https://github.com/nmarafo/Sonogramic), creado por **Norberto Martín Afonso**, distribuido bajo licencia GNU Affero General Public License v3.0 (AGPL-3.0-or-later) y Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0).*
-
-Consulten los archivos [LICENSE](LICENSE) y [LICENSE.md](LICENSE.md) para conocer el texto legal completo.
+- **Licencia**: Distribuido bajo **GNU Affero General Public License v3.0 (AGPL-3.0-or-later, Sección 7b)** y **Creative Commons CC BY-SA 4.0** con atribución obligatoria a **Norberto Martín Afonso**. Consulten [LICENSE](LICENSE) y [LICENSE.md](LICENSE.md).
