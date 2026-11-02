@@ -138,7 +138,11 @@ const preloadCustomGraphic = (
 };
 
 const svgStringToBlobUrl = (svgStr: string): string => {
-  let normalizedSvg = svgStr.trim();
+  // Ensure scene SVGs contain zero <text> tags
+  let normalizedSvg = svgStr
+    .trim()
+    .replace(/<text\b[^>]*>[\s\S]*?<\/text>/gi, "")
+    .replace(/<text\b[^>]*\/?>/gi, "");
   if (!normalizedSvg.includes("xmlns=")) {
     normalizedSvg = normalizedSvg.replace(
       "<svg",
@@ -155,6 +159,41 @@ const svgStringToBlobUrl = (svgStr: string): string => {
     type: "image/svg+xml;charset=utf-8",
   });
   return URL.createObjectURL(blob);
+};
+
+const createMountedSvgImage = (
+  blobUrl: string,
+  onReady: () => void,
+): HTMLImageElement => {
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.style.position = "fixed";
+  img.style.left = "-9999px";
+  img.style.top = "-9999px";
+  img.style.width = "64px";
+  img.style.height = "64px";
+  img.style.opacity = "0.01";
+  img.style.pointerEvents = "none";
+  img.style.zIndex = "-9999";
+  img.onload = () => {
+    let stage = document.getElementById("sonogramic-animated-svg-stage");
+    if (!stage) {
+      stage = document.createElement("div");
+      stage.id = "sonogramic-animated-svg-stage";
+      stage.style.position = "fixed";
+      stage.style.left = "-9999px";
+      stage.style.top = "-9999px";
+      stage.style.width = "1px";
+      stage.style.height = "1px";
+      stage.style.overflow = "hidden";
+      stage.style.pointerEvents = "none";
+      document.body.appendChild(stage);
+    }
+    stage.appendChild(img);
+    onReady();
+  };
+  img.src = blobUrl;
+  return img;
 };
 
 const buildImageElementFromOkfSlice = (
@@ -2145,7 +2184,7 @@ export const AudioVisualizer = forwardRef<
         !forceRebuild &&
         okfProjectRef.current?.config?.masterSceneSvg &&
         okfProjectRef.current.config.masterSceneSvg.includes(
-          'data-sonogramic-aligned="true"',
+          'data-sonogramic-scenic-animated="v2"',
         )
           ? okfProjectRef.current.config.masterSceneSvg
           : compileFullMasterSvg(
@@ -2165,10 +2204,12 @@ export const AudioVisualizer = forwardRef<
       if (forceRebuild || !data.bgImages[0]) {
         const blobUrl = svgStringToBlobUrl(masterSvgXml);
         if (blobUrl) {
-          const img = new Image();
-          img.onload = () => updateState();
-          img.src = blobUrl;
-          data.bgImages[0] = img;
+          if (data.bgImages[0] && (data.bgImages[0] as any).parentNode) {
+            (data.bgImages[0] as any).parentNode.removeChild(data.bgImages[0]);
+          }
+          data.bgImages[0] = createMountedSvgImage(blobUrl, () =>
+            updateState(),
+          );
         }
       }
       return;
@@ -2200,7 +2241,7 @@ export const AudioVisualizer = forwardRef<
       const svgXml =
         !forceRebuild &&
         spec?.backgroundSvg &&
-        spec.backgroundSvg.includes('data-sonogramic-aligned="true"')
+        spec.backgroundSvg.includes('data-sonogramic-scenic-animated="v2"')
           ? spec.backgroundSvg
           : compileDetailedSliceSvg(input);
       compiledList[i] = svgXml;
@@ -2212,10 +2253,12 @@ export const AudioVisualizer = forwardRef<
       if (forceRebuild || !data.bgImages[i]) {
         const blobUrl = svgStringToBlobUrl(svgXml);
         if (blobUrl) {
-          const img = new Image();
-          img.onload = () => updateState();
-          img.src = blobUrl;
-          data.bgImages[i] = img;
+          if (data.bgImages[i] && (data.bgImages[i] as any).parentNode) {
+            (data.bgImages[i] as any).parentNode.removeChild(data.bgImages[i]);
+          }
+          data.bgImages[i] = createMountedSvgImage(blobUrl, () =>
+            updateState(),
+          );
         }
       }
     }
@@ -3118,25 +3161,6 @@ export const AudioVisualizer = forwardRef<
             ctx.lineWidth = 4 / zoom;
             ctx.setLineDash([24, 18]);
             ctx.strokeRect(sb.sliceMinX, drawY, sb.sliceWorldWidth, worldH);
-
-            ctx.fillStyle = "rgba(248, 250, 252, 0.75)";
-            ctx.font = `bold ${42 / zoom}px sans-serif`;
-            ctx.textAlign = "center";
-            ctx.fillText(
-              spec?.title || `Segmento ${i + 1}`,
-              sb.sliceMinX + sb.sliceWorldWidth / 2,
-              topCamY - 380 / zoom,
-            );
-
-            if (spec?.musicalSection || spec?.dynamicsAndTempo) {
-              ctx.fillStyle = "rgba(192, 132, 252, 0.85)";
-              ctx.font = `${28 / zoom}px monospace`;
-              ctx.fillText(
-                `${spec.musicalSection || ""} ${spec.dynamicsAndTempo ? "· " + spec.dynamicsAndTempo : ""}`,
-                sb.sliceMinX + sb.sliceWorldWidth / 2,
-                topCamY - 330 / zoom,
-              );
-            }
             ctx.restore();
           }
         }
@@ -3184,106 +3208,129 @@ export const AudioVisualizer = forwardRef<
         }
       }
 
-      // Draw track platforms
+      // Live 60 FPS Scenic Animation & Reactive Bounce Ripples on the SVG Elements (Zero Mechanical Boxes when SVG is present)
       ctx.lineCap = "round";
+      const animT = performance.now() * 0.001;
       const allTrackPlatforms = [
-        { platforms: data.platforms, isMain: true, color: "#ffffff" },
-        ...(data.extraTracks || []).map((t) => ({
-          platforms: t.platforms,
-          isMain: false,
-          color: extraTracksConfigRef.current[t.id]?.color || "#ffffff",
-        })),
+        {
+          platforms: data.platforms,
+          isMain: true,
+          trackId: "main",
+          sphereX: ballPos.x,
+          sphereY: ballPos.y,
+          color: "#fbbf24",
+        },
+        ...(data.extraTracks || []).map((t) => {
+          const clampedExtraIdx = Math.min(
+            Math.max(0, frameIdx),
+            t.positions.length - 1,
+          );
+          const ep = t.positions[clampedExtraIdx] || { x: ballPos.x, y: ballPos.y };
+          return {
+            platforms: t.platforms,
+            isMain: false,
+            trackId: t.id,
+            sphereX: ep.x,
+            sphereY: ep.y,
+            color: extraTracksConfigRef.current[t.id]?.color || "#38bdf8",
+          };
+        }),
       ];
 
       for (const group of allTrackPlatforms) {
-        for (const p of group.platforms) {
+        let lastDrawnX = -99999;
+        for (let pIdx = 0; pIdx < group.platforms.length; pIdx++) {
+          const p = group.platforms[pIdx];
           if (p.x + p.w > viewMinX && p.x - p.w < viewMaxX) {
-            let isCovered = false;
-            if (
-              data.bgImages &&
-              data.bgImages.length > 0 &&
-              data.bounds
-            ) {
-              for (let sIdx = 0; sIdx < data.bgImages.length; sIdx++) {
-                const sbCheck = computeSliceBounds(
-                  data,
-                  sIdx,
-                  data.bgImages.length,
-                );
-                if (
-                  p.x >= sbCheck.sliceMinX &&
-                  p.x <= sbCheck.sliceMaxX &&
-                  isMediaReady(data.bgImages[sIdx])
-                ) {
-                  isCovered = true;
-                  break;
-                }
-              }
-            }
+            if (!group.isMain && p.x - lastDrawnX < 155) continue;
+            lastDrawnX = p.x;
 
-            if (isCovered) {
-              ctx.globalAlpha = platformOpacityRef.current * 0.25;
-            } else {
-              ctx.globalAlpha = platformOpacityRef.current;
-            }
-            if (!group.isMain) ctx.globalAlpha = Math.min(ctx.globalAlpha, 0.25);
+            const distX = Math.abs(group.sphereX - p.x);
+            const proximity = Math.max(0, 1 - distX / Math.max(70, p.w * 0.75));
+            const phase = animT * 2.6 + pIdx * 1.15;
+            const halfW = Math.max(38, p.w * 0.45);
 
-            if (ctx.globalAlpha > 0) {
-              ctx.save();
-              ctx.translate(p.x, p.y);
-              ctx.rotate(p.angle);
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(group.isMain ? p.angle * 0.5 : 0);
 
-              let glowColor = "";
-              let strokeColor = "";
-              let fillColor = "";
-              let lineWidth = 4;
-
-              if (group.isMain) {
-                if (p.type === "major") {
-                  glowColor = "#e879f9";
-                  strokeColor = "#fbcfe8";
-                  fillColor = "rgba(232, 121, 249, 0.14)";
-                  lineWidth = 8;
-                } else if (p.type === "accelerator") {
-                  glowColor = "#f43f5e";
-                  strokeColor = "#fecdd3";
-                  fillColor = "rgba(244, 63, 94, 0.22)";
-                  lineWidth = 10;
-                } else if (p.type === "friction") {
-                  glowColor = "#38bdf8";
-                  strokeColor = "#7dd3fc";
-                  fillColor = "rgba(15, 23, 42, 0.55)";
-                  lineWidth = 6;
-                } else {
-                  glowColor = "#38bdf8";
-                  strokeColor = "#bae6fd";
-                  fillColor = "rgba(56, 189, 248, 0.12)";
-                  lineWidth = 4;
-                }
-                ctx.shadowBlur =
-                  p.type === "major" || p.type === "accelerator" ? 20 : 10;
-              } else {
-                glowColor = group.color;
-                strokeColor = group.color;
-                fillColor = "rgba(255,255,255,0.05)";
-                lineWidth = 2;
-                ctx.shadowBlur = 10;
-              }
-
-              if (glowColor) ctx.shadowColor = glowColor;
-              ctx.strokeStyle = strokeColor;
-              ctx.lineWidth = lineWidth;
-
+            // 1. Continuous 60 FPS ambient scenic animation around the drawn SVG element
+            if (group.isMain) {
+              // Orbiting/swaying fireflies, blossom petals, or fountain droplets around the main scenic element
+              const orbX = Math.sin(phase) * (halfW * 0.65);
+              const orbY = -14 + Math.cos(phase * 1.3) * 8;
+              ctx.globalAlpha = 0.45 + 0.35 * Math.sin(phase * 1.7);
+              ctx.fillStyle =
+                p.type === "major"
+                  ? "#fbcfe8"
+                  : p.type === "accelerator"
+                    ? "#fde047"
+                    : "#bae6fd";
               ctx.beginPath();
-              ctx.moveTo(-p.w / 2, -p.h / 2);
-              ctx.lineTo(p.w / 2, -p.h / 2);
+              ctx.arc(orbX, orbY, 3.5, 0, Math.PI * 2);
+              ctx.fill();
+
+              const orbX2 = -Math.cos(phase * 0.9) * (halfW * 0.58);
+              const orbY2 = -8 + Math.sin(phase * 1.4) * 7;
+              ctx.beginPath();
+              ctx.arc(orbX2, orbY2, 3, 0, Math.PI * 2);
+              ctx.fill();
+            } else if (group.trackId === "bass") {
+              // Continuous animated water/resonance ripple ring under the Bass lily pad / plinth
+              const rippleCycle = (animT * 0.65 + pIdx * 0.27) % 1;
+              ctx.globalAlpha = (1 - rippleCycle) * 0.38;
+              ctx.strokeStyle = group.color;
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.ellipse(
+                0,
+                2,
+                halfW * (0.75 + rippleCycle * 0.55),
+                6 + rippleCycle * 6,
+                0,
+                0,
+                Math.PI * 2,
+              );
               ctx.stroke();
-
-              ctx.fillStyle = fillColor;
-              ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-
-              ctx.restore();
+            } else if (group.trackId === "melody") {
+              // Gentle animated shimmer on the aerial cloud / crystal perch
+              const shimmer = 0.22 + 0.18 * Math.sin(phase);
+              ctx.globalAlpha = shimmer;
+              ctx.strokeStyle = "#ffffff";
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.arc(
+                Math.sin(phase * 0.7) * (halfW * 0.4),
+                -8,
+                3,
+                0,
+                Math.PI * 2,
+              );
+              ctx.stroke();
             }
+
+            // 2. Elastic Bounce Ripple & Cushion Glow when the sphere lands on this SVG element!
+            if (proximity > 0.02) {
+              const rippleR = halfW * (0.45 + (1 - proximity) * 0.65);
+              ctx.globalAlpha = proximity * 0.78;
+              ctx.strokeStyle = "#ffffff";
+              ctx.lineWidth = 3 * proximity;
+              ctx.shadowColor = group.color;
+              ctx.shadowBlur = 16 * proximity;
+              ctx.beginPath();
+              ctx.ellipse(
+                0,
+                -10 + proximity * 3,
+                rippleR,
+                4.5 + (1 - proximity) * 4,
+                0,
+                0,
+                Math.PI * 2,
+              );
+              ctx.stroke();
+            }
+
+            ctx.restore();
           }
         }
       }

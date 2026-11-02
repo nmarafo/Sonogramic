@@ -37,14 +37,6 @@ export interface TrajectoryCompilerInput {
   bassColor?: string;
 }
 
-const escapeXml = (str: string): string =>
-  String(str || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-
 type DetectedTheme =
   | "baroque"
   | "cavern"
@@ -106,7 +98,7 @@ const detectSliceTheme = (
 };
 
 /**
- * Evaluates the smoothed trajectory height at world coordinate x,
+ * Evaluates the smoothed terrain height at world coordinate x,
  * tapering cleanly to y = 0 at slice boundaries so adjacent segments join seamlessly.
  */
 const buildTerrainLookup = (
@@ -139,57 +131,10 @@ const buildTerrainLookup = (
 };
 
 /**
- * Extracts inner SVG markup from a raw <svg>...</svg> string and namespaces IDs
- * so multiple segments can be combined without ID collisions.
+ * Builds animated background landmarks (sun, clouds, rainbows, lightning, distant trees/crystals/palms)
+ * that frame the scene without ever drawing text or trajectory lines.
  */
-const extractAndNamespaceCustomSvg = (
-  rawSvg: string | undefined,
-  prefix: string,
-  sliceMinX: number,
-  sliceWidth: number,
-  worldMinY: number,
-  worldHeight: number,
-): string => {
-  if (!rawSvg || !rawSvg.trim().startsWith("<svg")) return "";
-  if (rawSvg.includes('data-sonogramic-aligned="true"')) {
-    const backdropMatch = rawSvg.match(
-      /<!-- OKF_CUSTOM_BACKDROP_START -->([\s\S]*?)<!-- OKF_CUSTOM_BACKDROP_END -->/,
-    );
-    return backdropMatch ? backdropMatch[1].trim() : "";
-  }
-
-  const viewBoxMatch = rawSvg.match(/viewBox=["']([^"']+)["']/i);
-  const viewBox = viewBoxMatch ? viewBoxMatch[1] : "0 0 1024 1024";
-
-  const innerMatch = rawSvg.trim().match(/^<svg[^>]*>([\s\S]*)<\/svg>$/i);
-  if (!innerMatch || !innerMatch[1]) return "";
-
-  let inner = innerMatch[1]
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/\bid=["']([^"']+)["']/g, `id="${prefix}_$1"`)
-    .replace(/url\(#([^)]+)\)/g, `url(#${prefix}_$1)`);
-
-  // Tile custom backdrop every ~2400 world pixels so sky/sun/art proportions stay natural
-  const tileWidth = Math.max(1600, Math.min(sliceWidth, 3200));
-  const numTiles = Math.max(1, Math.round(sliceWidth / tileWidth));
-  const actualTileW = sliceWidth / numTiles;
-
-  let tilesMarkup = "";
-  for (let t = 0; t < numTiles; t++) {
-    const tx = sliceMinX + t * actualTileW;
-    const tilePrefixed = inner
-      .replace(new RegExp(`id="${prefix}_`, "g"), `id="${prefix}_t${t}_`)
-      .replace(new RegExp(`url\\(#${prefix}_`, "g"), `url(#${prefix}_t${t}_`);
-    tilesMarkup += `<svg x="${tx.toFixed(1)}" y="${worldMinY}" width="${(actualTileW + 2).toFixed(1)}" height="${worldHeight}" viewBox="${viewBox}" preserveAspectRatio="none" opacity="0.55">${tilePrefixed}</svg>`;
-  }
-
-  return tilesMarkup;
-};
-
-/**
- * Generates thematic mid-ground landmarks positioned along the exact trajectory ridge.
- */
-const buildThematicLandmarksMarkup = (
+const buildAnimatedEnvironmentBackdrop = (
   theme: DetectedTheme,
   sliceIndex: number,
   sliceMinX: number,
@@ -203,15 +148,13 @@ const buildThematicLandmarksMarkup = (
   const c1 = palette[1] || "#0284c7";
   const c2 = palette[2] || "#f59e0b";
   const c3 = palette[3] || "#fef08a";
-  const specText = `${spec?.title || ""} ${spec?.musicalSection || ""} ${spec?.imagePrompt || ""}`.toLowerCase();
+  const specText =
+    `${spec?.title || ""} ${spec?.musicalSection || ""} ${spec?.imagePrompt || ""}`.toLowerCase();
 
   let els = "";
-  const step = 380;
-
-  // Celestial & upper atmosphere elements
   const sliceW = sliceMaxX - sliceMinX;
-  const sunX = sliceMinX + sliceW * (0.22 + (sliceIndex % 3) * 0.25);
-  const sunY = worldMinY + 250;
+  const sunX = sliceMinX + sliceW * (0.24 + (sliceIndex % 3) * 0.24);
+  const sunY = worldMinY + 230;
 
   if (theme === "baroque") {
     const isStorm =
@@ -224,21 +167,17 @@ const buildThematicLandmarksMarkup = (
       specText.includes("arcoíris") ||
       specText.includes("rainbow") ||
       sliceIndex === 5;
-    const isFountain =
-      specText.includes("fuente") ||
-      specText.includes("fonti") ||
-      specText.includes("céfiro") ||
-      sliceIndex === 2;
-    const isBirds =
-      specText.includes("aves") ||
-      specText.includes("uccelli") ||
-      sliceIndex === 1 ||
-      sliceIndex === 4;
 
     if (!isStorm) {
-      els += `<circle cx="${sunX.toFixed(1)}" cy="${sunY}" r="190" fill="${c3}" fill-opacity="0.16"/>`;
-      els += `<circle cx="${sunX.toFixed(1)}" cy="${sunY}" r="95" fill="${c2}" fill-opacity="0.28"/>`;
-      els += `<circle cx="${sunX.toFixed(1)}" cy="${sunY}" r="48" fill="#ffffff" fill-opacity="0.82"/>`;
+      els += `<g transform="translate(${sunX.toFixed(1)}, ${sunY})">
+        <circle cx="0" cy="0" r="195" fill="${c3}" fill-opacity="0.16">
+          <animate attributeName="fill-opacity" values="0.12;0.26;0.12" dur="4.2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="0" cy="0" r="105" fill="${c2}" fill-opacity="0.28">
+          <animate attributeName="r" values="98;114;98" dur="3.8s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="0" cy="0" r="52" fill="#ffffff" fill-opacity="0.86"/>
+      </g>`;
     }
 
     if (isRainbow) {
@@ -252,178 +191,366 @@ const buildThematicLandmarksMarkup = (
       ];
       for (let r = 0; r < rainbowColors.length; r++) {
         const ry = -220 + r * 18;
-        els += `<path d="M ${(sliceMinX + sliceW * 0.06).toFixed(1)} 160 Q ${(sliceMinX + sliceW * 0.5).toFixed(1)} ${ry - 520} ${(sliceMinX + sliceW * 0.94).toFixed(1)} 160" fill="none" stroke="${rainbowColors[r]}" stroke-width="14" stroke-opacity="0.38"/>`;
+        els += `<path d="M ${(sliceMinX + sliceW * 0.06).toFixed(1)} 180 Q ${(sliceMinX + sliceW * 0.5).toFixed(1)} ${ry - 520} ${(sliceMinX + sliceW * 0.94).toFixed(1)} 180" fill="none" stroke="${rainbowColors[r]}" stroke-width="14" stroke-opacity="0.38">
+          <animate attributeName="stroke-opacity" values="0.24;0.48;0.24" dur="${(3.2 + r * 0.3).toFixed(1)}s" repeatCount="indefinite"/>
+        </path>`;
       }
     }
 
-    for (let x = sliceMinX + 220; x < sliceMaxX - 180; x += step) {
+    // Distant swaying cypresses & flying songbirds between bounce arches
+    const step = 460;
+    for (let x = sliceMinX + 230; x < sliceMaxX - 200; x += step) {
       const idx = Math.round((x - sliceMinX) / step);
       const ty = getTerrainY(x);
-      const baseRidgeY = ty * 0.72 + 45;
+      const baseRidgeY = ty * 0.68 + 85;
+      const swayDur = (3.4 + (idx % 4) * 0.5).toFixed(1);
 
       if (isStorm && idx % 2 === 0) {
-        // Jagged lightning bolt striking toward the trajectory
-        els += `<g stroke="${c3}" stroke-width="5" fill="none" opacity="0.85">
-          <polyline points="${(x - 40).toFixed(1)},${worldMinY + 60} ${(x + 15).toFixed(1)},${worldMinY + 260} ${(x - 20).toFixed(1)},${worldMinY + 290} ${(x + 30).toFixed(1)},${(ty - 120).toFixed(1)}"/>
-          <polyline points="${(x + 15).toFixed(1)},${worldMinY + 260} ${(x + 85).toFixed(1)},${worldMinY + 380}" stroke-width="2.5" opacity="0.65"/>
+        els += `<g stroke="${c3}" stroke-width="5" fill="none" opacity="0.8">
+          <polyline points="${(x - 40).toFixed(1)},${worldMinY + 60} ${(x + 15).toFixed(1)},${worldMinY + 250} ${(x - 20).toFixed(1)},${worldMinY + 285} ${(x + 30).toFixed(1)},${(ty - 140).toFixed(1)}"/>
+          <animate attributeName="opacity" values="0.08;0.92;0.15;0.85;0.08" dur="${(1.8 + (idx % 3) * 0.4).toFixed(1)}s" repeatCount="indefinite"/>
         </g>`;
       }
 
-      if (isFountain && idx % 2 === 1) {
-        // Tiered Baroque water fountain with parabolic water jets
-        const fy = baseRidgeY;
-        els += `<g transform="translate(${x.toFixed(1)}, ${fy.toFixed(1)})">
-          <rect x="-45" y="-18" width="90" height="22" rx="6" fill="${c3}" fill-opacity="0.7"/>
-          <rect x="-14" y="-75" width="28" height="58" fill="${c2}" fill-opacity="0.65"/>
-          <ellipse cx="0" cy="-75" rx="52" ry="10" fill="${c3}" fill-opacity="0.85"/>
-          <rect x="-8" y="-125" width="16" height="50" fill="${c2}" fill-opacity="0.75"/>
-          <ellipse cx="0" cy="-125" rx="30" ry="7" fill="${c3}" fill-opacity="0.9"/>
-          <path d="M 0 -130 Q -45 -210 -85 -70" fill="none" stroke="${c3}" stroke-width="3.5" stroke-dasharray="6 4" opacity="0.85"/>
-          <path d="M 0 -130 Q 45 -210 85 -70" fill="none" stroke="${c3}" stroke-width="3.5" stroke-dasharray="6 4" opacity="0.85"/>
-          <path d="M 0 -130 Q -25 -245 -48 -120" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.8"/>
-          <path d="M 0 -130 Q 25 -245 48 -120" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.8"/>
-        </g>`;
-      } else if (isBirds && idx % 2 === 0) {
-        // Blossoming cherry/almond tree & songbirds near the trajectory
-        const treeY = baseRidgeY + 15;
-        els += `<g transform="translate(${x.toFixed(1)}, ${treeY.toFixed(1)})">
-          <path d="M -8 40 L -5 -95 L -42 -150 M 5 -95 L 44 -145 M 0 -65 L 0 -165" stroke="#5c2d16" stroke-width="9" stroke-linecap="round" fill="none"/>
-          <circle cx="-42" cy="-155" r="46" fill="#f472b6" fill-opacity="0.68"/>
-          <circle cx="44" cy="-150" r="44" fill="#fb7185" fill-opacity="0.65"/>
-          <circle cx="0" cy="-178" r="54" fill="#fbcfe8" fill-opacity="0.75"/>
-          <path d="M -65 -245 Q -48 -268 -32 -248 Q -16 -268 0 -245" fill="none" stroke="${c3}" stroke-width="3.5" stroke-linecap="round"/>
-          <path d="M 35 -265 Q 52 -288 68 -268 Q 84 -288 100 -265" fill="none" stroke="${c3}" stroke-width="3" stroke-linecap="round"/>
-        </g>`;
-      } else {
-        // Italian Cypress pair + Classical Baroque Rotunda Pavilion
-        const cyY = baseRidgeY + 20;
-        els += `<g transform="translate(${x.toFixed(1)}, ${cyY.toFixed(1)})">
-          <path d="M -70 30 C -84 -65 -76 -145 -62 -195 C -48 -145 -40 -65 -54 30 Z" fill="${c0}" fill-opacity="0.88" stroke="${c1}" stroke-width="1.5"/>
-          <path d="M 70 30 C 56 -55 64 -125 78 -170 C 92 -125 100 -55 86 30 Z" fill="${c0}" fill-opacity="0.85" stroke="${c1}" stroke-width="1.5"/>
-          ${
-            idx % 3 === 0
-              ? `<g transform="translate(0, -10)">
-                  <path d="M -42 -90 A 42 38 0 0 1 42 -90 Z" fill="${c2}" fill-opacity="0.72" stroke="${c3}" stroke-width="2"/>
-                  <rect x="-46" y="-90" width="92" height="8" rx="3" fill="${c3}" fill-opacity="0.85"/>
-                  <rect x="-36" y="-82" width="8" height="82" fill="${c3}" fill-opacity="0.75"/>
-                  <rect x="-14" y="-82" width="8" height="82" fill="${c3}" fill-opacity="0.75"/>
-                  <rect x="8" y="-82" width="8" height="82" fill="${c3}" fill-opacity="0.75"/>
-                  <rect x="28" y="-82" width="8" height="82" fill="${c3}" fill-opacity="0.75"/>
-                </g>`
-              : ""
-          }
-        </g>`;
-      }
-    }
-  } else if (theme === "cavern") {
-    // Stalactites hanging from cavern roof + glowing Nordic crystals along the ridge
-    for (let x = sliceMinX + 160; x < sliceMaxX - 120; x += 280) {
-      const idx = Math.round((x - sliceMinX) / 280);
-      const stalH = 140 + ((idx * 67) % 160);
-      els += `<polygon points="${(x - 38).toFixed(1)},${worldMinY} ${(x + 38).toFixed(1)},${worldMinY} ${x.toFixed(1)},${(worldMinY + stalH).toFixed(1)}" fill="${c1}" fill-opacity="0.65" stroke="${c2}" stroke-width="1.5" stroke-opacity="0.4"/>`;
+      // Animated swaying cypress trees in mid-ground
+      els += `<g transform="translate(${x.toFixed(1)}, ${baseRidgeY.toFixed(1)})">
+        <g>
+          <path d="M -68 35 C -82 -55 -74 -135 -60 -185 C -46 -135 -38 -55 -52 35 Z" fill="${c0}" fill-opacity="0.84" stroke="${c1}" stroke-width="1.5"/>
+          <animateTransform attributeName="transform" type="rotate" values="-2.2 -60 35; 2.2 -60 35; -2.2 -60 35" dur="${swayDur}s" repeatCount="indefinite"/>
+        </g>
+        <g>
+          <path d="M 68 35 C 54 -48 62 -118 76 -162 C 90 -118 98 -48 84 35 Z" fill="${c0}" fill-opacity="0.8" stroke="${c1}" stroke-width="1.5"/>
+          <animateTransform attributeName="transform" type="rotate" values="2.0 76 35; -2.0 76 35; 2.0 76 35" dur="${swayDur}s" repeatCount="indefinite"/>
+        </g>
+      </g>`;
 
-      const ty = getTerrainY(x);
-      const baseY = ty * 0.72 + 60;
-      if (idx % 2 === 0) {
-        // Glowing crystal cluster
-        els += `<g transform="translate(${x.toFixed(1)}, ${baseY.toFixed(1)})">
-          <polygon points="-28,20 -12,-95 6,20" fill="${c2}" fill-opacity="0.75" stroke="${c3}" stroke-width="2"/>
-          <polygon points="-6,25 14,-130 32,25" fill="${c3}" fill-opacity="0.82" stroke="#ffffff" stroke-width="2"/>
-          <polygon points="18,22 38,-75 48,22" fill="${c2}" fill-opacity="0.7" stroke="${c3}" stroke-width="1.5"/>
-          <circle cx="12" cy="-70" r="55" fill="${c3}" fill-opacity="0.16"/>
-        </g>`;
-      } else {
-        // Cyclopean Troll Hall column & torch
-        els += `<g transform="translate(${x.toFixed(1)}, ${baseY.toFixed(1)})">
-          <rect x="-24" y="-220" width="48" height="240" rx="4" fill="${c0}" fill-opacity="0.85" stroke="${c1}" stroke-width="2"/>
-          <rect x="-34" y="-232" width="68" height="16" rx="3" fill="${c1}"/>
-          <circle cx="0" cy="-145" r="28" fill="${c2}" fill-opacity="0.35"/>
-          <path d="M 0 -172 C 14 -152 16 -136 0 -126 C -16 -136 -14 -152 0 -172 Z" fill="${c3}"/>
-        </g>`;
-      }
-    }
-  } else if (theme === "canarias") {
-    // Sun + Romería bunting flags + Canary houses with wooden tea balconies + Cardones
-    els += `<circle cx="${sunX.toFixed(1)}" cy="${sunY}" r="140" fill="${c2}" fill-opacity="0.25"/>`;
-    els += `<circle cx="${sunX.toFixed(1)}" cy="${sunY}" r="65" fill="${c3}" fill-opacity="0.85"/>`;
-
-    for (let x = sliceMinX + 240; x < sliceMaxX - 200; x += step) {
-      const idx = Math.round((x - sliceMinX) / step);
-      const ty = getTerrainY(x);
-      const baseY = ty * 0.72 + 55;
-
-      if (idx % 2 === 0) {
-        // Traditional Canary house with Wooden Tea Balcony (Balcón Canario)
-        els += `<g transform="translate(${x.toFixed(1)}, ${baseY.toFixed(1)})">
-          <rect x="-58" y="-135" width="116" height="155" fill="#f8fafc" fill-opacity="0.88" stroke="#cbd5e1" stroke-width="2"/>
-          <polygon points="-66,-135 0,-178 66,-135" fill="#b45309" stroke="#fef3c7" stroke-width="2"/>
-          <rect x="-48" y="-98" width="96" height="18" fill="#78350f" stroke="#fde68a" stroke-width="1.5"/>
-          <rect x="-44" y="-122" width="88" height="24" fill="none" stroke="#78350f" stroke-width="3"/>
-          <rect x="-16" y="-52" width="32" height="72" rx="14" fill="#78350f"/>
-        </g>`;
-      } else {
-        // Canary Cardón (Euphorbia canariensis) candelabra cactus
-        els += `<g transform="translate(${x.toFixed(1)}, ${baseY.toFixed(1)})" stroke="#065f46" stroke-width="10" stroke-linecap="round" fill="none">
-          <path d="M 0 25 L 0 -135"/>
-          <path d="M 0 -45 Q -32 -45 -32 -85 L -32 -125"/>
-          <path d="M 0 -60 Q 32 -60 32 -95 L 32 -130"/>
-          <path d="M 0 -25 Q -52 -25 -52 -65 L -52 -95"/>
-        </g>`;
-      }
-    }
-  } else if (theme === "carnival") {
-    // Carnival spotlights, Canary palms, Queen/Drag stage arches & fireworks
-    for (let x = sliceMinX + 240; x < sliceMaxX - 200; x += step) {
-      const idx = Math.round((x - sliceMinX) / step);
-      const ty = getTerrainY(x);
-      const baseY = ty * 0.72 + 50;
-
-      // Spotlight beam from stage toward sky
-      els += `<polygon points="${x.toFixed(1)},${baseY.toFixed(1)} ${(x - 140).toFixed(1)},${worldMinY} ${(x - 40).toFixed(1)},${worldMinY}" fill="${idx % 2 === 0 ? c2 : c1}" fill-opacity="0.09"/>`;
-
-      if (idx % 2 === 0) {
-        // Canary Palm Tree with Carnival lights
-        els += `<g transform="translate(${x.toFixed(1)}, ${baseY.toFixed(1)})">
-          <path d="M 0 30 Q 12 -65 0 -155" stroke="#92400e" stroke-width="12" fill="none" stroke-linecap="round"/>
-          <path d="M 0 -155 Q -55 -185 -90 -135" stroke="#10b981" stroke-width="7" fill="none" stroke-linecap="round"/>
-          <path d="M 0 -155 Q -35 -210 -75 -180" stroke="#34d399" stroke-width="6" fill="none" stroke-linecap="round"/>
-          <path d="M 0 -155 Q 55 -185 90 -135" stroke="#10b981" stroke-width="7" fill="none" stroke-linecap="round"/>
-          <path d="M 0 -155 Q 35 -210 75 -180" stroke="#34d399" stroke-width="6" fill="none" stroke-linecap="round"/>
-          <circle cx="0" cy="-155" r="14" fill="${c3}"/>
-        </g>`;
-      } else {
-        // Carnival Feather Fantasia & Firework burst
-        const fwY = worldMinY + 240 + ((idx * 55) % 140);
-        els += `<g transform="translate(${x.toFixed(1)}, ${fwY.toFixed(1)})" stroke="${c3}" stroke-width="2.5" stroke-linecap="round">
-          <circle cx="0" cy="0" r="6" fill="#ffffff"/>
-          <line x1="0" y1="-12" x2="0" y2="-58"/><line x1="0" y1="12" x2="0" y2="58"/>
-          <line x1="-12" y1="0" x2="-58" y2="0"/><line x1="12" y1="0" x2="58" y2="0"/>
-          <line x1="-9" y1="-9" x2="-42" y2="-42" stroke="${c2}"/><line x1="9" y1="-9" x2="42" y2="-42" stroke="${c2}"/>
-          <line x1="-9" y1="9" x2="-42" y2="42" stroke="${c1}"/><line x1="9" y1="9" x2="42" y2="42" stroke="${c1}"/>
-        </g>`;
-      }
-    }
-  } else {
-    // Symphonic / Universal musical landscape
-    els += `<circle cx="${sunX.toFixed(1)}" cy="${sunY}" r="150" fill="${c2}" fill-opacity="0.22"/>`;
-    els += `<circle cx="${sunX.toFixed(1)}" cy="${sunY}" r="65" fill="${c3}" fill-opacity="0.75"/>`;
-    for (let x = sliceMinX + 260; x < sliceMaxX - 200; x += step) {
-      const ty = getTerrainY(x);
-      const baseY = ty * 0.72 + 55;
-      els += `<g transform="translate(${x.toFixed(1)}, ${baseY.toFixed(1)})">
-        <polygon points="-45,30 0,-150 45,30" fill="${c1}" fill-opacity="0.45" stroke="${c3}" stroke-width="1.5" stroke-opacity="0.5"/>
-        <circle cx="0" cy="-150" r="8" fill="${c3}" fill-opacity="0.8"/>
+      // Animated flying songbirds in the sky
+      const birdY = ty - 280 - ((idx * 47) % 110);
+      els += `<g transform="translate(${(x + 90).toFixed(1)}, ${birdY.toFixed(1)})">
+        <g>
+          <path d="M -26 0 Q -13 -16 0 -2 Q 13 -16 26 0" fill="none" stroke="${c3}" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M 18 -24 Q 29 -38 40 -26 Q 51 -38 62 -24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" opacity="0.85"/>
+          <animateTransform attributeName="transform" type="translate" values="0,0; 18,-14; 0,0" dur="${(2.3 + (idx % 3) * 0.4).toFixed(1)}s" repeatCount="indefinite"/>
+        </g>
       </g>`;
     }
+  } else if (theme === "cavern") {
+    for (let x = sliceMinX + 180; x < sliceMaxX - 140; x += 320) {
+      const idx = Math.round((x - sliceMinX) / 320);
+      const stalH = 135 + ((idx * 67) % 150);
+      els += `<polygon points="${(x - 36).toFixed(1)},${worldMinY} ${(x + 36).toFixed(1)},${worldMinY} ${x.toFixed(1)},${(worldMinY + stalH).toFixed(1)}" fill="${c1}" fill-opacity="0.65" stroke="${c2}" stroke-width="1.5" stroke-opacity="0.4"/>`;
+      // Glowing dripping crystal light at tip of stalactite
+      els += `<circle cx="${x.toFixed(1)}" cy="${(worldMinY + stalH + 6).toFixed(1)}" r="6" fill="${c3}">
+        <animate attributeName="opacity" values="0.25;0.95;0.25" dur="${(1.9 + (idx % 4) * 0.35).toFixed(1)}s" repeatCount="indefinite"/>
+      </circle>`;
+    }
+  } else if (theme === "canarias") {
+    els += `<g transform="translate(${sunX.toFixed(1)}, ${sunY})">
+      <circle cx="0" cy="0" r="150" fill="${c2}" fill-opacity="0.24">
+        <animate attributeName="r" values="140;162;140" dur="4.2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="0" cy="0" r="68" fill="${c3}" fill-opacity="0.88"/>
+    </g>`;
+  } else if (theme === "carnival") {
+    for (let x = sliceMinX + 260; x < sliceMaxX - 200; x += 420) {
+      const idx = Math.round((x - sliceMinX) / 420);
+      const ty = getTerrainY(x);
+      const baseY = ty * 0.72 + 95;
+      // Animated sweeping stage spotlight beam
+      els += `<g transform="translate(${x.toFixed(1)}, ${baseY.toFixed(1)})">
+        <polygon points="0,0 -130,${worldMinY - baseY} -20,${worldMinY - baseY}" fill="${idx % 2 === 0 ? c2 : c1}" fill-opacity="0.11">
+          <animateTransform attributeName="transform" type="rotate" values="-14 0 0; 14 0 0; -14 0 0" dur="${(3.8 + (idx % 3) * 0.7).toFixed(1)}s" repeatCount="indefinite"/>
+        </polygon>
+      </g>`;
+    }
+  } else {
+    els += `<g transform="translate(${sunX.toFixed(1)}, ${sunY})">
+      <circle cx="0" cy="0" r="155" fill="${c2}" fill-opacity="0.22">
+        <animate attributeName="fill-opacity" values="0.14;0.3;0.14" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="0" cy="0" r="65" fill="${c3}" fill-opacity="0.8"/>
+    </g>`;
   }
 
   return els;
 };
 
 /**
- * Compiles a complete, high-precision SVG for a single segment (or the entire work)
- * whose coordinate system is in exact World Pixels [sliceMinX..sliceMaxX, worldMinY..worldMaxY],
- * guaranteeing 100% mathematical coincidence between the SVG drawings and the trajectories/platforms.
+ * Draws an animated scenic element centered at (p.x, p.y) with its top surface at local y = -10,
+ * so the Main Sphere (whose bottom touches at y = -10) visually jumps directly from one scenic element to the next!
+ */
+const buildMainSphereBounceElement = (
+  theme: DetectedTheme,
+  idx: number,
+  p: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    angle: number;
+    type?: "major" | "minor" | "accelerator" | "friction";
+  },
+  groundY: number,
+  pfx: string,
+  palette: string[],
+): string => {
+  const c0 = palette[0] || "#0f172a";
+  const c1 = palette[1] || "#1e293b";
+  const c2 = palette[2] || "#38bdf8";
+  const c3 = palette[3] || "#fbbf24";
+
+  const deg = (p.angle * 180) / Math.PI;
+  const halfW = Math.max(48, p.w * 0.52);
+  const stemHeight = Math.max(95, Math.min(420, groundY - p.y));
+  const animDur = (2.8 + (idx % 5) * 0.45).toFixed(2);
+  const variant = idx % 4;
+
+  const accentColor =
+    p.type === "major"
+      ? "#f472b6"
+      : p.type === "accelerator"
+        ? "#fb7185"
+        : p.type === "friction"
+          ? "#38bdf8"
+          : c3;
+
+  if (theme === "baroque") {
+    if (variant === 0) {
+      // 1. Blossoming Spring Tree Crown (Main Sphere jumps on top of the floral canopy at y = -10)
+      return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${(deg * 0.55).toFixed(2)})">
+        <!-- Tree Trunk & Branches -->
+        <path d="M -14 ${stemHeight.toFixed(0)} Q -8 55 -5 12 L -38 2 M 14 ${stemHeight.toFixed(0)} Q 8 55 5 12 L 38 2 M 0 45 L 0 0" stroke="#5c2d16" stroke-width="14" stroke-linecap="round" fill="none"/>
+        <!-- Animated Blossoming Canopy Cushion (Top surface at y = -10) -->
+        <g>
+          <ellipse cx="${(-halfW * 0.48).toFixed(1)}" cy="10" rx="${(halfW * 0.48).toFixed(1)}" ry="20" fill="#db2777" fill-opacity="0.85"/>
+          <ellipse cx="${(halfW * 0.48).toFixed(1)}" cy="10" rx="${(halfW * 0.48).toFixed(1)}" ry="20" fill="#e11d48" fill-opacity="0.85"/>
+          <ellipse cx="0" cy="6" rx="${(halfW * 0.88).toFixed(1)}" ry="16" fill="#f472b6" fill-opacity="0.95" stroke="#fbcfe8" stroke-width="2.5"/>
+          <ellipse cx="${(-halfW * 0.35).toFixed(1)}" cy="2" rx="${(halfW * 0.32).toFixed(1)}" ry="11" fill="#fbcfe8" fill-opacity="0.9"/>
+          <ellipse cx="${(halfW * 0.35).toFixed(1)}" cy="2" rx="${(halfW * 0.32).toFixed(1)}" ry="11" fill="#fbcfe8" fill-opacity="0.9"/>
+          <circle cx="0" cy="-2" r="5" fill="${c3}"/>
+          <circle cx="${(-halfW * 0.45).toFixed(1)}" cy="1" r="4" fill="#ffffff"/>
+          <circle cx="${(halfW * 0.45).toFixed(1)}" cy="1" r="4" fill="#ffffff"/>
+          <animateTransform attributeName="transform" type="rotate" values="-1.6 0 25; 1.6 0 25; -1.6 0 25" dur="${animDur}s" repeatCount="indefinite"/>
+        </g>
+      </g>`;
+    }
+    if (variant === 1) {
+      // 2. Tiered Venetian Marble Fountain with Animated Water Jets (Top basin rim at y = -10)
+      return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${(deg * 0.5).toFixed(2)})">
+        <!-- Fluted Marble Pedestal -->
+        <rect x="-20" y="14" width="40" height="${Math.min(180, stemHeight).toFixed(0)}" rx="6" fill="url(#${pfx}_pillarGrad)" stroke="${c3}" stroke-width="1.5"/>
+        <ellipse cx="0" cy="68" rx="${(halfW * 0.72).toFixed(1)}" ry="12" fill="${c2}" fill-opacity="0.7" stroke="${c3}" stroke-width="2"/>
+        <!-- Animated Water Jets Arcing Under the Basin -->
+        <path d="M ${(-halfW * 0.65).toFixed(1)} -8 Q ${(-halfW * 1.05).toFixed(1)} -42 ${(-halfW * 1.25).toFixed(1)} 48" fill="none" stroke="#bae6fd" stroke-width="3.5" stroke-dasharray="9 6">
+          <animate attributeName="stroke-dashoffset" from="30" to="0" dur="0.95s" repeatCount="indefinite"/>
+        </path>
+        <path d="M ${(halfW * 0.65).toFixed(1)} -8 Q ${(halfW * 1.05).toFixed(1)} -42 ${(halfW * 1.25).toFixed(1)} 48" fill="none" stroke="#bae6fd" stroke-width="3.5" stroke-dasharray="9 6">
+          <animate attributeName="stroke-dashoffset" from="30" to="0" dur="0.95s" repeatCount="indefinite"/>
+        </path>
+        <!-- Upper Fountain Rim & Shimmering Water Cushion at y = -10 -->
+        <path d="M ${(-halfW * 0.92).toFixed(1)} -10 L ${(halfW * 0.92).toFixed(1)} -10 L ${(halfW * 0.65).toFixed(1)} 16 L ${(-halfW * 0.65).toFixed(1)} 16 Z" fill="url(#${pfx}_deckGrad)" stroke="${c3}" stroke-width="2.5"/>
+        <ellipse cx="0" cy="-10" rx="${(halfW * 0.88).toFixed(1)}" ry="5.5" fill="#7dd3fc" stroke="#ffffff" stroke-width="2">
+          <animate attributeName="fill-opacity" values="0.65;1;0.65" dur="1.8s" repeatCount="indefinite"/>
+        </ellipse>
+      </g>`;
+    }
+    if (variant === 2) {
+      // 3. Palladian Arched Garden Bridge with Climbing Vines (Bridge crown at y = -10)
+      return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${deg.toFixed(2)})">
+        <!-- Romanesque Support Pillars -->
+        <rect x="${(-halfW * 0.72).toFixed(1)}" y="12" width="18" height="${Math.min(220, stemHeight).toFixed(0)}" fill="url(#${pfx}_pillarGrad)" opacity="0.78"/>
+        <rect x="${(halfW * 0.72 - 18).toFixed(1)}" y="12" width="18" height="${Math.min(220, stemHeight).toFixed(0)}" fill="url(#${pfx}_pillarGrad)" opacity="0.78"/>
+        <!-- Arched Marble Bridge Deck with Top Surface at y = -10 -->
+        <path d="M ${(-halfW).toFixed(1)} -10 L ${halfW.toFixed(1)} -10 L ${(halfW * 0.92).toFixed(1)} 22 Q 0 -2 ${(-halfW * 0.92).toFixed(1)} 22 Z" fill="url(#${pfx}_deckGrad)" stroke="${accentColor}" stroke-width="2.5"/>
+        <line x1="${(-halfW).toFixed(1)}" y1="-10" x2="${halfW.toFixed(1)}" y2="-10" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+        <!-- Animated Glowing Floral Medallions on Bridge -->
+        <circle cx="0" cy="3" r="6" fill="${accentColor}">
+          <animate attributeName="opacity" values="0.5;1;0.5" dur="${animDur}s" repeatCount="indefinite"/>
+        </circle>
+      </g>`;
+    }
+    // 4. Classical Baroque Rotunda Dome & Cypress Pair (Dome cushion at y = -10)
+    return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${(deg * 0.5).toFixed(2)})">
+      <rect x="${(-halfW * 0.55).toFixed(1)}" y="12" width="12" height="78" fill="${c3}" fill-opacity="0.75"/>
+      <rect x="-6" y="12" width="12" height="78" fill="${c3}" fill-opacity="0.8"/>
+      <rect x="${(halfW * 0.55 - 12).toFixed(1)}" y="12" width="12" height="78" fill="${c3}" fill-opacity="0.75"/>
+      <path d="M ${(-halfW * 0.85).toFixed(1)} 12 Q 0 -32 ${(halfW * 0.85).toFixed(1)} 12 Z" fill="url(#${pfx}_deckGrad)" stroke="${c3}" stroke-width="2.5"/>
+      <ellipse cx="0" cy="-10" rx="${(halfW * 0.65).toFixed(1)}" ry="5" fill="#ffffff" fill-opacity="0.85"/>
+    </g>`;
+  }
+
+  if (theme === "cavern") {
+    if (variant === 0) {
+      // 1. Giant Bioluminescent Cavern Mushroom (Cap surface at y = -10)
+      return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${(deg * 0.5).toFixed(2)})">
+        <path d="M -16 125 Q -8 55 -10 10 L 10 10 Q 8 55 16 125 Z" fill="#cbd5e1" fill-opacity="0.82"/>
+        <g>
+          <path d="M ${(-halfW * 0.95).toFixed(1)} 14 Q 0 -36 ${(halfW * 0.95).toFixed(1)} 14 Z" fill="${accentColor}" fill-opacity="0.88" stroke="#ffffff" stroke-width="2.5"/>
+          <circle cx="${(-halfW * 0.4).toFixed(1)}" cy="2" r="6" fill="#ffffff" fill-opacity="0.75"/>
+          <circle cx="0" cy="-4" r="7" fill="${c3}" fill-opacity="0.85"/>
+          <circle cx="${(halfW * 0.4).toFixed(1)}" cy="2" r="6" fill="#ffffff" fill-opacity="0.75"/>
+          <animate attributeName="opacity" values="0.78;1;0.78" dur="${animDur}s" repeatCount="indefinite"/>
+        </g>
+      </g>`;
+    }
+    if (variant === 1) {
+      // 2. Faceted Glowing Crystal Table (Flat crystal facet at y = -10)
+      return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${deg.toFixed(2)})">
+        <polygon points="${(-halfW * 0.85).toFixed(1)},-10 ${(halfW * 0.85).toFixed(1)},-10 ${(halfW * 0.55).toFixed(1)},65 0,95 ${(-halfW * 0.55).toFixed(1)},65" fill="url(#${pfx}_deckGrad)" stroke="#ffffff" stroke-width="2.5"/>
+        <polygon points="${(-halfW * 0.45).toFixed(1)},-10 ${(halfW * 0.45).toFixed(1)},-10 0,75" fill="${c3}" fill-opacity="0.35">
+          <animate attributeName="fill-opacity" values="0.2;0.65;0.2" dur="${animDur}s" repeatCount="indefinite"/>
+        </polygon>
+      </g>`;
+    }
+    // 3 & 4. Dwarven Runic Stone Bridge with Animated Flickering Torches (Top surface at y = -10)
+    return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${deg.toFixed(2)})">
+      <rect x="${(-halfW * 0.7).toFixed(1)}" y="14" width="22" height="140" fill="url(#${pfx}_pillarGrad)"/>
+      <rect x="${(halfW * 0.7 - 22).toFixed(1)}" y="14" width="22" height="140" fill="url(#${pfx}_pillarGrad)"/>
+      <rect x="${(-halfW * 0.92).toFixed(1)}" y="-10" width="${(halfW * 1.84).toFixed(1)}" height="26" rx="6" fill="url(#${pfx}_deckGrad)" stroke="${accentColor}" stroke-width="2.5"/>
+      <!-- Animated Torch Flames at Bridge Ends -->
+      <path d="M ${(-halfW * 0.75).toFixed(1)} -10 C ${(-halfW * 0.75 - 10).toFixed(1)} -28 ${(-halfW * 0.75 + 10).toFixed(1)} -28 ${(-halfW * 0.75).toFixed(1)} -38 C ${(-halfW * 0.75 + 12).toFixed(1)} -24 ${(-halfW * 0.75 - 12).toFixed(1)} -24 ${(-halfW * 0.75).toFixed(1)} -10 Z" fill="${c3}">
+        <animate attributeName="opacity" values="0.55;1;0.55" dur="0.9s" repeatCount="indefinite"/>
+      </path>
+      <path d="M ${(halfW * 0.75).toFixed(1)} -10 C ${(halfW * 0.75 - 10).toFixed(1)} -28 ${(halfW * 0.75 + 10).toFixed(1)} -28 ${(halfW * 0.75).toFixed(1)} -38 C ${(halfW * 0.75 + 12).toFixed(1)} -24 ${(halfW * 0.75 - 12).toFixed(1)} -24 ${(halfW * 0.75).toFixed(1)} -10 Z" fill="${c3}">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="1.1s" repeatCount="indefinite"/>
+      </path>
+    </g>`;
+  }
+
+  if (theme === "canarias") {
+    if (variant % 2 === 0) {
+      // 1. Casa Tradicional Canaria con Tejado de Teja y Balcón de Tea (Roof crest at y = -10)
+      return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${(deg * 0.45).toFixed(2)})">
+        <rect x="${(-halfW * 0.78).toFixed(1)}" y="10" width="${(halfW * 1.56).toFixed(1)}" height="110" fill="#f8fafc" fill-opacity="0.9" stroke="#cbd5e1" stroke-width="2"/>
+        <rect x="${(-halfW * 0.65).toFixed(1)}" y="34" width="${(halfW * 1.3).toFixed(1)}" height="18" fill="#78350f" stroke="#fde68a" stroke-width="1.5"/>
+        <polygon points="${(-halfW * 0.92).toFixed(1)},12 ${(-halfW * 0.72).toFixed(1)},-10 ${(halfW * 0.72).toFixed(1)},-10 ${(halfW * 0.92).toFixed(1)},12" fill="#b45309" stroke="#fef3c7" stroke-width="2.5"/>
+      </g>`;
+    }
+    // 2. Arco de Piedra Volcánica con Banderines de Romería Animados (Arch top at y = -10)
+    return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${deg.toFixed(2)})">
+      <path d="M ${(-halfW * 0.92).toFixed(1)} -10 L ${(halfW * 0.92).toFixed(1)} -10 L ${(halfW * 0.85).toFixed(1)} 22 Q 0 0 ${(-halfW * 0.85).toFixed(1)} 22 Z" fill="url(#${pfx}_deckGrad)" stroke="${c3}" stroke-width="2.5"/>
+      <g>
+        <polygon points="${(-halfW * 0.45).toFixed(1)},12 ${(-halfW * 0.3).toFixed(1)},12 ${(-halfW * 0.37).toFixed(1)},32" fill="#38bdf8"/>
+        <polygon points="-10,12 10,12 0,34" fill="#facc15"/>
+        <polygon points="${(halfW * 0.3).toFixed(1)},12 ${(halfW * 0.45).toFixed(1)},12 ${(halfW * 0.37).toFixed(1)},32" fill="#f43f5e"/>
+        <animateTransform attributeName="transform" type="rotate" values="-3 0 12; 3 0 12; -3 0 12" dur="${animDur}s" repeatCount="indefinite"/>
+      </g>
+    </g>`;
+  }
+
+  if (theme === "carnival") {
+    if (variant % 2 === 0) {
+      // 1. Tambor Surdo de Carnaval Iluminado (Drumhead at y = -10)
+      return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${(deg * 0.5).toFixed(2)})">
+        <rect x="${(-halfW * 0.78).toFixed(1)}" y="-10" width="${(halfW * 1.56).toFixed(1)}" height="78" rx="8" fill="url(#${pfx}_deckGrad)" stroke="${c3}" stroke-width="2.5"/>
+        <line x1="${(-halfW * 0.6).toFixed(1)}" y1="-10" x2="${(-halfW * 0.3).toFixed(1)}" y2="68" stroke="${c3}" stroke-width="2.5"/>
+        <line x1="${(-halfW * 0.3).toFixed(1)}" y1="-10" x2="0" y2="68" stroke="${c3}" stroke-width="2.5"/>
+        <line x1="0" y1="-10" x2="${(halfW * 0.3).toFixed(1)}" y2="68" stroke="${c3}" stroke-width="2.5"/>
+        <line x1="${(halfW * 0.3).toFixed(1)}" y1="-10" x2="${(halfW * 0.6).toFixed(1)}" y2="68" stroke="${c3}" stroke-width="2.5"/>
+        <ellipse cx="0" cy="-10" rx="${(halfW * 0.82).toFixed(1)}" ry="6" fill="#ffffff" stroke="${accentColor}" stroke-width="3">
+          <animate attributeName="fill-opacity" values="0.7;1;0.7" dur="1.4s" repeatCount="indefinite"/>
+        </ellipse>
+      </g>`;
+    }
+    // 2. Pasarela con Abanico de Plumas Animado (Stage top at y = -10)
+    return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${deg.toFixed(2)})">
+      <g opacity="0.75">
+        <ellipse cx="-24" cy="18" rx="10" ry="38" transform="rotate(-28 -24 18)" fill="${c2}"/>
+        <ellipse cx="0" cy="22" rx="10" ry="42" fill="${accentColor}"/>
+        <ellipse cx="24" cy="18" rx="10" ry="38" transform="rotate(28 24 18)" fill="${c3}"/>
+        <animateTransform attributeName="transform" type="rotate" values="-4 0 0; 4 0 0; -4 0 0" dur="${animDur}s" repeatCount="indefinite"/>
+      </g>
+      <rect x="${(-halfW * 0.92).toFixed(1)}" y="-10" width="${(halfW * 1.84).toFixed(1)}" height="20" rx="8" fill="url(#${pfx}_deckGrad)" stroke="#ffffff" stroke-width="2.5"/>
+    </g>`;
+  }
+
+  // Symphonic / Universal Scenic Element (Classical Colonnade Capital & Animated Harmonic Ring at y = -10)
+  return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${deg.toFixed(2)})">
+    <rect x="-18" y="14" width="36" height="${Math.min(180, stemHeight).toFixed(0)}" fill="url(#${pfx}_pillarGrad)" opacity="0.75"/>
+    <circle cx="0" cy="36" r="24" fill="none" stroke="${c3}" stroke-width="2" stroke-dasharray="6 4">
+      <animateTransform attributeName="transform" type="rotate" from="0 0 36" to="360 0 36" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M ${(-halfW * 0.92).toFixed(1)} -10 L ${(halfW * 0.92).toFixed(1)} -10 L ${(halfW * 0.72).toFixed(1)} 16 L ${(-halfW * 0.72).toFixed(1)} 16 Z" fill="url(#${pfx}_deckGrad)" stroke="${accentColor}" stroke-width="2.5"/>
+    <line x1="${(-halfW * 0.9).toFixed(1)}" y1="-10" x2="${(halfW * 0.9).toFixed(1)}" y2="-10" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  </g>`;
+};
+
+/**
+ * Draws an animated aerial scenic element at (mp.x, mp.y) with top surface at y = -10
+ * so the Melody Sphere (Agudos) visually bounces across clouds, bird perches, and floral trellises!
+ */
+const buildMelodyAerialBounceElement = (
+  theme: DetectedTheme,
+  idx: number,
+  mp: { x: number; y: number; w: number; h: number; angle: number },
+  melodyColor: string,
+  c3: string,
+): string => {
+  const halfW = Math.max(38, mp.w * 0.45);
+  const dur = (3.0 + (idx % 4) * 0.5).toFixed(1);
+
+  if (theme === "cavern") {
+    // Glowing levitating crystal / chandelier cushion at y = -10
+    return `<g transform="translate(${mp.x.toFixed(1)}, ${mp.y.toFixed(1)})">
+      <g>
+        <polygon points="${(-halfW * 0.85).toFixed(1)},-10 ${(halfW * 0.85).toFixed(1)},-10 ${(halfW * 0.45).toFixed(1)},12 0,26 ${(-halfW * 0.45).toFixed(1)},12" fill="${melodyColor}" fill-opacity="0.72" stroke="#ffffff" stroke-width="2"/>
+        <circle cx="0" cy="4" r="6" fill="${c3}"/>
+        <animateTransform attributeName="transform" type="translate" values="0,0; 0,-4; 0,0" dur="${dur}s" repeatCount="indefinite"/>
+      </g>
+    </g>`;
+  }
+
+  // Sunlit Animated Cloud Cushion & Floral Perch (Top cushion at y = -10)
+  return `<g transform="translate(${mp.x.toFixed(1)}, ${mp.y.toFixed(1)})">
+    <g>
+      <ellipse cx="${(-halfW * 0.42).toFixed(1)}" cy="4" rx="${(halfW * 0.46).toFixed(1)}" ry="12" fill="#f8fafc" fill-opacity="0.82"/>
+      <ellipse cx="${(halfW * 0.42).toFixed(1)}" cy="4" rx="${(halfW * 0.46).toFixed(1)}" ry="12" fill="#f8fafc" fill-opacity="0.82"/>
+      <ellipse cx="0" cy="2" rx="${(halfW * 0.78).toFixed(1)}" ry="12" fill="#ffffff" fill-opacity="0.92" stroke="${melodyColor}" stroke-width="2"/>
+      <animateTransform attributeName="transform" type="translate" values="-5,0; 5,0; -5,0" dur="${dur}s" repeatCount="indefinite"/>
+    </g>
+  </g>`;
+};
+
+/**
+ * Draws an animated lower-world scenic element at (bp.x, bp.y) with top surface at y = -10
+ * so the Bass Sphere (Graves) visually bounces across giant water lily pads, fountain pools, boulders, or drums!
+ */
+const buildBassGroundBounceElement = (
+  theme: DetectedTheme,
+  idx: number,
+  bp: { x: number; y: number; w: number; h: number; angle: number },
+  bassColor: string,
+  c3: string,
+): string => {
+  const halfW = Math.max(42, bp.w * 0.48);
+  const dur = (2.6 + (idx % 4) * 0.45).toFixed(1);
+
+  if (theme === "baroque" || theme === "symphonic") {
+    // Giant Emerald Water Lily Pad (Nenúfar) with Lotus Blossom & Animated Water Ripples at y = -10
+    return `<g transform="translate(${bp.x.toFixed(1)}, ${bp.y.toFixed(1)})">
+      <ellipse cx="0" cy="4" rx="${(halfW * 1.1).toFixed(1)}" ry="9" fill="none" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.55">
+        <animate attributeName="rx" values="${(halfW * 0.9).toFixed(1)};${(halfW * 1.35).toFixed(1)};${(halfW * 0.9).toFixed(1)}" dur="${dur}s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-opacity" values="0.65;0.15;0.65" dur="${dur}s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="0" cy="-2" rx="${(halfW * 0.88).toFixed(1)}" ry="9" fill="#10b981" fill-opacity="0.88" stroke="#6ee7b7" stroke-width="2"/>
+      <path d="M -10 -8 L 0 -18 L 10 -8 Z" fill="#f472b6"/>
+    </g>`;
+  }
+
+  // Sculpted Basalt / Crystal / Drum Resonance Plinth at y = -10
+  return `<g transform="translate(${bp.x.toFixed(1)}, ${bp.y.toFixed(1)})">
+    <path d="M ${(-halfW * 0.85).toFixed(1)} -10 L ${(halfW * 0.85).toFixed(1)} -10 L ${(halfW * 0.98).toFixed(1)} 20 L ${(-halfW * 0.98).toFixed(1)} 20 Z" fill="${bassColor}" fill-opacity="0.75" stroke="${c3}" stroke-width="2"/>
+    <ellipse cx="0" cy="-10" rx="${(halfW * 0.82).toFixed(1)}" ry="5" fill="#ffffff" fill-opacity="0.85">
+      <animate attributeName="fill-opacity" values="0.55;0.95;0.55" dur="${dur}s" repeatCount="indefinite"/>
+    </ellipse>
+  </g>`;
+};
+
+/**
+ * Compiles a complete, animated, text-free SVG for a single segment (or the entire work)
+ * in exact World Pixels [sliceMinX..sliceMaxX, worldMinY..worldMaxY].
+ * Does NOT draw the trajectory lines of the spheres; instead, it draws animated scenic elements
+ * positioned around the bounce points so the spheres appear to jump directly on those drawn elements.
  */
 export const compileDetailedSliceSvg = (
   input: TrajectoryCompilerInput,
@@ -440,7 +567,6 @@ export const compileDetailedSliceSvg = (
     environmentConcept,
     userKeywords,
     platforms,
-    positions,
     extraTracks,
     melodyColor = "#38bdf8",
     bassColor = "#a855f7",
@@ -467,14 +593,13 @@ export const compileDetailedSliceSvg = (
 
   const pfx = `s${sliceIndex}`;
 
-  // 1. Build continuous horizon, mid-ground ridge, and sculpted foreground terrain paths
-  // All 3 paths start and end at exact fixed Y offsets at sliceMinX and sliceMaxX
-  // because getTerrainY(sliceMinX) === 0 and getTerrainY(sliceMaxX) === 0!
+  // 1. Build continuous horizon, mid-ground ridge, and foreground hills
+  // Placed slightly below the bounce elements so tree trunks, fountains, and pedestals rise out of the hills
   const sampleStep = 120;
-  let farPts = `M ${sliceMinX.toFixed(1)} -180`;
-  let midPts = `M ${sliceMinX.toFixed(1)} 45`;
-  let forePts = `M ${sliceMinX.toFixed(1)} 75`;
-  let foreTopStroke = `M ${sliceMinX.toFixed(1)} 75`;
+  let farPts = `M ${sliceMinX.toFixed(1)} -170`;
+  let midPts = `M ${sliceMinX.toFixed(1)} 65`;
+  let forePts = `M ${sliceMinX.toFixed(1)} 115`;
+  let foreTopStroke = `M ${sliceMinX.toFixed(1)} 115`;
 
   for (let x = sliceMinX + sampleStep; x < sliceMaxX; x += sampleStep) {
     const ty = getTerrainY(x);
@@ -483,9 +608,9 @@ export const compileDetailedSliceSvg = (
     const wave1 = Math.sin(x * 0.0022 + sliceIndex) * 42 * borderEnv;
     const wave2 = Math.cos(x * 0.0038 + sliceIndex * 2) * 26 * borderEnv;
 
-    const farY = ty * 0.38 - 180 + wave1;
-    const midY = ty * 0.68 + 45 + wave2;
-    const foreY = ty + 75;
+    const farY = ty * 0.38 - 170 + wave1;
+    const midY = ty * 0.68 + 65 + wave2;
+    const foreY = ty + 115;
 
     farPts += ` L ${x.toFixed(1)} ${farY.toFixed(1)}`;
     midPts += ` L ${x.toFixed(1)} ${midY.toFixed(1)}`;
@@ -493,144 +618,13 @@ export const compileDetailedSliceSvg = (
     foreTopStroke += ` L ${x.toFixed(1)} ${foreY.toFixed(1)}`;
   }
 
-  farPts += ` L ${sliceMaxX.toFixed(1)} -180 L ${sliceMaxX.toFixed(1)} ${worldMaxY} L ${sliceMinX.toFixed(1)} ${worldMaxY} Z`;
-  midPts += ` L ${sliceMaxX.toFixed(1)} 45 L ${sliceMaxX.toFixed(1)} ${worldMaxY} L ${sliceMinX.toFixed(1)} ${worldMaxY} Z`;
-  forePts += ` L ${sliceMaxX.toFixed(1)} 75 L ${sliceMaxX.toFixed(1)} ${worldMaxY} L ${sliceMinX.toFixed(1)} ${worldMaxY} Z`;
-  foreTopStroke += ` L ${sliceMaxX.toFixed(1)} 75`;
+  farPts += ` L ${sliceMaxX.toFixed(1)} -170 L ${sliceMaxX.toFixed(1)} ${worldMaxY} L ${sliceMinX.toFixed(1)} ${worldMaxY} Z`;
+  midPts += ` L ${sliceMaxX.toFixed(1)} 65 L ${sliceMaxX.toFixed(1)} ${worldMaxY} L ${sliceMinX.toFixed(1)} ${worldMaxY} Z`;
+  forePts += ` L ${sliceMaxX.toFixed(1)} 115 L ${sliceMaxX.toFixed(1)} ${worldMaxY} L ${sliceMinX.toFixed(1)} ${worldMaxY} Z`;
+  foreTopStroke += ` L ${sliceMaxX.toFixed(1)} 115`;
 
-  // 2. Build exact Main Sphere Trajectory Path & Contact Filigree Arc
-  const slicePositions = positions.filter(
-    (p) => p.x >= sliceMinX - 80 && p.x <= sliceMaxX + 80,
-  );
-  let mainCenterPath = "";
-  let mainContactPath = "";
-  let jumpApexMarkers = "";
-
-  if (slicePositions.length > 0) {
-    const stride = Math.max(1, Math.min(3, Math.floor(slicePositions.length / 450)));
-    for (let i = 0; i < slicePositions.length; i += stride) {
-      const pt = slicePositions[i];
-      const cmd = i === 0 ? "M" : "L";
-      mainCenterPath += `${cmd} ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} `;
-      mainContactPath += `${cmd} ${pt.x.toFixed(1)} ${(pt.y + 20).toFixed(1)} `;
-
-      // Detect local parabolic jump apex (highest point of jump arc)
-      if (
-        i >= stride &&
-        i + stride < slicePositions.length &&
-        pt.y < slicePositions[i - stride].y &&
-        pt.y < slicePositions[i + stride].y &&
-        slicePositions[i + stride].y - pt.y > 1.2
-      ) {
-        jumpApexMarkers += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="5" fill="${c3}" fill-opacity="0.7"/>`;
-      }
-    }
-    const lastPt = slicePositions[slicePositions.length - 1];
-    mainCenterPath += `L ${lastPt.x.toFixed(1)} ${lastPt.y.toFixed(1)}`;
-    mainContactPath += `L ${lastPt.x.toFixed(1)} ${(lastPt.y + 20).toFixed(1)}`;
-  }
-
-  // 3. Build exact Melody (Agudos) & Bass (Graves) Auxiliary Track Paths
-  let melodyPathD = "";
-  let melodyUpperLineD = "";
-  let melodyLowerLineD = "";
-  let bassPathD = "";
-  let bassFoundationD = "";
-
-  const melodyTrack = extraTracks?.find((t) => t.id === "melody");
-  if (melodyTrack && melodyTrack.positions.length > 0) {
-    const mPos = melodyTrack.positions.filter(
-      (p) => p.x >= sliceMinX - 80 && p.x <= sliceMaxX + 80,
-    );
-    const stride = Math.max(1, Math.min(4, Math.floor(mPos.length / 350)));
-    for (let i = 0; i < mPos.length; i += stride) {
-      const pt = mPos[i];
-      const cmd = i === 0 ? "M" : "L";
-      melodyPathD += `${cmd} ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} `;
-      melodyUpperLineD += `${cmd} ${pt.x.toFixed(1)} ${(pt.y - 10).toFixed(1)} `;
-      melodyLowerLineD += `${cmd} ${pt.x.toFixed(1)} ${(pt.y + 10).toFixed(1)} `;
-    }
-  }
-
-  const bassTrack = extraTracks?.find((t) => t.id === "bass");
-  if (bassTrack && bassTrack.positions.length > 0) {
-    const bPos = bassTrack.positions.filter(
-      (p) => p.x >= sliceMinX - 80 && p.x <= sliceMaxX + 80,
-    );
-    const stride = Math.max(1, Math.min(4, Math.floor(bPos.length / 350)));
-    for (let i = 0; i < bPos.length; i += stride) {
-      const pt = bPos[i];
-      const cmd = i === 0 ? "M" : "L";
-      bassPathD += `${cmd} ${pt.x.toFixed(1)} ${pt.y.toFixed(1)} `;
-      bassFoundationD += `${cmd} ${pt.x.toFixed(1)} ${(pt.y + 20).toFixed(1)} `;
-    }
-  }
-
-  // 4. Build Exact Architectural Platforms, Bridges, Balustrades & Support Pillars
-  const slicePlatforms = platforms.filter(
-    (p) => p.x + p.w >= sliceMinX - 120 && p.x - p.w <= sliceMaxX + 120,
-  );
-
-  let supportsMarkup = "";
-  let platformsMarkup = "";
-
-  for (let i = 0; i < slicePlatforms.length; i++) {
-    const p = slicePlatforms[i];
-    const deg = (p.angle * 180) / Math.PI;
-    const halfW = p.w / 2;
-    const pillarLeftX = p.x - Math.min(halfW * 0.68, halfW - 14);
-    const pillarRightX = p.x + Math.min(halfW * 0.68, halfW - 14);
-    const deckBottomY = p.y + 12;
-    const groundY = worldMaxY;
-
-    // Vertical pillars & arch connecting the platform to the ground
-    if (p.w >= 90) {
-      const archRadius = Math.max(20, (pillarRightX - pillarLeftX) / 2 - 8);
-      const archY = Math.min(groundY - 40, deckBottomY + archRadius + 24);
-      supportsMarkup += `<g opacity="0.72">
-        <path d="M ${(pillarLeftX - 10).toFixed(1)} ${groundY} L ${(pillarLeftX - 10).toFixed(1)} ${deckBottomY.toFixed(1)} L ${(pillarRightX + 10).toFixed(1)} ${deckBottomY.toFixed(1)} L ${(pillarRightX + 10).toFixed(1)} ${groundY} L ${(pillarRightX - 6).toFixed(1)} ${groundY} L ${(pillarRightX - 6).toFixed(1)} ${archY.toFixed(1)} A ${archRadius.toFixed(1)} ${(archRadius * 0.85).toFixed(1)} 0 0 0 ${(pillarLeftX + 6).toFixed(1)} ${archY.toFixed(1)} L ${(pillarLeftX + 6).toFixed(1)} ${groundY} Z" fill="url(#${pfx}_pillarGrad)" stroke="${c2}" stroke-width="2" stroke-opacity="0.55"/>
-      </g>`;
-    } else {
-      supportsMarkup += `<rect x="${(p.x - 10).toFixed(1)}" y="${deckBottomY.toFixed(1)}" width="20" height="${(groundY - deckBottomY).toFixed(1)}" fill="url(#${pfx}_pillarGrad)" opacity="0.65"/>`;
-    }
-
-    // Accent styling by platform type
-    const topStrokeColor =
-      p.type === "major"
-        ? "#f472b6"
-        : p.type === "accelerator"
-          ? "#fb7185"
-          : p.type === "friction"
-            ? "#38bdf8"
-            : c3;
-
-    // Decorative balustrade spindles inside the platform deck
-    let spindles = "";
-    const spindleStep = 34;
-    for (let sx = -halfW + 20; sx <= halfW - 20; sx += spindleStep) {
-      spindles += `<rect x="${(sx - 2.5).toFixed(1)}" y="-4" width="5" height="14" rx="2" fill="${c3}" fill-opacity="0.75"/>`;
-    }
-
-    // Exact platform structure rotated by p.angle, with top contact rail at y = -10
-    platformsMarkup += `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${deg.toFixed(2)})">
-      <rect x="${(-halfW).toFixed(1)}" y="-10" width="${p.w.toFixed(1)}" height="26" rx="5" fill="url(#${pfx}_deckGrad)" stroke="${topStrokeColor}" stroke-width="2.5"/>
-      ${spindles}
-      <line x1="${(-halfW).toFixed(1)}" y1="-10" x2="${halfW.toFixed(1)}" y2="-10" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
-      <line x1="${(-halfW).toFixed(1)}" y1="-7" x2="${halfW.toFixed(1)}" y2="-7" stroke="${topStrokeColor}" stroke-width="2.5" stroke-linecap="round"/>
-      ${
-         Math.abs(p.angle) < 0.01
-          ? `<circle cx="0" cy="-10" r="7" fill="${topStrokeColor}" stroke="#ffffff" stroke-width="2"/>
-             <polygon points="0,-2 8,8 0,18 -8,8" fill="${c3}" fill-opacity="0.85"/>`
-          : ""
-      }
-    </g>`;
-  }
-
-  // 5. Thematic landmarks are 100% anchored to the real trajectory ridge (no unaligned static backdrop bridges)
-  const customBackdrop = "";
-
-  // 6. Build thematic landmarks anchored to the trajectory ridge
-  const landmarksMarkup = buildThematicLandmarksMarkup(
+  // 2. Build Animated Background Landmarks (Sun, Rainbow, Swaying Trees, Birds, Spotlights)
+  const landmarksMarkup = buildAnimatedEnvironmentBackdrop(
     theme,
     sliceIndex,
     sliceMinX,
@@ -641,15 +635,68 @@ export const compileDetailedSliceSvg = (
     spec,
   );
 
-  // 7. Section header watermark in the upper sky of the slice
-  const headerTitle = escapeXml(spec?.title || `Segmento ${sliceIndex + 1}`);
-  const headerSub = escapeXml(
-    `${spec?.musicalSection || ""}${spec?.dynamicsAndTempo ? " · " + spec.dynamicsAndTempo : ""}`,
+  // 3. Build Animated Scenic Elements at Every Bounce Point of the Main Sphere
+  const slicePlatforms = platforms.filter(
+    (p) => p.x + p.w >= sliceMinX - 120 && p.x - p.w <= sliceMaxX + 120,
   );
-  const titleX = sliceMinX + 90;
-  const titleY = worldMinY + 110;
+  let mainScenicElementsMarkup = "";
+  for (let i = 0; i < slicePlatforms.length; i++) {
+    const p = slicePlatforms[i];
+    const localGroundY = getTerrainY(p.x) + 120;
+    mainScenicElementsMarkup += buildMainSphereBounceElement(
+      theme,
+      i,
+      p,
+      localGroundY,
+      pfx,
+      palette,
+    );
+  }
 
-  // Aspect-matched width & height attributes for crisp browser rasterization without letterboxing
+  // 4. Build Animated Aerial Elements for the Melody Sphere (Clouds, Perches, Crystals)
+  let melodyScenicMarkup = "";
+  const melodyTrack = extraTracks?.find((t) => t.id === "melody");
+  if (melodyTrack && melodyTrack.platforms.length > 0) {
+    const mPlats = melodyTrack.platforms.filter(
+      (p) => p.x + p.w >= sliceMinX - 100 && p.x - p.w <= sliceMaxX + 100,
+    );
+    let lastMx = -99999;
+    for (let i = 0; i < mPlats.length; i++) {
+      const mp = mPlats[i];
+      if (mp.x - lastMx < 155) continue;
+      lastMx = mp.x;
+      melodyScenicMarkup += buildMelodyAerialBounceElement(
+        theme,
+        i,
+        mp,
+        melodyColor,
+        c3,
+      );
+    }
+  }
+
+  // 5. Build Animated Ground/Water Elements for the Bass Sphere (Lily Pads, Plinths, Drums)
+  let bassScenicMarkup = "";
+  const bassTrack = extraTracks?.find((t) => t.id === "bass");
+  if (bassTrack && bassTrack.platforms.length > 0) {
+    const bPlats = bassTrack.platforms.filter(
+      (p) => p.x + p.w >= sliceMinX - 100 && p.x - p.w <= sliceMaxX + 100,
+    );
+    let lastBx = -99999;
+    for (let i = 0; i < bPlats.length; i++) {
+      const bp = bPlats[i];
+      if (bp.x - lastBx < 165) continue;
+      lastBx = bp.x;
+      bassScenicMarkup += buildBassGroundBounceElement(
+        theme,
+        i,
+        bp,
+        bassColor,
+        c3,
+      );
+    }
+  }
+
   const svgPixelW = Math.min(
     4096,
     Math.max(1920, Math.round(sliceWidth * 0.35)),
@@ -659,7 +706,7 @@ export const compileDetailedSliceSvg = (
     Math.round(svgPixelW * (worldHeight / sliceWidth)),
   );
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${sliceMinX.toFixed(1)} ${worldMinY} ${sliceWidth.toFixed(1)} ${worldHeight}" width="${svgPixelW}" height="${svgPixelH}" preserveAspectRatio="none" data-sonogramic-aligned="true">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${sliceMinX.toFixed(1)} ${worldMinY} ${sliceWidth.toFixed(1)} ${worldHeight}" width="${svgPixelW}" height="${svgPixelH}" preserveAspectRatio="none" data-sonogramic-scenic-animated="v2">
   <defs>
     <linearGradient id="${pfx}_skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="${c0}"/>
@@ -681,88 +728,53 @@ export const compileDetailedSliceSvg = (
       <stop offset="100%" stop-color="#020617" stop-opacity="0.99"/>
     </linearGradient>
     <linearGradient id="${pfx}_pillarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="${c2}" stop-opacity="0.55"/>
-      <stop offset="45%" stop-color="${c1}" stop-opacity="0.75"/>
-      <stop offset="100%" stop-color="${c0}" stop-opacity="0.95"/>
+      <stop offset="0%" stop-color="${c2}" stop-opacity="0.65"/>
+      <stop offset="45%" stop-color="${c1}" stop-opacity="0.82"/>
+      <stop offset="100%" stop-color="${c0}" stop-opacity="0.96"/>
     </linearGradient>
     <linearGradient id="${pfx}_deckGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="${c3}" stop-opacity="0.92"/>
-      <stop offset="35%" stop-color="${c2}" stop-opacity="0.88"/>
+      <stop offset="0%" stop-color="${c3}" stop-opacity="0.95"/>
+      <stop offset="42%" stop-color="${c2}" stop-opacity="0.9"/>
       <stop offset="100%" stop-color="${c0}" stop-opacity="0.96"/>
     </linearGradient>
   </defs>
 
-  <!-- 1. Sky & Custom OKF Backdrop -->
+  <!-- 1. Sky -->
   <rect x="${sliceMinX.toFixed(1)}" y="${worldMinY}" width="${sliceWidth.toFixed(1)}" height="${worldHeight}" fill="url(#${pfx}_skyGrad)"/>
-  ${customBackdrop ? `<!-- OKF_CUSTOM_BACKDROP_START -->${customBackdrop}<!-- OKF_CUSTOM_BACKDROP_END -->` : ""}
 
   <!-- 2. Contoured Horizon & Mid-ground Scenic Ridges -->
   <path d="${farPts}" fill="url(#${pfx}_farHillGrad)"/>
   <path d="${midPts}" fill="url(#${pfx}_midHillGrad)" stroke="${c2}" stroke-width="2" stroke-opacity="0.35"/>
 
-  <!-- 3. Thematic Landmarks Aligned with the Trajectory Ridge -->
-  <g id="${pfx}_landmarks">
+  <!-- 3. Animated Backdrop Landmarks (Sun, Rainbow, Swaying Trees, Birds) -->
+  <g id="${pfx}_animated_landmarks">
     ${landmarksMarkup}
   </g>
 
-  <!-- 4. Sculpted Foreground Terrain Following Exact Platform Heights -->
+  <!-- 4. Sculpted Foreground Hills -->
   <path d="${forePts}" fill="url(#${pfx}_foreTerrainGrad)"/>
   <path d="${foreTopStroke}" fill="none" stroke="${c3}" stroke-width="3.5" stroke-opacity="0.45"/>
 
-  <!-- 5. Architectural Support Pillars & Arches Under Every Platform -->
-  <g id="${pfx}_platform_supports">
-    ${supportsMarkup}
+  <!-- 5. Animated Aerial Scenic Elements for Melody Sphere (Clouds, Perches, Crystals) -->
+  <g id="${pfx}_melody_scenic_elements">
+    ${melodyScenicMarkup}
   </g>
 
-  <!-- 6. Exact Trajectory Paths for Melody (Agudos), Bass (Graves) & Main Sphere -->
-  <g id="${pfx}_exact_trajectories" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    ${
-      melodyPathD
-        ? `<path d="${melodyUpperLineD}" stroke="${melodyColor}" stroke-width="1.5" stroke-opacity="0.35"/>
-           <path d="${melodyLowerLineD}" stroke="${melodyColor}" stroke-width="1.5" stroke-opacity="0.35"/>
-           <path d="${melodyPathD}" stroke="${melodyColor}" stroke-width="4" stroke-opacity="0.72" stroke-dasharray="14 8"/>`
-        : ""
-    }
-    ${
-      bassPathD
-        ? `<path d="${bassFoundationD}" stroke="${bassColor}" stroke-width="6" stroke-opacity="0.38"/>
-           <path d="${bassPathD}" stroke="${bassColor}" stroke-width="3.5" stroke-opacity="0.68" stroke-dasharray="18 10"/>`
-        : ""
-    }
-    ${
-      mainContactPath
-        ? `<path d="${mainContactPath}" stroke="${c3}" stroke-width="8" stroke-opacity="0.22"/>
-           <path d="${mainContactPath}" stroke="${c3}" stroke-width="3" stroke-opacity="0.75"/>`
-        : ""
-    }
-    ${
-      mainCenterPath
-        ? `<path d="${mainCenterPath}" stroke="#ffffff" stroke-width="2.2" stroke-opacity="0.55" stroke-dasharray="10 8"/>`
-        : ""
-    }
-    ${jumpApexMarkers}
+  <!-- 6. Animated Scenic Elements for Main Sphere (Blossoming Trees, Fountains, Bridges, Drums, Balconies) -->
+  <g id="${pfx}_main_scenic_elements">
+    ${mainScenicElementsMarkup}
   </g>
 
-  <!-- 7. Exact Platform Bridges, Balustrades & Impact Medallions -->
-  <g id="${pfx}_exact_platforms">
-    ${platformsMarkup}
-  </g>
-
-  <!-- 8. Segment Musicological Header -->
-  <g opacity="0.65">
-    <text x="${titleX.toFixed(1)}" y="${titleY}" fill="#f8fafc" font-family="sans-serif" font-size="34" font-weight="bold">${headerTitle}</text>
-    ${
-      headerSub
-        ? `<text x="${titleX.toFixed(1)}" y="${titleY + 40}" fill="${c3}" font-family="monospace" font-size="24">${headerSub}</text>`
-        : ""
-    }
+  <!-- 7. Animated Lower Scenic Elements for Bass Sphere (Lily Pads, Plinths, Boulders) -->
+  <g id="${pfx}_bass_scenic_elements">
+    ${bassScenicMarkup}
   </g>
 </svg>`;
 };
 
 /**
- * Compiles a single unified panoramic SVG covering the entire musicograma from 0s to duration,
- * combining all segment scenes, architectural platforms, and exact trajectories into one SVG document.
+ * Compiles a single unified panoramic animated SVG covering the entire musicograma from 0s to duration,
+ * without any text or trajectory lines.
  */
 export const compileFullMasterSvg = (
   slicesInputs: TrajectoryCompilerInput[],
@@ -790,7 +802,7 @@ export const compileFullMasterSvg = (
     Math.round(masterPixelW * (worldHeight / totalWidth)),
   );
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${totalMinX.toFixed(1)} ${worldMinY} ${totalWidth.toFixed(1)} ${worldHeight}" width="${masterPixelW}" height="${masterPixelH}" preserveAspectRatio="none" data-sonogramic-aligned="true">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${totalMinX.toFixed(1)} ${worldMinY} ${totalWidth.toFixed(1)} ${worldHeight}" width="${masterPixelW}" height="${masterPixelH}" preserveAspectRatio="none" data-sonogramic-scenic-animated="v2">
   ${nestedSlices}
 </svg>`;
 };
