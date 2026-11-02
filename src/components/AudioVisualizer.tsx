@@ -281,7 +281,7 @@ export const AudioVisualizer = forwardRef<
   const lastSynthBeatIdxRef = useRef<number>(-1);
 
   const userZoomRef = useRef<number>(0.85);
-  const zoomVariationRef = useRef<number>(0.65);
+  const zoomVariationRef = useRef<number>(0.85);
   const platformOpacityRef = useRef<number>(0.85);
   const bgOffsetYRef = useRef<number>(0.0);
   const cameraSmoothnessRef = useRef<number>(0.82);
@@ -492,15 +492,16 @@ export const AudioVisualizer = forwardRef<
     let lastPhysTime = 0;
     let pY = 0;
 
-    // Filter out closely-spaced micro-beats (< 0.64s) so the spheres perform broad, graceful leaps instead of frantic little hops ("saltitos")
+    // Space beat anchors by at least ~1.35s (roughly one musical bar) and favor smooth glides ("ramp")
+    // so the spheres perform graceful, unhurried phrases with occasional grand leaps instead of constant "saltitos"
     const filteredBeats: typeof beats = [];
     for (const b of beats) {
       if (filteredBeats.length === 0) {
         filteredBeats.push(b);
       } else {
         const prev = filteredBeats[filteredBeats.length - 1];
-        if (b.time - prev.time < 0.64) {
-          if (b.isMajorSectionShift || b.energy > prev.energy * 1.06) {
+        if (b.time - prev.time < 1.35) {
+          if (b.isMajorSectionShift || b.energy > prev.energy * 1.08) {
             filteredBeats[filteredBeats.length - 1] = b;
           }
         } else {
@@ -509,11 +510,8 @@ export const AudioVisualizer = forwardRef<
       }
     }
 
-    // If the first musical beat starts after an initial silence (> 0.42s), glide smoothly along the entry bridge until the exact first note attack
-    const leadInMode: "jump" | "ramp" =
-      filteredBeats.length > 0 && filteredBeats[0].time > 0.42
-        ? "ramp"
-        : "jump";
+    // Start with a smooth glide ("ramp") along the entry viaduct
+    const leadInMode: "jump" | "ramp" = "ramp";
     const initialY =
       filteredBeats.length > 0 && filteredBeats[0].audioY !== undefined
         ? Math.max(-180, Math.min(140, filteredBeats[0].audioY * 0.5))
@@ -633,17 +631,18 @@ export const AudioVisualizer = forwardRef<
         Math.min(260, pY * 0.14 + targetYBeat * 0.86),
       );
 
-      // Glide smoothly ("ramp") on sustained contours or low-energy flat passages to avoid unnecessary little hops
-      const isGentleFlatStep =
-        !beat.isMajorSectionShift &&
-        (beat.energy || 1.0) < 1.08 &&
-        Math.abs(nextYBeat - pY) < 24 &&
-        idx % 2 === 1;
+      // Default to smooth S-curve glides ("ramp") and reserve aerial parabolic leaps ("jump") ONLY for major musical accents
+      // (~1 leap every 2.5 - 4.0 seconds), eliminating repetitive little hops ("saltitos")
+      const isGrandAccentJump =
+        beat.isMajorSectionShift ||
+        ((beat.energy || 1.0) >= 1.34 && idx % 2 === 0) ||
+        (idx % 3 === 0 && (beat.energy || 1.0) >= 1.02);
       const mode: "jump" | "ramp" =
-        beat.holdMode ||
-        (beat.contour === "sustained_ramp" || isGentleFlatStep
+        beat.holdMode === "ramp" || beat.contour === "sustained_ramp"
           ? "ramp"
-          : "jump");
+          : isGrandAccentJump
+            ? "jump"
+            : "ramp";
       pY = nextYBeat;
 
       allBeats.push({
@@ -716,7 +715,7 @@ export const AudioVisualizer = forwardRef<
       }
     }
 
-    // Pre-simulate trajectory with guaranteed upward parabolic arches on every beat
+    // Pre-simulate trajectory with smooth S-curve glides ("ramp") and wide parabolic arches on major accents ("jump")
     let currentBeatIdx = 0;
     for (let frame = 0; frame < totalFrames; frame++) {
       const t = frame / fps;
@@ -740,6 +739,7 @@ export const AudioVisualizer = forwardRef<
 
       const px = t * SPEED;
       let py = 0;
+      let jumpArcProgress = 0;
 
       if (bEnd) {
         const dT = Math.max(0.001, bEnd.time - bStart.time);
@@ -753,12 +753,13 @@ export const AudioVisualizer = forwardRef<
           const easeU = (1 - Math.cos(u * Math.PI)) * 0.5;
           py = targetY0 + (targetY1 - targetY0) * easeU;
         } else {
+          jumpArcProgress = Math.sin(u * Math.PI);
           const deltaY = targetY1 - targetY0;
           const beatE = Math.min(3.2, Math.max(0.6, bStart.energy || 1.2));
-          const durationScale = Math.min(1.38, Math.max(0.68, dT / 0.58));
+          const durationScale = Math.min(1.42, Math.max(0.75, dT / 0.85));
           const bounceH = Math.min(
-            185,
-            Math.max(54, (44 + beatE * 32) * durationScale),
+            210,
+            Math.max(68, (56 + beatE * 36) * durationScale),
           );
           const c = 4 * bounceH + 1.5 * Math.abs(deltaY);
           const b = deltaY - c;
@@ -770,41 +771,44 @@ export const AudioVisualizer = forwardRef<
         py = targetY0 + 0.5 * GRAVITY * localT * localT;
       }
 
-      // Smooth, non-abrupt musical zoom target:
-      // Gently zooms in (+18%) during delicate/piano passages and gently zooms out (-18%) during grand forte leaps & high arches
+      // Wide, clearly noticeable yet smooth cinematic zoom multiplier [0.42x .. 1.85x]:
+      // - Zooms IN (up to 1.85x) during intimate piano / low-energy solo phrases
+      // - Zooms OUT (down to 0.42x) during grand forte / tutti passages, high registers, and aerial leaps
+      // - Includes a continuous 8-second phrase breathing wave so zoom motion is always clearly appreciable
       const beatEnergy = bStart.energy || 1.2;
-      const dynamicZoomTarget =
-        1.14 - Math.min(1.6, Math.max(0.55, beatEnergy - 0.55)) * 0.22;
-      const altitudeZoomOffset =
-        py < -160 ? -0.07 : py > 80 ? 0.06 : 0.0;
-      const slowPhraseWave = Math.sin(t * 0.55) * 0.05;
+      const energyZoom = 1.62 - Math.min(1.9, Math.max(0.35, beatEnergy)) * 0.54;
+      const altitudeZoomOffset = Math.max(-0.28, Math.min(0.26, (py + 90) / 720));
+      const jumpZoomOut = -0.24 * jumpArcProgress;
+      const phraseZoomWave =
+        Math.sin(t * 0.78) * 0.36 + Math.cos(t * 0.34) * 0.22;
       const currentZoom = Math.max(
-        0.76,
-        Math.min(1.26, dynamicZoomTarget + altitudeZoomOffset + slowPhraseWave),
+        0.42,
+        Math.min(
+          1.85,
+          energyZoom + altitudeZoomOffset + jumpZoomOut + phraseZoomWave,
+        ),
       );
 
       const angle = px / radius;
       positions.push({ x: px, y: py, angle, isImpact, zoom: currentZoom });
     }
 
-    // Apply 2-pass wide temporal smoothing (±45 frames = 1.5s window) to positions[i].zoom so zoom transitions are 100% progressive and never abrupt
-    for (let pass = 0; pass < 2; pass++) {
-      const smoothedZooms = new Float32Array(positions.length);
-      const win = 45;
-      for (let i = 0; i < positions.length; i++) {
-        let zSum = 0;
-        let zCnt = 0;
-        const startK = Math.max(0, i - win);
-        const endK = Math.min(positions.length - 1, i + win);
-        for (let k = startK; k <= endK; k++) {
-          zSum += positions[k].zoom;
-          zCnt++;
-        }
-        smoothedZooms[i] = zSum / Math.max(1, zCnt);
+    // Apply temporal smoothing (±18 frames = 0.6s window) to round beat transitions while preserving the full wide zoom range
+    const smoothedZooms = new Float32Array(positions.length);
+    const win = 18;
+    for (let i = 0; i < positions.length; i++) {
+      let zSum = 0;
+      let zCnt = 0;
+      const startK = Math.max(0, i - win);
+      const endK = Math.min(positions.length - 1, i + win);
+      for (let k = startK; k <= endK; k++) {
+        zSum += positions[k].zoom;
+        zCnt++;
       }
-      for (let i = 0; i < positions.length; i++) {
-        positions[i].zoom = smoothedZooms[i];
-      }
+      smoothedZooms[i] = zSum / Math.max(1, zCnt);
+    }
+    for (let i = 0; i < positions.length; i++) {
+      positions[i].zoom = smoothedZooms[i];
     }
 
     const getTerrainY = (time: number) => {
@@ -838,7 +842,7 @@ export const AudioVisualizer = forwardRef<
         {
           time: 0,
           y: getTerrainY(0) + trackYOffset,
-          mode: leadInMode,
+          mode: "ramp",
           energy: 1.0,
         },
       ];
@@ -852,12 +856,10 @@ export const AudioVisualizer = forwardRef<
             : id === "bass" && mb.bassOffset !== undefined
               ? mb.bassOffset
               : Math.sin(idx * freqMul) * 52 * Math.min(mb.energy, 2.2);
-        // Auxiliary tracks glide more often (every other beat) so there are fewer little hops
-        const auxShouldGlide =
-          mb.holdMode === "ramp" ||
-          mb.contour === "sustained_ramp" ||
-          (idx % 2 === 1 && (mb.energy || 1.0) < 1.45);
-        const auxMode: "jump" | "ramp" = auxShouldGlide ? "ramp" : "jump";
+        // Auxiliary spheres (melody & bass) glide smoothly in continuous S-curves ("ramp"), only arching at major section shifts
+        const auxMode: "jump" | "ramp" = mb.isMajorSectionShift
+          ? "jump"
+          : "ramp";
         mAllBeats.push({
           time: mb.time,
           y: terrainY + trackYOffset + realTrackOffset,
@@ -1030,11 +1032,26 @@ export const AudioVisualizer = forwardRef<
         });
       }
 
-      // Normalize any legacy saved positions so zoom is always steady 1.0
-      const normalizedPositions = d.positions.map((p: any) => ({
-        ...p,
-        zoom: 1.0,
-      }));
+      // Ensure saved positions carry a smooth dynamic zoom curve if legacy positions had constant 1.0
+      const normalizedPositions = d.positions.map((p: any, idx: number) => {
+        const t = idx / 60;
+        const hasCustomZoom =
+          typeof p.zoom === "number" && Math.abs(p.zoom - 1.0) > 0.01;
+        const synthZoom = Math.max(
+          0.45,
+          Math.min(
+            1.8,
+            1.05 +
+              Math.sin(t * 0.78) * 0.38 +
+              Math.cos(t * 0.34) * 0.22 +
+              ((p.y || 0) + 90) / 800,
+          ),
+        );
+        return {
+          ...p,
+          zoom: hasCustomZoom ? p.zoom : synthZoom,
+        };
+      });
 
       analysisDataRef.current = {
         positions: normalizedPositions,
@@ -1092,8 +1109,8 @@ export const AudioVisualizer = forwardRef<
       for (const sec of sections) {
         const secBpm = sec.bpmOverride || baseBpm;
         const beatInterval = Math.max(
-          0.7,
-          (60 / secBpm) * (secBpm >= 104 ? 1.5 : 1.0),
+          1.35,
+          (60 / secBpm) * 2.0,
         );
         let isFirstInSec = true;
 
@@ -1500,7 +1517,7 @@ export const AudioVisualizer = forwardRef<
           if (!isLocalMax || oScore < 1.15) continue;
 
           const sub = sec?.subdivision || 1;
-          const minGapSec = sub >= 2 ? 0.58 : 0.72;
+          const minGapSec = sub >= 2 ? 1.15 : 1.38;
           const minGapFrames = Math.round(minGapSec * fps);
 
           if (i - lastPeakFrame < minGapFrames) {
@@ -1573,9 +1590,9 @@ export const AudioVisualizer = forwardRef<
                 } else if (beats.length > 0) {
                   beats[beats.length - 1].holdMode = "ramp";
                 }
-              } else if (gap > 1.35) {
-                // Active sustained chord/melody without sharp transients: insert wide, gentle rhythmic pulses at ~0.95s intervals
-                const numPulses = Math.max(1, Math.floor(gap / 0.95) - 1);
+              } else if (gap > 1.95) {
+                // Active sustained chord/melody without sharp transients: insert gentle ramp glides at ~1.6s intervals
+                const numPulses = Math.max(1, Math.floor(gap / 1.6) - 1);
                 for (let p = 1; p <= numPulses; p++) {
                   const interpT = prevCand.time + (gap * p) / (numPulses + 1);
                   const pFrame = Math.min(
@@ -1596,7 +1613,7 @@ export const AudioVisualizer = forwardRef<
                     audioY: audioElevationY[pFrame],
                     melodyOffset: rawMelodyOff[pFrame],
                     bassOffset: rawBassOff[pFrame],
-                    holdMode: relLoud < 0.95 ? "ramp" : "jump",
+                    holdMode: "ramp",
                   });
                 }
               }
@@ -2249,7 +2266,7 @@ export const AudioVisualizer = forwardRef<
         !forceRebuild &&
         okfProjectRef.current?.config?.masterSceneSvg &&
         okfProjectRef.current.config.masterSceneSvg.includes(
-          'data-sonogramic-scenic-animated="v2"',
+          'data-sonogramic-scenic-animated="v3"',
         )
           ? okfProjectRef.current.config.masterSceneSvg
           : compileFullMasterSvg(
@@ -2306,7 +2323,7 @@ export const AudioVisualizer = forwardRef<
       const svgXml =
         !forceRebuild &&
         spec?.backgroundSvg &&
-        spec.backgroundSvg.includes('data-sonogramic-scenic-animated="v2"')
+        spec.backgroundSvg.includes('data-sonogramic-scenic-animated="v3"')
           ? spec.backgroundSvg
           : compileDetailedSliceSvg(input);
       compiledList[i] = svgXml;
@@ -2778,7 +2795,7 @@ export const AudioVisualizer = forwardRef<
     },
     getZoom: () => userZoomRef.current,
     setZoomVariation: (val: number) => {
-      zoomVariationRef.current = Math.max(0, Math.min(1, val));
+      zoomVariationRef.current = Math.max(0, Math.min(1.5, val));
     },
     setPlatformOpacity: (op: number) => {
       platformOpacityRef.current = op;
@@ -2835,7 +2852,7 @@ export const AudioVisualizer = forwardRef<
             y: Math.round(p.y * 10) / 10,
             angle: parseFloat(p.angle.toFixed(4)),
             isImpact: p.isImpact,
-            zoom: 1.0,
+            zoom: parseFloat((p.zoom ?? 1.0).toFixed(3)),
           })),
           platforms: d.platforms,
           extraTracks: d.extraTracks,
@@ -3154,12 +3171,15 @@ export const AudioVisualizer = forwardRef<
       ctx.save();
       ctx.translate(targetCx, targetCy);
 
-      // Smooth, non-abrupt dynamic camera zoom regulated by userZoomRef (base zoom) and zoomVariationRef (intensity of zoom changes)
-      const dynOffset =
-        ((ballPos.zoom || 1.0) - 1.0) * zoomVariationRef.current;
+      // Wide, smooth dynamic camera zoom regulated by userZoomRef (base zoom) and zoomVariationRef (intensity of zoom changes: 0% to 150%)
+      const rawZoomFactor = Math.max(0.28, Math.min(2.2, ballPos.zoom || 1.0));
+      const dynamicScale = Math.pow(
+        rawZoomFactor,
+        zoomVariationRef.current * 1.18,
+      );
       const targetZoom = Math.max(
-        0.22,
-        Math.min(1.65, userZoomRef.current * (1.0 + dynOffset)),
+        0.18,
+        Math.min(2.6, userZoomRef.current * dynamicScale),
       );
       if (cameraZoomRef.current === null) {
         cameraZoomRef.current = targetZoom;
@@ -3169,8 +3189,8 @@ export const AudioVisualizer = forwardRef<
           Math.max(0, cameraSmoothnessRef.current || 0.82),
         );
         const alphaZ = isPaused
-          ? 0.18
-          : Math.max(0.014, Math.pow(1.0 - smoothZ, 1.35) * 0.14);
+          ? 0.22
+          : Math.max(0.028, Math.pow(1.0 - smoothZ, 1.15) * 0.16);
         cameraZoomRef.current +=
           (targetZoom - cameraZoomRef.current) * alphaZ;
       }

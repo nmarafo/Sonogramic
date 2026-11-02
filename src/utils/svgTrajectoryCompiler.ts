@@ -314,6 +314,33 @@ const buildMainSphereBounceElement = (
           ? "#38bdf8"
           : c3;
 
+  // When p.w > 420, this platform is a smooth glide ("ramp"): render a multi-arch scenic viaduct / floral pergola / stone causeway
+  // so the Main Sphere visibly glides across an architectural/natural bridge instead of stretching a single icon
+  if (p.w > 420) {
+    const spanW = p.w * 0.96;
+    const hSpan = spanW * 0.5;
+    const archCount = Math.max(2, Math.min(7, Math.round(spanW / 270)));
+    const archW = spanW / archCount;
+    let archesSvg = "";
+    for (let a = 0; a < archCount; a++) {
+      const ax0 = -hSpan + a * archW;
+      const axMid = ax0 + archW * 0.5;
+      const ax1 = ax0 + archW;
+      archesSvg += `<rect x="${(ax0 - 8).toFixed(1)}" y="14" width="16" height="${Math.min(230, stemHeight).toFixed(0)}" fill="url(#${pfx}_pillarGrad)" opacity="0.78"/>`;
+      archesSvg += `<path d="M ${ax0.toFixed(1)} 16 L ${ax0.toFixed(1)} 64 Q ${axMid.toFixed(1)} 18 ${ax1.toFixed(1)} 64 L ${ax1.toFixed(1)} 16 Z" fill="url(#${pfx}_deckGrad)" opacity="0.88"/>`;
+      archesSvg += `<circle cx="${axMid.toFixed(1)}" cy="4" r="5" fill="${a % 2 === 0 ? accentColor : c3}">
+        <animate attributeName="opacity" values="0.45;1;0.45" dur="${animDur}s" repeatCount="indefinite"/>
+      </circle>`;
+    }
+    archesSvg += `<rect x="${(hSpan - 8).toFixed(1)}" y="14" width="16" height="${Math.min(230, stemHeight).toFixed(0)}" fill="url(#${pfx}_pillarGrad)" opacity="0.78"/>`;
+
+    return `<g transform="translate(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) rotate(${deg.toFixed(2)})">
+      ${archesSvg}
+      <rect x="${(-hSpan).toFixed(1)}" y="-10" width="${spanW.toFixed(1)}" height="24" rx="8" fill="url(#${pfx}_deckGrad)" stroke="${accentColor}" stroke-width="2.5"/>
+      <line x1="${(-hSpan + 6).toFixed(1)}" y1="-10" x2="${(hSpan - 6).toFixed(1)}" y2="-10" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/>
+    </g>`;
+  }
+
   if (theme === "baroque") {
     if (variant === 0) {
       // 1. Blossoming Spring Tree Crown (Main Sphere jumps on top of the floral canopy at y = -10)
@@ -486,7 +513,7 @@ const buildMelodyAerialBounceElement = (
   melodyColor: string,
   c3: string,
 ): string => {
-  const halfW = Math.max(38, mp.w * 0.45);
+  const halfW = Math.min(84, Math.max(44, mp.w * 0.16));
   const dur = (3.0 + (idx % 4) * 0.5).toFixed(1);
 
   if (theme === "cavern") {
@@ -522,7 +549,7 @@ const buildBassGroundBounceElement = (
   bassColor: string,
   c3: string,
 ): string => {
-  const halfW = Math.max(42, bp.w * 0.48);
+  const halfW = Math.min(90, Math.max(48, bp.w * 0.17));
   const dur = (2.6 + (idx % 4) * 0.45).toFixed(1);
 
   if (theme === "baroque" || theme === "symphonic") {
@@ -663,7 +690,7 @@ export const compileDetailedSliceSvg = (
     let lastMx = -99999;
     for (let i = 0; i < mPlats.length; i++) {
       const mp = mPlats[i];
-      if (mp.x - lastMx < 155) continue;
+      if (mp.x - lastMx < 360) continue;
       lastMx = mp.x;
       melodyScenicMarkup += buildMelodyAerialBounceElement(
         theme,
@@ -685,7 +712,7 @@ export const compileDetailedSliceSvg = (
     let lastBx = -99999;
     for (let i = 0; i < bPlats.length; i++) {
       const bp = bPlats[i];
-      if (bp.x - lastBx < 165) continue;
+      if (bp.x - lastBx < 360) continue;
       lastBx = bp.x;
       bassScenicMarkup += buildBassGroundBounceElement(
         theme,
@@ -706,7 +733,7 @@ export const compileDetailedSliceSvg = (
     Math.round(svgPixelW * (worldHeight / sliceWidth)),
   );
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${sliceMinX.toFixed(1)} ${worldMinY} ${sliceWidth.toFixed(1)} ${worldHeight}" width="${svgPixelW}" height="${svgPixelH}" preserveAspectRatio="none" data-sonogramic-scenic-animated="v2">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${sliceMinX.toFixed(1)} ${worldMinY} ${sliceWidth.toFixed(1)} ${worldHeight}" width="${svgPixelW}" height="${svgPixelH}" preserveAspectRatio="none" data-sonogramic-scenic-animated="v3">
   <defs>
     <linearGradient id="${pfx}_skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="${c0}"/>
@@ -802,7 +829,7 @@ export const compileFullMasterSvg = (
     Math.round(masterPixelW * (worldHeight / totalWidth)),
   );
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${totalMinX.toFixed(1)} ${worldMinY} ${totalWidth.toFixed(1)} ${worldHeight}" width="${masterPixelW}" height="${masterPixelH}" preserveAspectRatio="none" data-sonogramic-scenic-animated="v2">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${totalMinX.toFixed(1)} ${worldMinY} ${totalWidth.toFixed(1)} ${worldHeight}" width="${masterPixelW}" height="${masterPixelH}" preserveAspectRatio="none" data-sonogramic-scenic-animated="v3">
   ${nestedSlices}
 </svg>`;
 };

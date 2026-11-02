@@ -201,7 +201,7 @@ export default function App() {
     hasRecording: false,
     isAnalyzing: false,
     zoom: EXAMPLE_OKF_PROJECTS[0].project.config.zoom ?? 0.85,
-    zoomVariation: 0.65,
+    zoomVariation: 0.85,
     platformOpacity:
       EXAMPLE_OKF_PROJECTS[0].project.config.platformOpacity ?? 0.85,
     bgOffsetY: EXAMPLE_OKF_PROJECTS[0].project.config.bgOffsetY ?? 0.0,
@@ -949,13 +949,13 @@ export default function App() {
 
               {/* Zoom Base */}
               <div className="flex justify-between items-center gap-3">
-                <span className="text-xs font-medium text-slate-400 w-32">
+                <span className="text-xs font-medium text-slate-400 w-36">
                   Zoom Base ({vState.zoom.toFixed(2)}x)
                 </span>
                 <input
                   type="range"
-                  min="0.25"
-                  max="1.25"
+                  min="0.20"
+                  max="2.50"
                   step="0.05"
                   value={vState.zoom}
                   onChange={(e) => {
@@ -969,13 +969,13 @@ export default function App() {
 
               {/* Smooth Dynamic Zoom Changes */}
               <div className="flex justify-between items-center gap-3">
-                <span className="text-xs font-medium text-slate-400 w-32">
+                <span className="text-xs font-medium text-slate-400 w-36">
                   Cambios de Zoom ({Math.round(vState.zoomVariation * 100)}%)
                 </span>
                 <input
                   type="range"
                   min="0.0"
-                  max="1.0"
+                  max="1.5"
                   step="0.05"
                   value={vState.zoomVariation}
                   onChange={(e) => {
@@ -983,7 +983,7 @@ export default function App() {
                     visualizerRef.current?.setZoomVariation(val);
                     setVState((prev) => ({ ...prev, zoomVariation: val }));
                   }}
-                  title="Regula la intensidad de los acercamientos y alejamientos suaves de cámara según la dinámica y altura musical (0% = zoom fijo)"
+                  title="Regula el ámbito de los acercamientos y alejamientos suaves de cámara entre planos panorámicos y primeros planos (0% = zoom fijo, 150% = máximo contraste cinematográfico)"
                   className="flex-1 accent-purple-500"
                 />
               </div>
