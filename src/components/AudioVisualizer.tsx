@@ -771,20 +771,20 @@ export const AudioVisualizer = forwardRef<
         py = targetY0 + 0.5 * GRAVITY * localT * localT;
       }
 
-      // Wide, clearly noticeable yet smooth cinematic zoom multiplier [0.42x .. 1.85x]:
-      // - Zooms IN (up to 1.85x) during intimate piano / low-energy solo phrases
-      // - Zooms OUT (down to 0.42x) during grand forte / tutti passages, high registers, and aerial leaps
-      // - Includes a continuous 8-second phrase breathing wave so zoom motion is always clearly appreciable
+      // Wide, clearly noticeable yet smooth cinematic zoom multiplier [0.72x .. 1.95x]:
+      // - Zooms OUT (down to the full SVG height limit ~0.68x) during grand forte / tutti passages, high registers, and aerial leaps
+      // - Zooms IN (up to ~1.95x) during intimate piano / low-energy solo phrases
+      // - Includes a continuous 8-second phrase breathing wave so zoom motion is always clearly appreciable without hitting black bars
       const beatEnergy = bStart.energy || 1.2;
-      const energyZoom = 1.62 - Math.min(1.9, Math.max(0.35, beatEnergy)) * 0.54;
-      const altitudeZoomOffset = Math.max(-0.28, Math.min(0.26, (py + 90) / 720));
-      const jumpZoomOut = -0.24 * jumpArcProgress;
+      const energyZoom = 1.78 - Math.min(1.9, Math.max(0.35, beatEnergy)) * 0.48;
+      const altitudeZoomOffset = Math.max(-0.24, Math.min(0.28, (py + 90) / 680));
+      const jumpZoomOut = -0.22 * jumpArcProgress;
       const phraseZoomWave =
         Math.sin(t * 0.78) * 0.36 + Math.cos(t * 0.34) * 0.22;
       const currentZoom = Math.max(
-        0.42,
+        0.72,
         Math.min(
-          1.85,
+          1.95,
           energyZoom + altitudeZoomOffset + jumpZoomOut + phraseZoomWave,
         ),
       );
@@ -2791,7 +2791,7 @@ export const AudioVisualizer = forwardRef<
       }
     },
     setZoom: (zoom: number) => {
-      userZoomRef.current = zoom;
+      userZoomRef.current = Math.max(0.68, zoom);
     },
     getZoom: () => userZoomRef.current,
     setZoomVariation: (val: number) => {
@@ -3171,24 +3171,27 @@ export const AudioVisualizer = forwardRef<
         }
       }
 
-      const topCamX = cameraPosRef.current.x;
-      const topCamY = cameraPosRef.current.y;
-
       const targetCy = height * 0.6;
       const targetCx = width * 0.3;
 
-      ctx.save();
-      ctx.translate(targetCx, targetCy);
+      // Exact vertical bounds of the background SVG in world coordinates:
+      // Ensure zoom-out NEVER exceeds the background SVG height and top/bottom black bars NEVER appear
+      const svgSafeTop = (data.bounds?.minY ?? -960) + bgOffsetYRef.current + 2;
+      const svgSafeBottom =
+        (data.bounds?.maxY ?? 640) + bgOffsetYRef.current - 2;
+      const svgSafeHeight = Math.max(200, svgSafeBottom - svgSafeTop);
+      const minZoomForSvg = height / svgSafeHeight;
 
       // Wide, smooth dynamic camera zoom regulated by userZoomRef (base zoom), zoomVariationRef (0% to 150%), and cameraSmoothnessRef (0% to 100%)
-      const rawZoomFactor = Math.max(0.28, Math.min(2.2, ballPos.zoom || 1.0));
+      const clampedUserZoom = Math.max(minZoomForSvg, userZoomRef.current);
+      const rawZoomFactor = Math.max(0.5, Math.min(2.2, ballPos.zoom || 1.0));
       const dynamicScale = Math.pow(
         rawZoomFactor,
         zoomVariationRef.current * 1.18,
       );
       const targetZoom = Math.max(
-        0.18,
-        Math.min(2.6, userZoomRef.current * dynamicScale),
+        minZoomForSvg,
+        Math.min(2.6, clampedUserZoom * dynamicScale),
       );
       if (cameraZoomRef.current === null) {
         cameraZoomRef.current = targetZoom;
@@ -3199,7 +3202,24 @@ export const AudioVisualizer = forwardRef<
         cameraZoomRef.current +=
           (targetZoom - cameraZoomRef.current) * alphaZ;
       }
-      const zoom = cameraZoomRef.current;
+      const zoom = Math.max(minZoomForSvg, cameraZoomRef.current);
+      cameraZoomRef.current = zoom;
+
+      // Clamp vertical camera position so the top and bottom edges of the viewport strictly remain inside [svgSafeTop, svgSafeBottom]
+      const minAllowedCamY = svgSafeTop + targetCy / zoom;
+      const maxAllowedCamY = svgSafeBottom - (height - targetCy) / zoom;
+      const topCamX = cameraPosRef.current.x;
+      const topCamY =
+        minAllowedCamY <= maxAllowedCamY
+          ? Math.max(
+              minAllowedCamY,
+              Math.min(maxAllowedCamY, cameraPosRef.current.y),
+            )
+          : (svgSafeTop + svgSafeBottom) * 0.5;
+      cameraPosRef.current.y = topCamY;
+
+      ctx.save();
+      ctx.translate(targetCx, targetCy);
       ctx.scale(zoom, zoom);
       ctx.translate(-topCamX, -topCamY);
 
@@ -3209,7 +3229,7 @@ export const AudioVisualizer = forwardRef<
       // Draw Trajectory-Aligned Vector SVG Background Slices
       if (data.bgImages && data.bgImages.length > 0 && data.bounds) {
         ctx.save();
-        ctx.globalAlpha = 0.98;
+        ctx.globalAlpha = 1.0;
 
         for (let i = 0; i < data.bgImages.length; i++) {
           const bgImg = data.bgImages[i];

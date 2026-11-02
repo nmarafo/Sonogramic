@@ -954,15 +954,16 @@ export default function App() {
                 </span>
                 <input
                   type="range"
-                  min="0.20"
+                  min="0.68"
                   max="2.50"
-                  step="0.05"
-                  value={vState.zoom}
+                  step="0.02"
+                  value={Math.max(0.68, vState.zoom)}
                   onChange={(e) => {
-                    const val = parseFloat(e.target.value);
+                    const val = Math.max(0.68, parseFloat(e.target.value));
                     visualizerRef.current?.setZoom(val);
                     setVState((prev) => ({ ...prev, zoom: val }));
                   }}
+                  title="Tope mínimo en 0.68x (100 % de la altura del SVG de fondo, sin bandas negras superior ni inferior)"
                   className="flex-1 accent-purple-500"
                 />
               </div>
