@@ -114,20 +114,15 @@ const buildTerrainLookup = (
   sliceMinX: number,
   sliceMaxX: number,
 ) => {
-  const sliceW = Math.max(1, sliceMaxX - sliceMinX);
   const relevant = platforms
-    .filter((p) => p.x >= sliceMinX - 800 && p.x <= sliceMaxX + 800)
+    .filter((p) => p.x >= sliceMinX - 1200 && p.x <= sliceMaxX + 1200)
     .sort((a, b) => a.x - b.x);
 
   return (x: number): number => {
-    const u = Math.max(0, Math.min(1, (x - sliceMinX) / sliceW));
-    const borderTaper = Math.sin(u * Math.PI);
-    const smoothTaper = Math.min(1, borderTaper * 2.2);
-
     if (relevant.length === 0) return 0;
-    if (x <= relevant[0].x) return relevant[0].y * smoothTaper;
+    if (x <= relevant[0].x) return relevant[0].y;
     if (x >= relevant[relevant.length - 1].x)
-      return relevant[relevant.length - 1].y * smoothTaper;
+      return relevant[relevant.length - 1].y;
 
     for (let i = 0; i < relevant.length - 1; i++) {
       const p0 = relevant[i];
@@ -136,8 +131,7 @@ const buildTerrainLookup = (
         const dx = p1.x - p0.x;
         const t = dx > 0 ? (x - p0.x) / dx : 0;
         const cosineT = (1 - Math.cos(t * Math.PI)) * 0.5;
-        const rawY = p0.y + (p1.y - p0.y) * cosineT;
-        return rawY * smoothTaper;
+        return p0.y + (p1.y - p0.y) * cosineT;
       }
     }
     return 0;
@@ -632,15 +626,8 @@ export const compileDetailedSliceSvg = (
     </g>`;
   }
 
-  // 5. Extract and namespace custom OKF backgroundSvg if present
-  const customBackdrop = extractAndNamespaceCustomSvg(
-    spec?.backgroundSvg,
-    pfx,
-    sliceMinX,
-    sliceWidth,
-    worldMinY,
-    worldHeight,
-  );
+  // 5. Thematic landmarks are 100% anchored to the real trajectory ridge (no unaligned static backdrop bridges)
+  const customBackdrop = "";
 
   // 6. Build thematic landmarks anchored to the trajectory ridge
   const landmarksMarkup = buildThematicLandmarksMarkup(
