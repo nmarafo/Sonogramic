@@ -4,6 +4,7 @@ export interface TrackVisualConfig {
   effect: "none" | "glow" | "outline";
   rotate: boolean;
   opacity: number;
+  visible?: boolean;
   label?: string;
   svgContent?: string;
 }

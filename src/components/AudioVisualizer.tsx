@@ -306,6 +306,7 @@ export const AudioVisualizer = forwardRef<
       svgContent: "",
       rotate: true,
       opacity: 1.0,
+      visible: true,
     },
     bass: {
       shape: "hexagon",
@@ -314,6 +315,7 @@ export const AudioVisualizer = forwardRef<
       svgContent: "",
       rotate: true,
       opacity: 1.0,
+      visible: true,
     },
   });
 
@@ -2219,6 +2221,11 @@ export const AudioVisualizer = forwardRef<
 
     const melodyColor = extraTracksConfigRef.current?.melody?.color || "#fbbf24";
     const bassColor = extraTracksConfigRef.current?.bass?.color || "#38bdf8";
+    const visibleExtraTracks = (data.extraTracks || []).filter(
+      (t) =>
+        extraTracksConfigRef.current?.[t.id]?.visible !== false &&
+        (extraTracksConfigRef.current?.[t.id]?.opacity ?? 1.0) > 0.01,
+    );
 
     if (slices === 1) {
       // Single Unified Panoramic SVG Mode (1 SVG covering the entire musicogram)
@@ -2253,7 +2260,7 @@ export const AudioVisualizer = forwardRef<
           worldMaxY: 640,
           positions: data.positions,
           platforms: data.platforms,
-          extraTracks: data.extraTracks,
+          extraTracks: visibleExtraTracks,
           spec,
           projectTitle: okfProjectRef.current?.metadata?.title,
           environmentConcept: environmentConceptRef.current,
@@ -2312,7 +2319,7 @@ export const AudioVisualizer = forwardRef<
         worldMaxY: sb.worldMaxY,
         positions: data.positions,
         platforms: data.platforms,
-        extraTracks: data.extraTracks,
+        extraTracks: visibleExtraTracks,
         spec,
         projectTitle: okfProjectRef.current?.metadata?.title,
         environmentConcept: environmentConceptRef.current,
@@ -2597,6 +2604,11 @@ export const AudioVisualizer = forwardRef<
     const sectionCount = Math.max(1, specs.length);
     const melodyColor = extraTracksConfigRef.current?.melody?.color || "#fbbf24";
     const bassColor = extraTracksConfigRef.current?.bass?.color || "#38bdf8";
+    const visibleExtraTracks = (data.extraTracks || []).filter(
+      (t) =>
+        extraTracksConfigRef.current?.[t.id]?.visible !== false &&
+        (extraTracksConfigRef.current?.[t.id]?.opacity ?? 1.0) > 0.01,
+    );
 
     const sliceInputs: TrajectoryCompilerInput[] = [];
     for (let i = 0; i < sectionCount; i++) {
@@ -2625,7 +2637,7 @@ export const AudioVisualizer = forwardRef<
         worldMaxY: 640,
         positions: data.positions,
         platforms: data.platforms,
-        extraTracks: data.extraTracks,
+        extraTracks: visibleExtraTracks,
         spec,
         projectTitle: okfProjectRef.current?.metadata?.title,
         environmentConcept: environmentConceptRef.current,
@@ -2886,10 +2898,12 @@ export const AudioVisualizer = forwardRef<
     setExtraTrackConfig: (trackId: string, config: any) => {
       if (extraTracksConfigRef.current[trackId]) {
         const oldSvg = extraTracksConfigRef.current[trackId].svgContent;
+        const prevVisible = extraTracksConfigRef.current[trackId].visible !== false;
         extraTracksConfigRef.current[trackId] = {
           ...extraTracksConfigRef.current[trackId],
           ...config,
         };
+        const nextVisible = extraTracksConfigRef.current[trackId].visible !== false;
         if (
           config.svgContent &&
           (config.svgContent !== oldSvg || !svgImageCacheRef.current[trackId])
@@ -2905,6 +2919,9 @@ export const AudioVisualizer = forwardRef<
             svgImageCacheRef.current[trackId] = img;
             if (url) svgUrlCacheRef.current[trackId] = url;
           });
+        }
+        if (prevVisible !== nextVisible && analysisDataRef.current) {
+          compileAndAssignAlignedSvgs(undefined, true);
         }
       }
     },
@@ -3352,21 +3369,30 @@ export const AudioVisualizer = forwardRef<
           sphereY: ballPos.y,
           color: "#fbbf24",
         },
-        ...(data.extraTracks || []).map((t) => {
-          const clampedExtraIdx = Math.min(
-            Math.max(0, frameIdx),
-            t.positions.length - 1,
-          );
-          const ep = t.positions[clampedExtraIdx] || { x: ballPos.x, y: ballPos.y };
-          return {
-            platforms: t.platforms,
-            isMain: false,
-            trackId: t.id,
-            sphereX: ep.x,
-            sphereY: ep.y,
-            color: extraTracksConfigRef.current[t.id]?.color || "#38bdf8",
-          };
-        }),
+        ...(data.extraTracks || [])
+          .filter(
+            (t) =>
+              extraTracksConfigRef.current[t.id]?.visible !== false &&
+              (extraTracksConfigRef.current[t.id]?.opacity ?? 1.0) > 0.01,
+          )
+          .map((t) => {
+            const clampedExtraIdx = Math.min(
+              Math.max(0, frameIdx),
+              t.positions.length - 1,
+            );
+            const ep = t.positions[clampedExtraIdx] || {
+              x: ballPos.x,
+              y: ballPos.y,
+            };
+            return {
+              platforms: t.platforms,
+              isMain: false,
+              trackId: t.id,
+              sphereX: ep.x,
+              sphereY: ep.y,
+              color: extraTracksConfigRef.current[t.id]?.color || "#38bdf8",
+            };
+          }),
       ];
 
       for (const group of allTrackPlatforms) {
@@ -3570,6 +3596,10 @@ export const AudioVisualizer = forwardRef<
       // Draw Auxiliary Spheres (Melody & Bass)
       if (data.extraTracks) {
         for (const t of data.extraTracks) {
+          const config = extraTracksConfigRef.current[t.id];
+          if (config?.visible === false || (config?.opacity ?? 1.0) <= 0.01) {
+            continue;
+          }
           const clampedExtraIdx = Math.min(
             Math.max(0, frameIdx),
             t.positions.length - 1,
@@ -3591,7 +3621,6 @@ export const AudioVisualizer = forwardRef<
             }
 
             ctx.save();
-            const config = extraTracksConfigRef.current[t.id];
             ctx.globalAlpha = config?.opacity ?? 1.0;
             ctx.translate(tPos.x, tPos.y);
             if (config?.rotate !== false) {
