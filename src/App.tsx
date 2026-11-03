@@ -25,27 +25,32 @@ import { EXAMPLE_OKF_PROJECTS } from "./data/exampleProjects";
 
 const OKF_MASTER_PROMPT_SNIPPET = `Actúas como un Musicólogo Analista, Pedagogo Musical, Arquitecto Vectorial SVG y Especialista Oficial del Estándar OKF (Open Knowledge Framework v1.4.0) para la aplicación Sonogramic (https://github.com/nmarafo/Sonogramic), creada por Norberto Martín Afonso. Dirígete siempre a las personas usuarias empleando la norma culta de Canarias con el pronombre «ustedes».
 
-REGLAS CRÍTICAS DE DISEÑO (OKF v1.4.0 — SVGs ANIMADOS EN EL MISMO JSON, SIN TEXTOS, SIN DIBUJAR LA RUTA DE LAS ESFERAS Y CERO PULSE ZOOMS):
+REGLAS CRÍTICAS DE DISEÑO (OKF v1.4.0 — SVGs ANIMADOS Y CAPAS PARALLAX EN EL MISMO JSON CONFORME A LA TEMÁTICA DE LA MÚSICA, SIN TEXTOS Y SIN DIBUJAR LA RUTA DE LAS ESFERAS):
 1. TODOS LOS SVGs DEBEN IR INCLUIDOS Y SER ANIMADOS DENTRO DEL MISMO ARCHIVO .JSON GENERADO:
    - NO generes archivos de imagen mapa de bits (.png, .jpg, .webp, Imagen 3, DALL-E) ni archivos externos sueltos.
    - Todo el arte visual debe ir incrustado como código XML "<svg>...</svg>" directamente dentro del único objeto JSON devuelto:
-     a) Escenografías vectoriales animadas por tramo en "sliceSpecs[i].backgroundSvg" (con etiquetas "<animate>" y "<animateTransform>" para el balanceo de árboles/flores, chorros de fuentes, ondas en el agua, nubes, aves, antorchas o cristales brillantes).
-     b) Cursores vectoriales en "config.ballConfig.svgContent" (Principal), "config.extraTracksConfig.melody.svgContent" (Melodía/Agudos) y "config.extraTracksConfig.bass.svgContent" (Bajo/Graves).
+     a) CAPAS DE PARALLAX TEMÁTICAS ANIMADAS en "config.parallaxLayers" ("skySvg", "farSvg", "midSvg" y "frontSvg"), diseñadas expresamente conforme a la temática, atmósfera, instrumentación y carácter programático de la música:
+        - "skySvg" (Capa 0, velocidad 0.16x, viewBox="0 -1100 3200 1900"): Cielo profundo temático con gradiente atmosférico, astros animados (sol, luna, constelaciones, auroras, relámpagos o focos de escenario según la música) y nubes en movimiento ("<animate>", "<animateTransform>").
+        - "farSvg" (Capa 1, velocidad 0.38x, viewBox="0 -1100 3200 1900", FONDO TRANSPARENTE sin "<rect>" de cielo): Horizonte lejano con cordilleras, siluetas arquitectónicas o naturales acordes a la obra (villas barrocas, volcanes canarios, cristales de caverna, norias de carnaval, faros marinos o planetas) y bandadas o destellos animados.
+        - "midSvg" (Capa 2, velocidad 0.66x, viewBox="0 -1100 3200 1900", FONDO TRANSPARENTE): Plano medio con colinas, vegetación o arquitectura temática mecida ("<animateTransform type='rotate'>"), cascadas o arcos escénicos animados y bruma de valle.
+        - "frontSvg" (Capa 4, velocidad 1.28x, viewBox="0 -1100 3200 1900", FONDO TRANSPARENTE): Primer plano atmosférico sobre las esferas con partículas animadas según la temática musical (pétalos de primavera, luciérnagas, confeti de carnaval, brasas/cristales, lluvia, espuma marina o polvo estelar).
+     b) Escenografías vectoriales animadas por tramo en "sliceSpecs[i].backgroundSvg" (con etiquetas "<animate>" y "<animateTransform>" para el balanceo de árboles/flores, chorros de fuentes, ondas en el agua, antorchas o cristales brillantes donde rebotan las esferas).
+     c) Cursores vectoriales en "config.ballConfig.svgContent" (Principal), "config.extraTracksConfig.melody.svgContent" (Melodía/Agudos) y "config.extraTracksConfig.bass.svgContent" (Bajo/Graves).
 2. PROHIBICIÓN DE TEXTOS Y DE LÍNEAS DE RUTA (ELEMENTOS ESCENOGRÁFICOS PARA EL SALTO DE LAS ESFERAS):
-   - PROHIBIDO incluir etiquetas "<text>" o rótulos escritos dentro de los SVGs.
+   - PROHIBIDO incluir etiquetas "<text>" o rótulos escritos dentro de los SVGs (ni en "parallaxLayers" ni en "sliceSpecs").
    - Los SVGs NO deben dibujar las líneas ni las curvas de la ruta real de las esferas. En su lugar, deben dibujar elementos escenográficos animados en torno a esas rutas (copas de árboles en flor, fuentes de mármol con chorros de agua, puentes arqueados, nubes soleadas, nenúfares, setas luminiscentes, cristales, balcones canarios, tambores de carnaval, etc.) dispuestos en los puntos de rebote ("trajectoryWaypoints") para que parezca que las 3 esferas saltan directamente sobre esos elementos dibujados.
-   - Define en cada "sliceSpecs[i]" el tema arquitectónico "svgTheme" ("baroque", "cavern", "canarias", "carnival" o "symphonic"), la paleta "recommendedPalette" (4 colores hexadecimales) y los puntos de control de altura "trajectoryWaypoints": [{ "time": seg, "y": px }] (con "y" entre -280 y +220, empezando y terminando en "y": 0 en las fronteras de cada segmento para garantizar unión continua sin saltos).
+   - Define en cada "sliceSpecs[i]" el tema arquitectónico "svgTheme" ("baroque", "cavern", "canarias", "carnival", "storm", "ocean", "cosmos" o "symphonic"), la paleta "recommendedPalette" (4 colores hexadecimales) y los puntos de control de altura "trajectoryWaypoints": [{ "time": seg, "y": px }] (con "y" entre -280 y +220, empezando y terminando en "y": 0 en las fronteras de cada segmento para garantizar unión continua sin saltos).
    - Puedes configurar varios SVGs por sección ("config.svgMode": "segments", "config.mosaicSlices": N entre 4 y 8) o un único SVG panorámico para toda la obra ("config.svgMode": "single", "config.mosaicSlices": 1).
-3. PROHIBICIÓN ESTRICTA DE ZOOMS TIPO PULSE EN LOS PULSOS:
-   - Está terminantemente prohibido incluir efectos de bombeo o zoom de cámara en los pulsos ("zooms tipo pulse"), así como animaciones de escala en los cursores de las esferas. El zoom de cámara es 100 % fijo y estable.
+3. MOVIMIENTO FLUIDO Y CÁMARA CINEMÁTICA:
+   - Prohibido incluir animaciones de escala tipo pulse en los cursores de las esferas.
 
 INSTRUCCIONES DE ANÁLISIS DEL AUDIO ADJUNTO:
 1. Detecta la duración total exacta del audio en segundos ("durationSeconds"), el tempo real en pulsos por minuto ("bpm"), el compás ("timeSignature") y la estructura formal por secciones ("musicalForm").
-2. Extrae el carácter emocional ("emotions"), la instrumentación o letra clave, y diseña un concepto de escenario vectorial continuo ("environmentConcept") acorde a la música.
+2. Extrae el carácter emocional ("emotions"), la instrumentación o letra clave, y diseña tanto las 4 capas de parallax ("config.parallaxLayers") como el escenario vectorial continuo ("environmentConcept") conforme a la temática de la música.
 3. Divide la pista de audio en entre 4 y 8 secciones ("sliceSpecs") que coincidan con los cambios reales de sección musical en el audio ("startTime" y "endTime" exactos en segundos).
 4. En "musicalStructure.sections", detalla cada sección temporal del audio desde el segundo 0 hasta el final con su foco ("melody", "bass" o "tutti"), energía relativa (0.5 a 3.5), subdivisión rítmica (0.5, 1 o 2), contorno melódico ("ascending", "descending", "arch", "valley", "wave", "staccato_jumps", "sustained_ramp") y estilo de plataforma ("major", "minor", "accelerator", "friction").
 
-ESTRUCTURA JSON OFICIAL A DEVOLVER (UN ÚNICO BLOQUE JSON CON TODOS LOS SVGs INCLUIDOS):
+ESTRUCTURA JSON OFICIAL A DEVOLVER (UN ÚNICO BLOQUE JSON CON TODOS LOS SVGs Y CAPAS PARALLAX INCLUIDOS):
 
 {
   "$schema": "https://raw.githubusercontent.com/nmarafo/Sonogramic/main/schema/schema_sonogramic_musicograma.json",
@@ -65,7 +70,7 @@ ESTRUCTURA JSON OFICIAL A DEVOLVER (UN ÚNICO BLOQUE JSON CON TODOS LOS SVGs INC
       "Objetivo didáctico 2 sobre estructura formal, timbre o dinámica."
     ],
     "emotions": ["Emoción 1", "Emoción 2", "Emoción 3"],
-    "environmentConcept": "Descripción de la escenografía vectorial continua cuyos puentes, arcos y relieves coinciden exactamente con los trayectos de las esferas."
+    "environmentConcept": "Descripción de la escenografía vectorial multicapa con parallax cuyos elementos temáticos acompañan la música y donde las esferas saltan sobre el decorado."
   },
   "sliceSpecs": [
     {
@@ -76,7 +81,7 @@ ESTRUCTURA JSON OFICIAL A DEVOLVER (UN ÚNICO BLOQUE JSON CON TODOS LOS SVGs INC
       "musicalSection": "Intro / Tema A",
       "dynamicsAndTempo": "f — Allegro",
       "didacticNote": "Explicación musical de lo que suena entre startTime y endTime.",
-      "imagePrompt": "Escenografía vectorial SVG alineada con el trayecto: [descripción detallada de los puentes, pilares, relieves y elementos temáticos que acompañan la curva melódica].",
+      "imagePrompt": "Escenografía vectorial SVG animada sin textos ni líneas de ruta: [descripción detallada de los elementos escenográficos temáticos sobre los que saltan las esferas].",
       "recommendedPalette": ["#0f172a", "#38bdf8", "#fbbf24", "#f472b6"],
       "svgTheme": "symphonic",
       "trajectoryWaypoints": [
@@ -86,7 +91,7 @@ ESTRUCTURA JSON OFICIAL A DEVOLVER (UN ÚNICO BLOQUE JSON CON TODOS LOS SVGs INC
         { "time": 15, "y": 0 }
       ],
       "generatedByAgent": true,
-      "backgroundSvg": "<svg viewBox=\\"0 0 1600 1000\\" width=\\"1600\\" height=\\"1000\\" xmlns=\\"http://www.w3.org/2000/svg\\"><defs><linearGradient id=\\"sky_0\\" x1=\\"0%\\" y1=\\"0%\\" x2=\\"0%\\" y2=\\"100%\\"><stop offset=\\"0%\\" stop-color=\\"#0f172a\\"/><stop offset=\\"60%\\" stop-color=\\"#1e293b\\"/><stop offset=\\"100%\\" stop-color=\\"#334155\\"/></linearGradient></defs><rect width=\\"1600\\" height=\\"1000\\" fill=\\"url(#sky_0)\\"/><circle cx=\\"320\\" cy=\\"220\\" r=\\"90\\" fill=\\"#fbbf24\\" fill-opacity=\\"0.28\\"/><path d=\\"M 0 640 Q 400 560 800 620 T 1600 640 L 1600 1000 L 0 1000 Z\\" fill=\\"#1e293b\\" fill-opacity=\\"0.7\\"/></svg>"
+      "backgroundSvg": "<svg viewBox=\\"0 0 1600 1000\\" width=\\"1600\\" height=\\"1000\\" preserveAspectRatio=\\"none\\" xmlns=\\"http://www.w3.org/2000/svg\\"><path d=\\"M 0 640 Q 400 560 800 620 T 1600 640 L 1600 1000 L 0 1000 Z\\" fill=\\"#1e293b\\" fill-opacity=\\"0.85\\"/></svg>"
     }
   ],
   "config": {
@@ -94,9 +99,16 @@ ESTRUCTURA JSON OFICIAL A DEVOLVER (UN ÚNICO BLOQUE JSON CON TODOS LOS SVGs INC
     "platformOpacity": 0.32,
     "bgOffsetY": 0,
     "cameraSmoothness": 0.85,
+    "parallaxIntensity": 1.0,
     "mosaicSlices": 6,
     "svgMode": "segments",
-    "userKeywords": "Palabras clave de la escenografía vectorial",
+    "userKeywords": "Palabras clave temáticas de la música y su escenografía",
+    "parallaxLayers": {
+      "skySvg": "<svg viewBox=\\"0 -1100 3200 1900\\" width=\\"2048\\" height=\\"1216\\" preserveAspectRatio=\\"none\\" xmlns=\\"http://www.w3.org/2000/svg\\"><defs><linearGradient id=\\"px_sky\\" x1=\\"0%\\" y1=\\"0%\\" x2=\\"0%\\" y2=\\"100%\\"><stop offset=\\"0%\\" stop-color=\\"#0f172a\\"/><stop offset=\\"60%\\" stop-color=\\"#1e293b\\"/><stop offset=\\"100%\\" stop-color=\\"#38bdf8\\"/></linearGradient></defs><rect x=\\"0\\" y=\\"-1100\\" width=\\"3200\\" height=\\"1900\\" fill=\\"url(#px_sky)\\"/><circle cx=\\"880\\" cy=\\"-640\\" r=\\"180\\" fill=\\"#fbbf24\\" fill-opacity=\\"0.32\\"><animate attributeName=\\"r\\" values=\\"160;210;160\\" dur=\\"4.5s\\" repeatCount=\\"indefinite\\"/></circle></svg>",
+      "farSvg": "<svg viewBox=\\"0 -1100 3200 1900\\" width=\\"2048\\" height=\\"1216\\" preserveAspectRatio=\\"none\\" xmlns=\\"http://www.w3.org/2000/svg\\"><path d=\\"M 0 -240 Q 800 -420 1600 -240 T 3200 -240 L 3200 800 L 0 800 Z\\" fill=\\"#1e293b\\" fill-opacity=\\"0.75\\"/></svg>",
+      "midSvg": "<svg viewBox=\\"0 -1100 3200 1900\\" width=\\"2048\\" height=\\"1216\\" preserveAspectRatio=\\"none\\" xmlns=\\"http://www.w3.org/2000/svg\\"><path d=\\"M 0 20 Q 800 -90 1600 20 T 3200 20 L 3200 800 L 0 800 Z\\" fill=\\"#0f172a\\" fill-opacity=\\"0.88\\"/></svg>",
+      "frontSvg": "<svg viewBox=\\"0 -1100 3200 1900\\" width=\\"2048\\" height=\\"1216\\" preserveAspectRatio=\\"none\\" xmlns=\\"http://www.w3.org/2000/svg\\"><circle cx=\\"640\\" cy=\\"-220\\" r=\\"8\\" fill=\\"#fbbf24\\" fill-opacity=\\"0.75\\"><animateTransform attributeName=\\"transform\\" type=\\"translate\\" values=\\"-20,-15; 20,15; -20,-15\\" dur=\\"3.2s\\" repeatCount=\\"indefinite\\"/></circle></svg>"
+    },
     "ballConfig": {
       "shape": "custom-svg",
       "color": "dynamic",
@@ -319,8 +331,10 @@ export default function App() {
         platformOpacity: inputData.config?.platformOpacity ?? 0.35,
         bgOffsetY: inputData.config?.bgOffsetY ?? 0,
         cameraSmoothness: inputData.config?.cameraSmoothness ?? 0.82,
+        parallaxIntensity: inputData.config?.parallaxIntensity ?? 1.0,
         svgMode: inputData.config?.svgMode || "segments",
         masterSceneSvg: inputData.config?.masterSceneSvg,
+        parallaxLayers: inputData.config?.parallaxLayers,
         mosaicSlices:
           inputData.config?.svgMode === "single"
             ? 1
@@ -423,6 +437,7 @@ export default function App() {
       platformOpacity: normalized.config.platformOpacity,
       bgOffsetY: normalized.config.bgOffsetY,
       cameraSmoothness: normalized.config.cameraSmoothness,
+      parallaxIntensity: normalized.config.parallaxIntensity ?? 1.0,
       ballShape: normalized.config.ballConfig.shape,
       ballColor: normalized.config.ballConfig.color,
       ballEffect: normalized.config.ballConfig.effect,

@@ -812,16 +812,175 @@ export interface ParallaxLayerSvgs {
   front: string;
 }
 
+export type ParallaxTheme =
+  | "baroque"
+  | "cavern"
+  | "canarias"
+  | "carnival"
+  | "storm"
+  | "ocean"
+  | "cosmos"
+  | "symphonic";
+
+export const detectParallaxThemeFromJson = (params: {
+  spec?: OkfSliceSpec;
+  specs?: OkfSliceSpec[];
+  projectMetadata?: OkfMusicogramaMetadata;
+  projectTitle?: string;
+  environmentConcept?: string;
+  userKeywords?: string;
+}): ParallaxTheme => {
+  const {
+    spec,
+    specs,
+    projectMetadata,
+    projectTitle,
+    environmentConcept,
+    userKeywords,
+  } = params;
+
+  const allSpecsText = (specs || (spec ? [spec] : []))
+    .map(
+      (s) =>
+        `${s.svgTheme || ""} ${s.title || ""} ${s.musicalSection || ""} ${s.imagePrompt || ""} ${s.didacticNote || ""}`,
+    )
+    .join(" ");
+
+  const combined = [
+    spec?.svgTheme || "",
+    projectMetadata?.id || "",
+    projectMetadata?.title || "",
+    projectMetadata?.composer || "",
+    projectMetadata?.musicalPeriodOrGenre || "",
+    (projectMetadata?.emotions || []).join(" "),
+    projectMetadata?.environmentConcept || "",
+    projectTitle || "",
+    environmentConcept || "",
+    userKeywords || "",
+    allSpecsText,
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  // Check explicit theme tokens first
+  const explicitTheme = (spec?.svgTheme || specs?.[0]?.svgTheme || "").toLowerCase();
+  if (explicitTheme.includes("cavern") || explicitTheme.includes("grieg"))
+    return "cavern";
+  if (explicitTheme.includes("canari") || explicitTheme.includes("isa"))
+    return "canarias";
+  if (explicitTheme.includes("carnav") || explicitTheme.includes("carniv"))
+    return "carnival";
+  if (explicitTheme.includes("storm") || explicitTheme.includes("torment"))
+    return "storm";
+  if (explicitTheme.includes("ocean") || explicitTheme.includes("mar"))
+    return "ocean";
+  if (explicitTheme.includes("cosmo") || explicitTheme.includes("space"))
+    return "cosmos";
+  if (explicitTheme.includes("baroq") || explicitTheme.includes("vivaldi"))
+    return "baroque";
+
+  if (
+    combined.includes("carnaval") ||
+    combined.includes("santa catalina") ||
+    combined.includes("batucada") ||
+    combined.includes("comparsa") ||
+    combined.includes("murga") ||
+    combined.includes("mambo") ||
+    combined.includes("samba")
+  ) {
+    return "carnival";
+  }
+  if (
+    combined.includes("isa ") ||
+    combined.includes("parranda") ||
+    combined.includes("timple") ||
+    combined.includes("pintadera") ||
+    combined.includes("canari") ||
+    combined.includes("teide") ||
+    combined.includes("alisios")
+  ) {
+    return "canarias";
+  }
+  if (
+    combined.includes("grieg") ||
+    combined.includes("rey de la montaña") ||
+    combined.includes("rey de la montana") ||
+    combined.includes("peer gynt") ||
+    combined.includes("caverna") ||
+    combined.includes("gruta") ||
+    combined.includes("trol") ||
+    combined.includes("subterrán")
+  ) {
+    return "cavern";
+  }
+  if (
+    combined.includes("vivaldi") ||
+    combined.includes("primavera") ||
+    combined.includes("barroc") ||
+    combined.includes("ritornello") ||
+    combined.includes("pastoral") ||
+    combined.includes("jardín") ||
+    combined.includes("jardin")
+  ) {
+    return "baroque";
+  }
+  if (
+    combined.includes("cosmos") ||
+    combined.includes("espacial") ||
+    combined.includes("galaxia") ||
+    combined.includes("planeta") ||
+    combined.includes("nebulosa") ||
+    combined.includes("synthwave") ||
+    combined.includes("holst")
+  ) {
+    return "cosmos";
+  }
+  if (
+    combined.includes("océano") ||
+    combined.includes("oceano") ||
+    combined.includes("marino") ||
+    combined.includes("marítima") ||
+    combined.includes("debussy") ||
+    combined.includes("acuario") ||
+    combined.includes("arrecife")
+  ) {
+    return "ocean";
+  }
+  if (
+    combined.includes("tempestad") ||
+    combined.includes("tormenta") ||
+    combined.includes("dies irae") ||
+    combined.includes("relámpago") ||
+    combined.includes("trueno")
+  ) {
+    return "storm";
+  }
+  return "symphonic";
+};
+
+/**
+ * Ensures `farSvg`, `midSvg`, and `frontSvg` remain transparent in their sky/backdrop area
+ * even if an external LLM included a full-canvas background `<rect>` inside them.
+ */
+export const sanitizeTransparentParallaxSvg = (svgXml: string): string => {
+  if (!svgXml || !svgXml.trim()) return "";
+  return svgXml.replace(
+    /<rect\b[^>]*(?:width=["'](?:100%|1600|1920|2048|3200)["'][^>]*height=["'](?:100%|1000|1080|1216|1600|1900)["']|height=["'](?:100%|1000|1080|1216|1600|1900)["'][^>]*width=["'](?:100%|1600|1920|2048|3200)["'])[^>]*\/?>/gi,
+    "",
+  );
+};
+
 /**
  * Compiles 4 horizontally-seamless (3200 x 1900, viewBox="0 -1100 3200 1900") animated SVGs
- * for true multi-layer parallax rendering:
- *  - sky   (speed 0.16x): Deep sky gradient, twinkling stars, glowing sun/moon corona, rainbow/aurora & drifting cloud banks
- *  - far   (speed 0.38x): Distant mountain ranges, horizon villas/spires/volcanoes, distant multi-arch aqueducts & bird flocks
- *  - mid   (speed 0.66x): Mid-ground hills, swaying cypress/palm groves, animated waterfalls, pergolas & valley mist
- *  - front (speed 1.26x): Foreground drifting blossom petals, golden fireflies & botanical silhouettes
+ * generated according to the musical work's theme in the OKF JSON:
+ *  - sky   (speed 0.16x): Deep sky gradient, celestial bodies, auroras/nebulae/lightning & drifting clouds
+ *  - far   (speed 0.38x): Distant horizon mountains/villas/volcanoes/planets/ferris wheels & flying flocks
+ *  - mid   (speed 0.66x): Mid-ground hills, thematic swaying trees/palms/crystals/columns & animated waterfalls/waves
+ *  - front (speed 1.28x): Foreground atmospheric particles (blossom petals, embers, confetti, sea foam, stardust)
  */
 export const compileParallaxLayerSvgs = (params: {
   spec?: OkfSliceSpec;
+  specs?: OkfSliceSpec[];
   projectMetadata?: OkfMusicogramaMetadata;
   projectTitle?: string;
   environmentConcept?: string;
@@ -829,25 +988,46 @@ export const compileParallaxLayerSvgs = (params: {
 }): ParallaxLayerSvgs => {
   const {
     spec,
+    specs,
     projectMetadata,
     projectTitle,
     environmentConcept,
     userKeywords,
   } = params;
+
+  const pTheme = detectParallaxThemeFromJson({
+    spec,
+    specs,
+    projectMetadata,
+    projectTitle,
+    environmentConcept,
+    userKeywords,
+  });
+
+  const themeDefaultPalettes: Record<ParallaxTheme, string[]> = {
+    baroque: ["#0c4a6e", "#0284c7", "#38bdf8", "#fde047"],
+    cavern: ["#090d16", "#1e1b4b", "#a855f7", "#f59e0b"],
+    canarias: ["#0f172a", "#0369a1", "#f59e0b", "#fef08a"],
+    carnival: ["#1e1b4b", "#701a75", "#ec4899", "#facc15"],
+    storm: ["#090d16", "#1e293b", "#6366f1", "#38bdf8"],
+    ocean: ["#042f2e", "#0f766e", "#2dd4bf", "#bae6fd"],
+    cosmos: ["#030712", "#1e1b4b", "#8b5cf6", "#22d3ee"],
+    symphonic: ["#0f172a", "#1e293b", "#38bdf8", "#fbbf24"],
+  };
+
+  const firstSpecWithPalette =
+    (spec?.recommendedPalette && spec.recommendedPalette.length >= 3
+      ? spec
+      : (specs || []).find(
+          (s) => s.recommendedPalette && s.recommendedPalette.length >= 3,
+        )) || undefined;
+
   const palette =
-    spec?.recommendedPalette && spec.recommendedPalette.length >= 3
-      ? spec.recommendedPalette
-      : ["#0f172a", "#1e293b", "#38bdf8", "#fbbf24"];
+    firstSpecWithPalette?.recommendedPalette || themeDefaultPalettes[pTheme];
   const c0 = palette[0] || "#0f172a";
   const c1 = palette[1] || "#1e293b";
   const c2 = palette[2] || "#38bdf8";
   const c3 = palette[3] || palette[2] || "#fbbf24";
-
-  const theme = detectSliceTheme(
-    spec,
-    projectMetadata,
-    `${projectTitle || ""} ${environmentConcept || ""} ${userKeywords || ""}`,
-  );
 
   const W = 3200;
   const MIN_Y = -1100;
@@ -883,17 +1063,95 @@ export const compileParallaxLayerSvgs = (params: {
   };
 
   // ============================================================================
-  // LAYER 0: DEEP SKY, CELESTIAL CORONA, STARS & DRIFTING CIRRUS CLOUDS (0.16x)
+  // LAYER 0: DEEP SKY, CELESTIAL ASTROS, AURORAS & CLOUDS (0.16x)
   // ============================================================================
   let starsMarkup = "";
-  for (let i = 0; i < 28; i++) {
+  const starCount = pTheme === "cosmos" ? 48 : pTheme === "baroque" ? 18 : 28;
+  for (let i = 0; i < starCount; i++) {
     const sx = ((i * 397 + 140) % (W - 120)) + 60;
-    const sy = -1020 + ((i * 251) % 620);
-    const sr = 2.2 + (i % 3) * 1.3;
-    const dur = (2.1 + (i % 5) * 0.65).toFixed(1);
+    const sy = -1040 + ((i * 251) % 640);
+    const sr = 2.0 + (i % 3) * 1.3;
+    const dur = (2.0 + (i % 5) * 0.65).toFixed(1);
     starsMarkup += `<circle cx="${sx}" cy="${sy}" r="${sr.toFixed(1)}" fill="#ffffff" opacity="0.65">
-      <animate attributeName="opacity" values="0.18;0.92;0.18" dur="${dur}s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.16;0.94;0.16" dur="${dur}s" repeatCount="indefinite"/>
     </circle>`;
+  }
+
+  let skyThemeSpecial = "";
+  if (pTheme === "cavern") {
+    // Subterranean Cavern Ceiling Stalactites & Glowing Mineral Veins
+    let ceilPts = `M 0 ${MIN_Y}`;
+    for (let x = 0; x <= W; x += 80) {
+      const cy =
+        -920 +
+        Math.sin(omega * x * 2) * 75 +
+        Math.cos(omega * x * 5) * 55;
+      ceilPts += ` L ${x} ${cy.toFixed(1)}`;
+    }
+    ceilPts += ` L ${W} ${MIN_Y} Z`;
+    skyThemeSpecial += `<path d="${ceilPts}" fill="${c0}" fill-opacity="0.92" stroke="${c2}" stroke-width="3" stroke-opacity="0.45"/>`;
+    for (let x = 180; x < W - 120; x += 320) {
+      const h = 140 + ((x * 13) % 130);
+      skyThemeSpecial += `<g transform="translate(${x}, -940)">
+        <polygon points="-28,0 0,${h} 28,0" fill="${c1}" stroke="${c2}" stroke-width="1.5"/>
+        <circle cx="0" cy="${h}" r="7" fill="${c3}">
+          <animate attributeName="opacity" values="0.25;0.95;0.25" dur="2.6s" repeatCount="indefinite"/>
+        </circle>
+      </g>`;
+    }
+  } else if (pTheme === "carnival") {
+    // Sweeping Festival Searchlight Beams & Firework Bursts
+    for (let b = 0; b < 6; b++) {
+      const bx = 280 + b * 520;
+      const bColor = b % 2 === 0 ? c2 : c3;
+      const dur = (4.2 + (b % 3) * 0.9).toFixed(1);
+      skyThemeSpecial += `<g transform="translate(${bx}, 240)">
+        <polygon points="0,0 -220,-1320 220,-1320" fill="${bColor}" fill-opacity="0.14">
+          <animateTransform attributeName="transform" type="rotate" values="-18 0 0; 18 0 0; -18 0 0" dur="${dur}s" repeatCount="indefinite"/>
+        </polygon>
+      </g>`;
+    }
+    for (let f = 0; f < 5; f++) {
+      const fx = 420 + f * 580;
+      const fy = -760 + ((f * 130) % 240);
+      const fDur = (2.4 + (f % 3) * 0.7).toFixed(1);
+      skyThemeSpecial += `<g transform="translate(${fx}, ${fy})">
+        <circle cx="0" cy="0" r="18" fill="none" stroke="${c3}" stroke-width="4" stroke-dasharray="6 10">
+          <animate attributeName="r" values="12;95;12" dur="${fDur}s" repeatCount="indefinite"/>
+          <animate attributeName="stroke-opacity" values="0.95;0.05;0.95" dur="${fDur}s" repeatCount="indefinite"/>
+        </circle>
+      </g>`;
+    }
+  } else if (pTheme === "storm") {
+    // Animated Jagged Lightning Bolts across the Storm Sky
+    for (let l = 0; l < 4; l++) {
+      const lx = 440 + l * 760;
+      const lDur = (3.4 + l * 0.65).toFixed(2);
+      skyThemeSpecial += `<path d="M ${lx} -1060 L ${lx - 45} -780 L ${lx + 20} -760 L ${lx - 65} -460 L ${lx + 10} -440 L ${lx - 40} -180" fill="none" stroke="#fef08a" stroke-width="5" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.95;0.15;0.88;0;0;0" dur="${lDur}s" repeatCount="indefinite"/>
+      </path>`;
+    }
+  } else if (pTheme === "baroque" || pTheme === "canarias") {
+    // Multi-band Rainbow / Alisios Harmonic Arch
+    const rainbowCols = ["#ef4444", "#f97316", "#facc15", "#10b981", "#38bdf8", "#8b5cf6"];
+    rainbowCols.forEach((col, rIdx) => {
+      const ry = -520 + rIdx * 18;
+      skyThemeSpecial += `<path d="M 0 ${ry} Q 800 ${ry - 340} 1600 ${ry} T 3200 ${ry}" fill="none" stroke="${col}" stroke-width="14" stroke-opacity="0.22">
+        <animate attributeName="stroke-opacity" values="0.14;0.32;0.14" dur="${(3.8 + rIdx * 0.3).toFixed(1)}s" repeatCount="indefinite"/>
+      </path>`;
+    });
+  } else if (pTheme === "cosmos") {
+    // Shooting Stars & Deep Nebula Clouds
+    for (let s = 0; s < 4; s++) {
+      const sx = 350 + s * 740;
+      const sy = -880 + (s % 2) * 160;
+      const sDur = (3.2 + s * 0.7).toFixed(1);
+      skyThemeSpecial += `<g transform="translate(${sx}, ${sy})">
+        <line x1="0" y1="0" x2="-120" y2="-45" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.75">
+          <animateTransform attributeName="transform" type="translate" values="0,0; 260,95; 0,0" dur="${sDur}s" repeatCount="indefinite"/>
+        </line>
+      </g>`;
+    }
   }
 
   let cloudsMarkup = "";
@@ -902,7 +1160,7 @@ export const compileParallaxLayerSvgs = (params: {
     const cy = -780 + ((i * 173) % 340);
     const scale = (0.85 + (i % 3) * 0.25).toFixed(2);
     const driftDur = (6.5 + (i % 4) * 1.4).toFixed(1);
-    cloudsMarkup += `<g transform="translate(${cx}, ${cy}) scale(${scale})" opacity="0.34">
+    cloudsMarkup += `<g transform="translate(${cx}, ${cy}) scale(${scale})" opacity="${pTheme === "cavern" ? "0.18" : "0.34"}">
       <g>
         <ellipse cx="-65" cy="12" rx="78" ry="22" fill="${c2}"/>
         <ellipse cx="65" cy="12" rx="82" ry="20" fill="${c3}"/>
@@ -912,7 +1170,7 @@ export const compileParallaxLayerSvgs = (params: {
     </g>`;
   }
 
-  const skySvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none">
+  const skySvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none" data-sonogramic-parallax-theme="${pTheme}">
   <defs>
     <linearGradient id="px_sky_bg" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="${c0}"/>
@@ -927,7 +1185,7 @@ export const compileParallaxLayerSvgs = (params: {
     </radialGradient>
   </defs>
   <rect x="0" y="${MIN_Y}" width="${W}" height="${H}" fill="url(#px_sky_bg)"/>
-  <!-- Atmospheric Aurora / Rainbow Ribbons -->
+  <!-- Atmospheric Aurora / Harmonic Ribbons -->
   <path d="M 0 -580 Q 800 -880 1600 -580 T 3200 -580" fill="none" stroke="${c3}" stroke-width="48" stroke-opacity="0.14">
     <animate attributeName="stroke-opacity" values="0.08;0.24;0.08" dur="5.2s" repeatCount="indefinite"/>
   </path>
@@ -936,7 +1194,7 @@ export const compileParallaxLayerSvgs = (params: {
   </path>
   <!-- Twinkling Starfield -->
   <g>${starsMarkup}</g>
-  <!-- Pulsing Celestial Sun / Moon Pair -->
+  <!-- Pulsing Celestial Sun / Moon / Corona -->
   <g transform="translate(880, -640)">
     <circle cx="0" cy="0" r="290" fill="url(#px_sun_glow)">
       <animate attributeName="r" values="260;320;260" dur="4.8s" repeatCount="indefinite"/>
@@ -948,12 +1206,14 @@ export const compileParallaxLayerSvgs = (params: {
       <animate attributeName="r" values="195;245;195" dur="5.4s" repeatCount="indefinite"/>
     </circle>
   </g>
-  <!-- High-Altitude Drifting Cirrus Cloud Banks -->
+  <!-- Thematic Sky Elements -->
+  <g>${skyThemeSpecial}</g>
+  <!-- High-Altitude Drifting Cloud Banks -->
   <g>${cloudsMarkup}</g>
 </svg>`;
 
   // ============================================================================
-  // LAYER 1: DISTANT MOUNTAINS, HORIZON AQUEDUCTS & BIRD FLOCKS (0.38x)
+  // LAYER 1: DISTANT HORIZON LANDMARKS, MOUNTAINS & FLOCKS (0.38x)
   // ============================================================================
   const farRidge1 = buildSeamlessRidgePath(-330, 95, 0.4, 52, 1.2, 28, 2.1);
   const farRidge2 = buildSeamlessRidgePath(-185, 76, 1.9, 44, 0.5, 24, 1.1);
@@ -962,17 +1222,61 @@ export const compileParallaxLayerSvgs = (params: {
   for (let x = 260; x < W - 200; x += 520) {
     const idx = Math.round(x / 520);
     const ry = farRidge2.evalY(x);
-    if (theme === "cavern") {
+    if (pTheme === "cavern") {
       // Distant Giant Glowing Crystal Spires & Stalactite Arches
       farLandmarks += `<g transform="translate(${x}, ${ry.toFixed(1)})">
-        <polygon points="-48,25 0,-165 48,25" fill="${c2}" fill-opacity="0.45" stroke="${c3}" stroke-width="2"/>
-        <polygon points="28,30 62,-115 94,30" fill="${c3}" fill-opacity="0.38"/>
-        <circle cx="0" cy="-165" r="9" fill="#ffffff">
+        <polygon points="-52,28 0,-185 52,28" fill="${c2}" fill-opacity="0.48" stroke="${c3}" stroke-width="2"/>
+        <polygon points="30,32 68,-125 102,32" fill="${c3}" fill-opacity="0.38"/>
+        <polygon points="-92,32 -58,-110 -24,32" fill="${c2}" fill-opacity="0.35"/>
+        <circle cx="0" cy="-185" r="10" fill="#ffffff">
           <animate attributeName="opacity" values="0.3;0.95;0.3" dur="${(2.2 + (idx % 3) * 0.5).toFixed(1)}s" repeatCount="indefinite"/>
         </circle>
       </g>`;
+    } else if (pTheme === "canarias") {
+      // Volcanic Teide / Caldera Cones, Roque Nublo Monolith & Whitewashed Coastal Villages
+      farLandmarks += `<g transform="translate(${x}, ${ry.toFixed(1)})" opacity="0.78">
+        <polygon points="-170,35 -25,-165 25,-165 170,35" fill="${c1}" stroke="${c3}" stroke-width="2"/>
+        <rect x="-14" y="-215" width="28" height="52" rx="5" fill="${c2}" stroke="${c3}" stroke-width="1.8"/>
+        <rect x="65" y="-28" width="34" height="26" fill="#ffffff" fill-opacity="0.85"/>
+        <rect x="104" y="-22" width="28" height="20" fill="#ffffff" fill-opacity="0.82"/>
+      </g>`;
+    } else if (pTheme === "carnival") {
+      // Illuminated Rotating Carnival Ferris Wheel & Festival Horizon Stage
+      farLandmarks += `<g transform="translate(${x}, ${ry.toFixed(1)})" opacity="0.78">
+        <line x1="-55" y1="25" x2="0" y2="-95" stroke="${c3}" stroke-width="4"/>
+        <line x1="55" y1="25" x2="0" y2="-95" stroke="${c3}" stroke-width="4"/>
+        <g transform="translate(0, -95)">
+          <circle cx="0" cy="0" r="76" fill="none" stroke="${c2}" stroke-width="4" stroke-dasharray="12 8"/>
+          <circle cx="0" cy="0" r="52" fill="none" stroke="${c3}" stroke-width="2.5"/>
+          <line x1="-76" y1="0" x2="76" y2="0" stroke="${c3}" stroke-width="2"/>
+          <line x1="0" y1="-76" x2="0" y2="76" stroke="${c3}" stroke-width="2"/>
+          <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="14s" repeatCount="indefinite"/>
+        </g>
+      </g>`;
+    } else if (pTheme === "ocean") {
+      // Coastal Lighthouse with Sweeping Beam & Rocking Horizon Sailboats
+      farLandmarks += `<g transform="translate(${x}, ${ry.toFixed(1)})" opacity="0.78">
+        <polygon points="-22,25 -12,-145 12,-145 22,25" fill="#ffffff" stroke="${c2}" stroke-width="2"/>
+        <rect x="-16" y="-162" width="32" height="18" fill="${c3}"/>
+        <polygon points="0,-153 260,-230 260,-90" fill="#fef08a" fill-opacity="0.22">
+          <animateTransform attributeName="transform" type="rotate" values="-12 0 -153; 12 0 -153; -12 0 -153" dur="4.2s" repeatCount="indefinite"/>
+        </polygon>
+        <g transform="translate(135, 10)">
+          <polygon points="0,0 0,-68 44,-12" fill="#ffffff" fill-opacity="0.86"/>
+          <polygon points="-32,0 38,0 26,14 -22,14" fill="${c2}"/>
+          <animateTransform attributeName="transform" type="rotate" values="-4 0 0; 4 0 0; -4 0 0" dur="3.4s" repeatCount="indefinite"/>
+        </g>
+      </g>`;
+    } else if (pTheme === "cosmos") {
+      // Ringed Horizon Planets & Crystalline Space Spires
+      farLandmarks += `<g transform="translate(${x}, ${(ry - 150).toFixed(1)})" opacity="0.78">
+        <circle cx="0" cy="0" r="54" fill="${c1}" stroke="${c2}" stroke-width="2.5"/>
+        <ellipse cx="0" cy="0" rx="108" ry="22" fill="none" stroke="${c3}" stroke-width="4" transform="rotate(-16)">
+          <animate attributeName="stroke-opacity" values="0.35;0.9;0.35" dur="3.6s" repeatCount="indefinite"/>
+        </ellipse>
+      </g>`;
     } else {
-      // Distant Horizon Aqueducts, Palladian Villas & Campaniles
+      // Baroque / Symphonic / Storm: Distant Horizon Aqueducts, Palladian Villas & Campaniles
       farLandmarks += `<g transform="translate(${x}, ${ry.toFixed(1)})" opacity="0.68">
         <rect x="-110" y="-58" width="220" height="75" fill="${c1}" stroke="${c3}" stroke-width="1.8"/>
         <path d="M -122 -58 L 0 -118 L 122 -58 Z" fill="${c2}" stroke="${c3}" stroke-width="2"/>
@@ -984,7 +1288,7 @@ export const compileParallaxLayerSvgs = (params: {
       </g>`;
     }
 
-    // Animated High-Altitude Bird Flocks
+    // Animated High-Altitude Bird Flocks / Glowing Spores
     const birdY = ry - 240 - ((idx * 53) % 120);
     farLandmarks += `<g transform="translate(${x + 180}, ${birdY.toFixed(1)})">
       <g>
@@ -996,7 +1300,7 @@ export const compileParallaxLayerSvgs = (params: {
     </g>`;
   }
 
-  const farSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none">
+  const farSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none" data-sonogramic-parallax-theme="${pTheme}">
   <defs>
     <linearGradient id="px_far1_grad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="${c2}" stop-opacity="0.36"/>
@@ -1016,7 +1320,7 @@ export const compileParallaxLayerSvgs = (params: {
 </svg>`;
 
   // ============================================================================
-  // LAYER 2: MID-GROUND HILLS, SWAYING FORESTS, WATERFALLS & PERGOLAS (0.66x)
+  // LAYER 2: MID-GROUND HILLS, THEMATIC VEGETATION, WATERFALLS & ARCHES (0.66x)
   // ============================================================================
   const midRidge = buildSeamlessRidgePath(15, 64, 0.8, 36, 2.4, 18, 0.7);
   let midScenery = "";
@@ -1025,38 +1329,90 @@ export const compileParallaxLayerSvgs = (params: {
     const my = midRidge.evalY(x);
     const swayDur = (3.0 + (idx % 4) * 0.55).toFixed(1);
 
-    // Every 3rd slot: Animated Multi-Arch Garden Viaduct & Cascading Waterfall
     if (idx % 3 === 0) {
-      midScenery += `<g transform="translate(${x}, ${my.toFixed(1)})">
-        <rect x="-85" y="-55" width="170" height="18" rx="4" fill="${c2}" fill-opacity="0.72" stroke="${c3}" stroke-width="2"/>
-        <rect x="-72" y="-37" width="16" height="95" fill="${c1}"/>
-        <rect x="-8" y="-37" width="16" height="95" fill="${c1}"/>
-        <rect x="56" y="-37" width="16" height="95" fill="${c1}"/>
-        <!-- Animated Waterfall Stream -->
-        <line x1="-32" y1="-35" x2="-32" y2="85" stroke="#bae6fd" stroke-width="7" stroke-dasharray="14 10" stroke-opacity="0.65">
-          <animate attributeName="stroke-dashoffset" from="48" to="0" dur="1.1s" repeatCount="indefinite"/>
-        </line>
-        <line x1="32" y1="-35" x2="32" y2="85" stroke="#bae6fd" stroke-width="7" stroke-dasharray="14 10" stroke-opacity="0.65">
-          <animate attributeName="stroke-dashoffset" from="48" to="0" dur="1.1s" repeatCount="indefinite"/>
-        </line>
-      </g>`;
+      if (pTheme === "cavern") {
+        // Subterranean Glowing Braziers & Crystal Clusters
+        midScenery += `<g transform="translate(${x}, ${my.toFixed(1)})">
+          <polygon points="-40,35 -12,-95 16,35" fill="${c2}" fill-opacity="0.65" stroke="${c3}" stroke-width="2"/>
+          <polygon points="10,35 34,-120 58,35" fill="${c3}" fill-opacity="0.58"/>
+          <circle cx="34" cy="-128" r="16" fill="${c3}" fill-opacity="0.75">
+            <animate attributeName="r" values="12;22;12" dur="1.8s" repeatCount="indefinite"/>
+          </circle>
+        </g>`;
+      } else if (pTheme === "canarias") {
+        // Traditional Canarian Wooden Balcony & Pulsing Pintadera Sun Emblem
+        midScenery += `<g transform="translate(${x}, ${my.toFixed(1)})">
+          <rect x="-70" y="-65" width="140" height="90" fill="#ffffff" fill-opacity="0.82" stroke="${c2}" stroke-width="2"/>
+          <rect x="-78" y="-42" width="156" height="16" rx="3" fill="#78350f" stroke="${c3}" stroke-width="1.5"/>
+          <polygon points="0,-115 26,-88 0,-61 -26,-88" fill="${c2}" stroke="${c3}" stroke-width="2">
+            <animateTransform attributeName="transform" type="rotate" from="0 0 -88" to="360 0 -88" dur="12s" repeatCount="indefinite"/>
+          </polygon>
+        </g>`;
+      } else if (pTheme === "carnival") {
+        // Illuminated Carnival Stage Arch & Pulsing Spotlight Orbs
+        midScenery += `<g transform="translate(${x}, ${my.toFixed(1)})">
+          <path d="M -85 35 A 85 95 0 0 1 85 35" fill="none" stroke="${c2}" stroke-width="10"/>
+          <path d="M -72 35 A 72 82 0 0 1 72 35" fill="none" stroke="${c3}" stroke-width="5" stroke-dasharray="10 8"/>
+          <circle cx="0" cy="-62" r="14" fill="#ffffff">
+            <animate attributeName="r" values="10;18;10" dur="1.4s" repeatCount="indefinite"/>
+          </circle>
+        </g>`;
+      } else {
+        // Baroque / Symphonic / Ocean / Cosmos / Storm: Multi-Arch Viaduct & Cascading Waterfall
+        midScenery += `<g transform="translate(${x}, ${my.toFixed(1)})">
+          <rect x="-85" y="-55" width="170" height="18" rx="4" fill="${c2}" fill-opacity="0.72" stroke="${c3}" stroke-width="2"/>
+          <rect x="-72" y="-37" width="16" height="95" fill="${c1}"/>
+          <rect x="-8" y="-37" width="16" height="95" fill="${c1}"/>
+          <rect x="56" y="-37" width="16" height="95" fill="${c1}"/>
+          <line x1="-32" y1="-35" x2="-32" y2="85" stroke="#bae6fd" stroke-width="7" stroke-dasharray="14 10" stroke-opacity="0.65">
+            <animate attributeName="stroke-dashoffset" from="48" to="0" dur="1.1s" repeatCount="indefinite"/>
+          </line>
+          <line x1="32" y1="-35" x2="32" y2="85" stroke="#bae6fd" stroke-width="7" stroke-dasharray="14 10" stroke-opacity="0.65">
+            <animate attributeName="stroke-dashoffset" from="48" to="0" dur="1.1s" repeatCount="indefinite"/>
+          </line>
+        </g>`;
+      }
     }
 
-    // Swaying Mid-ground Cypresses / Pines / Floral Trees
-    midScenery += `<g transform="translate(${x + 85}, ${my.toFixed(1)})">
-      <g>
-        <path d="M -22 35 C -38 -55 -28 -145 -10 -195 C 8 -145 18 -55 2 35 Z" fill="${c0}" fill-opacity="0.88" stroke="${c2}" stroke-width="1.8"/>
-        <circle cx="-10" cy="-130" r="5" fill="${c3}" fill-opacity="0.85"/>
-        <animateTransform attributeName="transform" type="rotate" values="-2.6 -10 35; 2.6 -10 35; -2.6 -10 35" dur="${swayDur}s" repeatCount="indefinite"/>
-      </g>
-      <g>
-        <path d="M 32 38 C 18 -40 26 -115 42 -158 C 58 -115 66 -40 52 38 Z" fill="${c1}" fill-opacity="0.86" stroke="${c3}" stroke-width="1.5"/>
-        <animateTransform attributeName="transform" type="rotate" values="2.4 42 38; -2.4 42 38; 2.4 42 38" dur="${swayDur}s" repeatCount="indefinite"/>
-      </g>
-    </g>`;
+    if (pTheme === "canarias" || pTheme === "carnival") {
+      // Swaying Canarian / Tropical Palm Trees
+      midScenery += `<g transform="translate(${x + 85}, ${my.toFixed(1)})">
+        <g>
+          <path d="M 0 38 Q -8 -45 6 -135" fill="none" stroke="${c1}" stroke-width="10" stroke-linecap="round"/>
+          <path d="M 6 -135 Q -55 -155 -78 -115" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>
+          <path d="M 6 -135 Q 65 -155 88 -115" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>
+          <path d="M 6 -135 Q -35 -180 -62 -152" fill="none" stroke="${c3}" stroke-width="5" stroke-linecap="round"/>
+          <path d="M 6 -135 Q 45 -180 72 -152" fill="none" stroke="${c3}" stroke-width="5" stroke-linecap="round"/>
+          <animateTransform attributeName="transform" type="rotate" values="-3.2 0 38; 3.2 0 38; -3.2 0 38" dur="${swayDur}s" repeatCount="indefinite"/>
+        </g>
+      </g>`;
+    } else if (pTheme === "cavern") {
+      // Bioluminescent Giant Cavern Mushrooms
+      midScenery += `<g transform="translate(${x + 85}, ${my.toFixed(1)})">
+        <rect x="-7" y="-85" width="14" height="120" rx="5" fill="${c1}" stroke="${c2}" stroke-width="1.5"/>
+        <path d="M -52 -80 C -52 -135 52 -135 52 -80 Z" fill="${c2}" stroke="${c3}" stroke-width="2">
+          <animate attributeName="fill-opacity" values="0.55;0.95;0.55" dur="${swayDur}s" repeatCount="indefinite"/>
+        </path>
+        <circle cx="-18" cy="-100" r="6" fill="#ffffff" opacity="0.8"/>
+        <circle cx="16" cy="-96" r="5" fill="${c3}" opacity="0.85"/>
+      </g>`;
+    } else {
+      // Swaying Cypresses / Pines / Blossoming Trees
+      midScenery += `<g transform="translate(${x + 85}, ${my.toFixed(1)})">
+        <g>
+          <path d="M -22 35 C -38 -55 -28 -145 -10 -195 C 8 -145 18 -55 2 35 Z" fill="${c0}" fill-opacity="0.88" stroke="${c2}" stroke-width="1.8"/>
+          <circle cx="-10" cy="-130" r="5" fill="${c3}" fill-opacity="0.85"/>
+          <animateTransform attributeName="transform" type="rotate" values="${pTheme === "storm" ? "-6.5" : "-2.6"} -10 35; ${pTheme === "storm" ? "6.5" : "2.6"} -10 35; ${pTheme === "storm" ? "-6.5" : "-2.6"} -10 35" dur="${swayDur}s" repeatCount="indefinite"/>
+        </g>
+        <g>
+          <path d="M 32 38 C 18 -40 26 -115 42 -158 C 58 -115 66 -40 52 38 Z" fill="${c1}" fill-opacity="0.86" stroke="${c3}" stroke-width="1.5"/>
+          <animateTransform attributeName="transform" type="rotate" values="2.4 42 38; -2.4 42 38; 2.4 42 38" dur="${swayDur}s" repeatCount="indefinite"/>
+        </g>
+      </g>`;
+    }
   }
 
-  const midSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none">
+  const midSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none" data-sonogramic-parallax-theme="${pTheme}">
   <defs>
     <linearGradient id="px_mid_grad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="${c2}" stop-opacity="0.52"/>
@@ -1067,41 +1423,74 @@ export const compileParallaxLayerSvgs = (params: {
   ${midScenery}
   <path d="${midRidge.fillPath}" fill="url(#px_mid_grad)"/>
   <path d="${midRidge.topStroke}" fill="none" stroke="${c3}" stroke-width="3" stroke-opacity="0.52"/>
-  <!-- Animated Valley Mist Ribbon -->
+  <!-- Animated Valley Mist / Harmonic Wave Ribbon -->
   <path d="M 0 65 Q 800 15 1600 65 T 3200 65" fill="none" stroke="#ffffff" stroke-width="26" stroke-opacity="0.14">
     <animate attributeName="stroke-opacity" values="0.07;0.22;0.07" dur="3.8s" repeatCount="indefinite"/>
   </path>
 </svg>`;
 
   // ============================================================================
-  // LAYER 4: FOREGROUND PARALLAX OVERLAY — PETALS, FIREFLIES & FOLIAGE (1.26x)
+  // LAYER 4: FOREGROUND PARALLAX OVERLAY — THEMATIC PARTICLES (1.28x)
   // ============================================================================
   let frontParticles = "";
-  for (let i = 0; i < 22; i++) {
+  for (let i = 0; i < 24; i++) {
     const fx = ((i * 293 + 90) % (W - 100)) + 50;
     const fy = -520 + ((i * 197) % 920);
-    const dur = (2.8 + (i % 5) * 0.55).toFixed(1);
-    const isPetal = i % 2 === 0;
-    if (isPetal) {
+    const dur = (2.6 + (i % 5) * 0.55).toFixed(1);
+
+    if (pTheme === "carnival") {
+      // Falling Multicolor Carnival Confetti & Serpentine Ribbons
+      const confCol = i % 3 === 0 ? c2 : i % 3 === 1 ? c3 : "#38bdf8";
       frontParticles += `<g transform="translate(${fx}, ${fy})">
-        <g>
-          <ellipse cx="0" cy="0" rx="8" ry="4.5" transform="rotate(28)" fill="${c3}" fill-opacity="0.72"/>
-          <animateTransform attributeName="transform" type="translate" values="-24,-18; 24,22; -24,-18" dur="${dur}s" repeatCount="indefinite"/>
-        </g>
+        <rect x="-7" y="-4" width="14" height="8" rx="2" fill="${confCol}" opacity="0.82" transform="rotate(${(i * 37) % 180})">
+          <animateTransform attributeName="transform" type="translate" values="-18,-28; 22,32; -18,-28" dur="${dur}s" repeatCount="indefinite"/>
+        </rect>
+      </g>`;
+    } else if (pTheme === "storm") {
+      // Diagonal Wind-Driven Rain Streaks & Electric Sparks
+      frontParticles += `<g transform="translate(${fx}, ${fy})">
+        <line x1="0" y1="0" x2="-22" y2="48" stroke="#bae6fd" stroke-width="2.5" stroke-linecap="round" opacity="0.55">
+          <animateTransform attributeName="transform" type="translate" values="14,-30; -14,30; 14,-30" dur="1.2s" repeatCount="indefinite"/>
+        </line>
+      </g>`;
+    } else if (pTheme === "cavern") {
+      // Rising Glowing Subterranean Embers & Crystal Spores
+      frontParticles += `<g transform="translate(${fx}, ${fy})">
+        <polygon points="0,-9 7,0 0,9 -7,0" fill="${i % 2 === 0 ? c3 : c2}" fill-opacity="0.78">
+          <animateTransform attributeName="transform" type="translate" values="0,24; 0,-28; 0,24" dur="${dur}s" repeatCount="indefinite"/>
+        </polygon>
+      </g>`;
+    } else if (pTheme === "ocean") {
+      // Rising Iridescent Sea-Foam Bubbles
+      frontParticles += `<g transform="translate(${fx}, ${fy})">
+        <circle cx="0" cy="0" r="${6 + (i % 4) * 2}" fill="none" stroke="#bae6fd" stroke-width="2" opacity="0.72">
+          <animateTransform attributeName="transform" type="translate" values="-10,26; 10,-26; -10,26" dur="${dur}s" repeatCount="indefinite"/>
+        </circle>
       </g>`;
     } else {
-      frontParticles += `<g transform="translate(${fx}, ${fy})">
-        <circle cx="0" cy="0" r="5.5" fill="#ffffff" fill-opacity="0.75">
-          <animate attributeName="fill-opacity" values="0.2;0.9;0.2" dur="${dur}s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="0" cy="0" r="13" fill="${c2}" fill-opacity="0.22">
-          <animate attributeName="r" values="9;17;9" dur="${dur}s" repeatCount="indefinite"/>
-        </circle>
-      </g>`;
+      // Baroque / Canarias / Cosmos / Symphonic: Blossom Petals & Golden Fireflies
+      const isPetal = i % 2 === 0;
+      if (isPetal) {
+        frontParticles += `<g transform="translate(${fx}, ${fy})">
+          <g>
+            <ellipse cx="0" cy="0" rx="8" ry="4.5" transform="rotate(28)" fill="${c3}" fill-opacity="0.72"/>
+            <animateTransform attributeName="transform" type="translate" values="-24,-18; 24,22; -24,-18" dur="${dur}s" repeatCount="indefinite"/>
+          </g>
+        </g>`;
+      } else {
+        frontParticles += `<g transform="translate(${fx}, ${fy})">
+          <circle cx="0" cy="0" r="5.5" fill="#ffffff" fill-opacity="0.75">
+            <animate attributeName="fill-opacity" values="0.2;0.9;0.2" dur="${dur}s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="0" cy="0" r="13" fill="${c2}" fill-opacity="0.22">
+            <animate attributeName="r" values="9;17;9" dur="${dur}s" repeatCount="indefinite"/>
+          </circle>
+        </g>`;
+      }
     }
   }
 
-  const frontSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none">
+  const frontSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none" data-sonogramic-parallax-theme="${pTheme}">
   <g>${frontParticles}</g>
 </svg>`;
 

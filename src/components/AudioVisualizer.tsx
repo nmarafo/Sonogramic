@@ -21,6 +21,7 @@ import {
   compileDetailedSliceSvg,
   compileFullMasterSvg,
   compileParallaxLayerSvgs,
+  sanitizeTransparentParallaxSvg,
   TrajectoryCompilerInput,
 } from "../utils/svgTrajectoryCompiler";
 
@@ -156,6 +157,12 @@ const svgStringToBlobUrl = (svgStr: string): string => {
     normalizedSvg = normalizedSvg.replace(
       "<svg",
       '<svg width="1024" height="1024"',
+    );
+  }
+  if (!normalizedSvg.includes("preserveAspectRatio=")) {
+    normalizedSvg = normalizedSvg.replace(
+      "<svg",
+      '<svg preserveAspectRatio="none"',
     );
   }
   const blob = new Blob([normalizedSvg], {
@@ -338,6 +345,17 @@ export const AudioVisualizer = forwardRef<
   );
   const svgUrlCacheRef = useRef<{ [key: string]: string }>({});
   const compiledSliceSvgsRef = useRef<string[]>([]);
+  const compiledParallaxLayersRef = useRef<{
+    skySvg: string;
+    farSvg: string;
+    midSvg: string;
+    frontSvg: string;
+  }>({
+    skySvg: "",
+    farSvg: "",
+    midSvg: "",
+    frontSvg: "",
+  });
 
   const analysisDataRef = useRef<{
     positions: {
@@ -1724,6 +1742,8 @@ export const AudioVisualizer = forwardRef<
       if (cfg.bgOffsetY !== undefined) bgOffsetYRef.current = cfg.bgOffsetY;
       if (cfg.cameraSmoothness !== undefined)
         cameraSmoothnessRef.current = cfg.cameraSmoothness;
+      if (cfg.parallaxIntensity !== undefined)
+        parallaxIntensityRef.current = cfg.parallaxIntensity;
       if (cfg.userKeywords !== undefined)
         userKeywordsRef.current = cfg.userKeywords;
 
@@ -2244,18 +2264,50 @@ export const AudioVisualizer = forwardRef<
     // Compile & mount the 4 seamless animated SVG parallax backdrop/overlay layers (Sky 0.16x, Far 0.38x, Mid 0.66x, Front 1.28x)
     const pSvgs = compileParallaxLayerSvgs({
       spec: specs[0],
+      specs,
       projectMetadata: okfProjectRef.current?.metadata,
       projectTitle: okfProjectRef.current?.metadata?.title,
       environmentConcept: environmentConceptRef.current,
       userKeywords: userKeywordsRef.current,
     });
+    const jsonParallax = okfProjectRef.current?.config?.parallaxLayers;
+    const resolvedParallaxLayers = {
+      skySvg:
+        jsonParallax?.skySvg && jsonParallax.skySvg.trim().startsWith("<svg")
+          ? jsonParallax.skySvg.trim()
+          : pSvgs.sky,
+      farSvg:
+        jsonParallax?.farSvg && jsonParallax.farSvg.trim().startsWith("<svg")
+          ? sanitizeTransparentParallaxSvg(jsonParallax.farSvg.trim())
+          : pSvgs.far,
+      midSvg:
+        jsonParallax?.midSvg && jsonParallax.midSvg.trim().startsWith("<svg")
+          ? sanitizeTransparentParallaxSvg(jsonParallax.midSvg.trim())
+          : pSvgs.mid,
+      frontSvg:
+        jsonParallax?.frontSvg &&
+        jsonParallax.frontSvg.trim().startsWith("<svg")
+          ? sanitizeTransparentParallaxSvg(jsonParallax.frontSvg.trim())
+          : pSvgs.front,
+    };
+    compiledParallaxLayersRef.current = resolvedParallaxLayers;
+    if (okfProjectRef.current?.config) {
+      okfProjectRef.current.config.parallaxLayers = resolvedParallaxLayers;
+    }
+
+    const layerSvgMap = {
+      sky: resolvedParallaxLayers.skySvg,
+      far: resolvedParallaxLayers.farSvg,
+      mid: resolvedParallaxLayers.midSvg,
+      front: resolvedParallaxLayers.frontSvg,
+    };
     (["sky", "far", "mid", "front"] as const).forEach((layerKey) => {
       const prevImg = parallaxLayersRef.current[layerKey];
       if (prevImg) {
         if (prevImg.src?.startsWith("blob:")) URL.revokeObjectURL(prevImg.src);
         if (prevImg.parentNode) prevImg.parentNode.removeChild(prevImg);
       }
-      const bUrl = svgStringToBlobUrl(pSvgs[layerKey]);
+      const bUrl = svgStringToBlobUrl(layerSvgMap[layerKey]);
       parallaxLayersRef.current[layerKey] = createMountedSvgImage(bUrl, () =>
         updateState(),
       );
@@ -2826,6 +2878,13 @@ export const AudioVisualizer = forwardRef<
 
   const restoreOkfBackgrounds = () => {
     if (!analysisDataRef.current) return;
+    if (
+      okfProjectRef.current?.config?.parallaxLayers?.skySvg?.includes(
+        "data-sonogramic-parallax-theme=",
+      )
+    ) {
+      okfProjectRef.current.config.parallaxLayers = undefined;
+    }
     const specs = okfProjectRef.current?.sliceSpecs || [];
     const count =
       analysisDataRef.current.bgImages?.length || specs.length || 6;
@@ -2902,6 +2961,8 @@ export const AudioVisualizer = forwardRef<
           ballConfig: ballConfigRef.current,
           extraTracksConfig: extraTracksConfigRef.current,
           cameraSmoothness: cameraSmoothnessRef.current,
+          parallaxIntensity: parallaxIntensityRef.current,
+          parallaxLayers: compiledParallaxLayersRef.current,
           userKeywords: userKeywordsRef.current,
           zoom: userZoomRef.current,
           platformOpacity: platformOpacityRef.current,

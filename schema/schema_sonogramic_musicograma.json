@@ -271,6 +271,13 @@
           "default": 0.82,
           "description": "Suavidad de seguimiento cinemático de la cámara."
         },
+        "parallaxIntensity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1.5,
+          "default": 1.0,
+          "description": "Intensidad del desplazamiento multicapa de las capas SVG animadas del parallax (0.0 desactiva el parallax, 1.0 velocidad natural)."
+        },
         "mosaicSlices": {
           "type": "integer",
           "minimum": 1,
@@ -287,6 +294,28 @@
         "masterSceneSvg": {
           "type": "string",
           "description": "Código XML <svg>...</svg> opcional de un único escenario panorámico continuo de obra completa alineado con la totalidad del trayecto."
+        },
+        "parallaxLayers": {
+          "type": "object",
+          "description": "Capas vectoriales SVG animadas (viewBox=\"0 -1100 3200 1900\", sin etiquetas <text>) generadas en el JSON conforme a la temática de la obra musical para el efecto parallax multicapa del fondo.",
+          "properties": {
+            "skySvg": {
+              "type": "string",
+              "description": "Capa 0 (Cielo profundo y astros, velocidad 0.16x): SVG animado con gradiente atmosférico, sol/luna/auroras, estrellas y nubes temáticas."
+            },
+            "farSvg": {
+              "type": "string",
+              "description": "Capa 1 (Horizonte lejano, velocidad 0.38x, fondo transparente): SVG animado con cordilleras, siluetas arquitectónicas o naturales lejanas y bandadas o destellos acordes a la temática musical."
+            },
+            "midSvg": {
+              "type": "string",
+              "description": "Capa 2 (Plano medio escenográfico, velocidad 0.66x, fondo transparente): SVG animado con colinas intermedias, arboledas mecidas, cascadas, columnas, cristales o elementos temáticos de la obra."
+            },
+            "frontSvg": {
+              "type": "string",
+              "description": "Capa 4 (Primer plano atmosférico sobre las esferas, velocidad 1.28x, fondo transparente): SVG animado con partículas en suspensión (pétalos, luciérnagas, confeti, chispas, espuma marina o polvo estelar) según la temática musical."
+            }
+          }
         },
         "userKeywords": {
           "type": "string",

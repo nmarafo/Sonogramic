@@ -90,14 +90,23 @@ export interface OkfMusicogramaMetadata {
   environmentConcept: string;
 }
 
+export interface OkfParallaxLayersConfig {
+  skySvg?: string;
+  farSvg?: string;
+  midSvg?: string;
+  frontSvg?: string;
+}
+
 export interface OkfMusicogramaConfig {
   zoom: number;
   platformOpacity: number;
   bgOffsetY: number;
   cameraSmoothness: number;
+  parallaxIntensity?: number;
   mosaicSlices: number;
   svgMode?: "segments" | "single";
   masterSceneSvg?: string;
+  parallaxLayers?: OkfParallaxLayersConfig;
   userKeywords?: string;
   ballConfig: TrackVisualConfig;
   extraTracksConfig: {
