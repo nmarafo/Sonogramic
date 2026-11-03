@@ -173,6 +173,7 @@ export default function App() {
     platformOpacity: number;
     bgOffsetY: number;
     cameraSmoothness: number;
+    parallaxIntensity: number;
     ballShape: string;
     ballColor: string;
     ballEffect: string;
@@ -209,6 +210,7 @@ export default function App() {
     bgOffsetY: EXAMPLE_OKF_PROJECTS[0].project.config.bgOffsetY ?? 0.0,
     cameraSmoothness:
       EXAMPLE_OKF_PROJECTS[0].project.config.cameraSmoothness ?? 0.82,
+    parallaxIntensity: 1.0,
     ballShape:
       EXAMPLE_OKF_PROJECTS[0].project.config.ballConfig?.shape || "custom-svg",
     ballColor:
@@ -1123,6 +1125,30 @@ export default function App() {
                     }));
                   }}
                   title="0% = la cámara sigue rígidamente cada salto vertical de la esfera; 100% = cámara estabilizada en el horizonte panorámico y transiciones de zoom ultra suaves"
+                  className="flex-1 accent-purple-500"
+                />
+              </div>
+
+              {/* Multi-Layer Animated SVG Parallax Intensity */}
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-xs font-medium text-slate-400 w-36">
+                  Parallax SVG ({Math.round(vState.parallaxIntensity * 100)}%)
+                </span>
+                <input
+                  type="range"
+                  min="0.0"
+                  max="1.5"
+                  step="0.05"
+                  value={vState.parallaxIntensity}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    visualizerRef.current?.setParallaxIntensity(val);
+                    setVState((prev) => ({
+                      ...prev,
+                      parallaxIntensity: val,
+                    }));
+                  }}
+                  title="Regula el efecto parallax multicapa de los 5 planos de SVGs animados (Cielo 0.16x, Montañas 0.38x, Bosques/Cascadas 0.66x, Trayecto 1.00x y Pétalos/Luciérnagas 1.28x)"
                   className="flex-1 accent-purple-500"
                 />
               </div>

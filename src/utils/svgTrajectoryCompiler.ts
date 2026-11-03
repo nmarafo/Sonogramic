@@ -35,6 +35,7 @@ export interface TrajectoryCompilerInput {
   }[];
   melodyColor?: string;
   bassColor?: string;
+  transparentBackdrop?: boolean;
 }
 
 type DetectedTheme =
@@ -597,6 +598,7 @@ export const compileDetailedSliceSvg = (
     extraTracks,
     melodyColor = "#38bdf8",
     bassColor = "#a855f7",
+    transparentBackdrop = false,
   } = input;
 
   const sliceWidth = Math.max(800, sliceMaxX - sliceMinX);
@@ -733,7 +735,7 @@ export const compileDetailedSliceSvg = (
     Math.round(svgPixelW * (worldHeight / sliceWidth)),
   );
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${sliceMinX.toFixed(1)} ${worldMinY} ${sliceWidth.toFixed(1)} ${worldHeight}" width="${svgPixelW}" height="${svgPixelH}" preserveAspectRatio="none" data-sonogramic-scenic-animated="v3">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${sliceMinX.toFixed(1)} ${worldMinY} ${sliceWidth.toFixed(1)} ${worldHeight}" width="${svgPixelW}" height="${svgPixelH}" preserveAspectRatio="none" data-sonogramic-scenic-animated="v4">
   <defs>
     <linearGradient id="${pfx}_skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="${c0}"/>
@@ -766,12 +768,16 @@ export const compileDetailedSliceSvg = (
     </linearGradient>
   </defs>
 
-  <!-- 1. Sky -->
+  ${
+    transparentBackdrop
+      ? ""
+      : `<!-- 1. Sky -->
   <rect x="${sliceMinX.toFixed(1)}" y="${worldMinY}" width="${sliceWidth.toFixed(1)}" height="${worldHeight}" fill="url(#${pfx}_skyGrad)"/>
 
   <!-- 2. Contoured Horizon & Mid-ground Scenic Ridges -->
   <path d="${farPts}" fill="url(#${pfx}_farHillGrad)"/>
-  <path d="${midPts}" fill="url(#${pfx}_midHillGrad)" stroke="${c2}" stroke-width="2" stroke-opacity="0.35"/>
+  <path d="${midPts}" fill="url(#${pfx}_midHillGrad)" stroke="${c2}" stroke-width="2" stroke-opacity="0.35"/>`
+  }
 
   <!-- 3. Animated Backdrop Landmarks (Sun, Rainbow, Swaying Trees, Birds) -->
   <g id="${pfx}_animated_landmarks">
@@ -797,6 +803,314 @@ export const compileDetailedSliceSvg = (
     ${bassScenicMarkup}
   </g>
 </svg>`;
+};
+
+export interface ParallaxLayerSvgs {
+  sky: string;
+  far: string;
+  mid: string;
+  front: string;
+}
+
+/**
+ * Compiles 4 horizontally-seamless (3200 x 1900, viewBox="0 -1100 3200 1900") animated SVGs
+ * for true multi-layer parallax rendering:
+ *  - sky   (speed 0.16x): Deep sky gradient, twinkling stars, glowing sun/moon corona, rainbow/aurora & drifting cloud banks
+ *  - far   (speed 0.38x): Distant mountain ranges, horizon villas/spires/volcanoes, distant multi-arch aqueducts & bird flocks
+ *  - mid   (speed 0.66x): Mid-ground hills, swaying cypress/palm groves, animated waterfalls, pergolas & valley mist
+ *  - front (speed 1.26x): Foreground drifting blossom petals, golden fireflies & botanical silhouettes
+ */
+export const compileParallaxLayerSvgs = (params: {
+  spec?: OkfSliceSpec;
+  projectMetadata?: OkfMusicogramaMetadata;
+  projectTitle?: string;
+  environmentConcept?: string;
+  userKeywords?: string;
+}): ParallaxLayerSvgs => {
+  const {
+    spec,
+    projectMetadata,
+    projectTitle,
+    environmentConcept,
+    userKeywords,
+  } = params;
+  const palette =
+    spec?.recommendedPalette && spec.recommendedPalette.length >= 3
+      ? spec.recommendedPalette
+      : ["#0f172a", "#1e293b", "#38bdf8", "#fbbf24"];
+  const c0 = palette[0] || "#0f172a";
+  const c1 = palette[1] || "#1e293b";
+  const c2 = palette[2] || "#38bdf8";
+  const c3 = palette[3] || palette[2] || "#fbbf24";
+
+  const theme = detectSliceTheme(
+    spec,
+    projectMetadata,
+    `${projectTitle || ""} ${environmentConcept || ""} ${userKeywords || ""}`,
+  );
+
+  const W = 3200;
+  const MIN_Y = -1100;
+  const MAX_Y = 800;
+  const H = MAX_Y - MIN_Y; // 1900
+  const omega = (Math.PI * 2) / W;
+
+  // Helper to build a 100% horizontally periodic (C1 seamless at x=0 and x=3200) ridge polygon
+  const buildSeamlessRidgePath = (
+    baseY: number,
+    a1: number,
+    p1: number,
+    a2: number,
+    p2: number,
+    a3: number,
+    p3: number,
+  ): { fillPath: string; topStroke: string; evalY: (x: number) => number } => {
+    const evalY = (x: number) =>
+      baseY +
+      a1 * Math.sin(omega * x + p1) +
+      a2 * Math.cos(2 * omega * x + p2) +
+      a3 * Math.sin(3 * omega * x + p3);
+    const step = 64;
+    let pts = `M 0 ${evalY(0).toFixed(1)}`;
+    for (let x = step; x <= W; x += step) {
+      pts += ` L ${x} ${evalY(x).toFixed(1)}`;
+    }
+    return {
+      fillPath: `${pts} L ${W} ${MAX_Y} L 0 ${MAX_Y} Z`,
+      topStroke: pts,
+      evalY,
+    };
+  };
+
+  // ============================================================================
+  // LAYER 0: DEEP SKY, CELESTIAL CORONA, STARS & DRIFTING CIRRUS CLOUDS (0.16x)
+  // ============================================================================
+  let starsMarkup = "";
+  for (let i = 0; i < 28; i++) {
+    const sx = ((i * 397 + 140) % (W - 120)) + 60;
+    const sy = -1020 + ((i * 251) % 620);
+    const sr = 2.2 + (i % 3) * 1.3;
+    const dur = (2.1 + (i % 5) * 0.65).toFixed(1);
+    starsMarkup += `<circle cx="${sx}" cy="${sy}" r="${sr.toFixed(1)}" fill="#ffffff" opacity="0.65">
+      <animate attributeName="opacity" values="0.18;0.92;0.18" dur="${dur}s" repeatCount="indefinite"/>
+    </circle>`;
+  }
+
+  let cloudsMarkup = "";
+  for (let i = 0; i < 7; i++) {
+    const cx = 220 + i * 440;
+    const cy = -780 + ((i * 173) % 340);
+    const scale = (0.85 + (i % 3) * 0.25).toFixed(2);
+    const driftDur = (6.5 + (i % 4) * 1.4).toFixed(1);
+    cloudsMarkup += `<g transform="translate(${cx}, ${cy}) scale(${scale})" opacity="0.34">
+      <g>
+        <ellipse cx="-65" cy="12" rx="78" ry="22" fill="${c2}"/>
+        <ellipse cx="65" cy="12" rx="82" ry="20" fill="${c3}"/>
+        <ellipse cx="0" cy="0" rx="115" ry="28" fill="#ffffff"/>
+        <animateTransform attributeName="transform" type="translate" values="-28,0; 28,0; -28,0" dur="${driftDur}s" repeatCount="indefinite"/>
+      </g>
+    </g>`;
+  }
+
+  const skySvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="px_sky_bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="${c0}"/>
+      <stop offset="46%" stop-color="${c1}"/>
+      <stop offset="82%" stop-color="${c2}"/>
+      <stop offset="100%" stop-color="${c0}"/>
+    </linearGradient>
+    <radialGradient id="px_sun_glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="35%" stop-color="${c3}" stop-opacity="0.52"/>
+      <stop offset="100%" stop-color="${c2}" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="0" y="${MIN_Y}" width="${W}" height="${H}" fill="url(#px_sky_bg)"/>
+  <!-- Atmospheric Aurora / Rainbow Ribbons -->
+  <path d="M 0 -580 Q 800 -880 1600 -580 T 3200 -580" fill="none" stroke="${c3}" stroke-width="48" stroke-opacity="0.14">
+    <animate attributeName="stroke-opacity" values="0.08;0.24;0.08" dur="5.2s" repeatCount="indefinite"/>
+  </path>
+  <path d="M 0 -510 Q 800 -810 1600 -510 T 3200 -510" fill="none" stroke="${c2}" stroke-width="36" stroke-opacity="0.16">
+    <animate attributeName="stroke-opacity" values="0.10;0.28;0.10" dur="4.4s" repeatCount="indefinite"/>
+  </path>
+  <!-- Twinkling Starfield -->
+  <g>${starsMarkup}</g>
+  <!-- Pulsing Celestial Sun / Moon Pair -->
+  <g transform="translate(880, -640)">
+    <circle cx="0" cy="0" r="290" fill="url(#px_sun_glow)">
+      <animate attributeName="r" values="260;320;260" dur="4.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="0" cy="0" r="76" fill="#ffffff" fill-opacity="0.88"/>
+  </g>
+  <g transform="translate(2480, -680)">
+    <circle cx="0" cy="0" r="220" fill="url(#px_sun_glow)">
+      <animate attributeName="r" values="195;245;195" dur="5.4s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <!-- High-Altitude Drifting Cirrus Cloud Banks -->
+  <g>${cloudsMarkup}</g>
+</svg>`;
+
+  // ============================================================================
+  // LAYER 1: DISTANT MOUNTAINS, HORIZON AQUEDUCTS & BIRD FLOCKS (0.38x)
+  // ============================================================================
+  const farRidge1 = buildSeamlessRidgePath(-330, 95, 0.4, 52, 1.2, 28, 2.1);
+  const farRidge2 = buildSeamlessRidgePath(-185, 76, 1.9, 44, 0.5, 24, 1.1);
+
+  let farLandmarks = "";
+  for (let x = 260; x < W - 200; x += 520) {
+    const idx = Math.round(x / 520);
+    const ry = farRidge2.evalY(x);
+    if (theme === "cavern") {
+      // Distant Giant Glowing Crystal Spires & Stalactite Arches
+      farLandmarks += `<g transform="translate(${x}, ${ry.toFixed(1)})">
+        <polygon points="-48,25 0,-165 48,25" fill="${c2}" fill-opacity="0.45" stroke="${c3}" stroke-width="2"/>
+        <polygon points="28,30 62,-115 94,30" fill="${c3}" fill-opacity="0.38"/>
+        <circle cx="0" cy="-165" r="9" fill="#ffffff">
+          <animate attributeName="opacity" values="0.3;0.95;0.3" dur="${(2.2 + (idx % 3) * 0.5).toFixed(1)}s" repeatCount="indefinite"/>
+        </circle>
+      </g>`;
+    } else {
+      // Distant Horizon Aqueducts, Palladian Villas & Campaniles
+      farLandmarks += `<g transform="translate(${x}, ${ry.toFixed(1)})" opacity="0.68">
+        <rect x="-110" y="-58" width="220" height="75" fill="${c1}" stroke="${c3}" stroke-width="1.8"/>
+        <path d="M -122 -58 L 0 -118 L 122 -58 Z" fill="${c2}" stroke="${c3}" stroke-width="2"/>
+        <rect x="135" y="-145" width="28" height="160" fill="${c1}" stroke="${c3}" stroke-width="1.5"/>
+        <polygon points="130,-145 149,-190 168,-145" fill="${c3}"/>
+        <circle cx="0" cy="-82" r="10" fill="${c3}">
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="${(2.6 + (idx % 3) * 0.5).toFixed(1)}s" repeatCount="indefinite"/>
+        </circle>
+      </g>`;
+    }
+
+    // Animated High-Altitude Bird Flocks
+    const birdY = ry - 240 - ((idx * 53) % 120);
+    farLandmarks += `<g transform="translate(${x + 180}, ${birdY.toFixed(1)})">
+      <g>
+        <path d="M -24 0 Q -12 -15 0 -2 Q 12 -15 24 0" fill="none" stroke="${c3}" stroke-width="3" stroke-linecap="round"/>
+        <path d="M 22 -22 Q 32 -35 42 -24 Q 52 -35 62 -22" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
+        <path d="M -52 -18 Q -42 -30 -32 -20 Q -22 -30 -12 -18" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" opacity="0.75"/>
+        <animateTransform attributeName="transform" type="translate" values="-22,6; 22,-12; -22,6" dur="${(3.1 + (idx % 3) * 0.6).toFixed(1)}s" repeatCount="indefinite"/>
+      </g>
+    </g>`;
+  }
+
+  const farSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="px_far1_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="${c2}" stop-opacity="0.36"/>
+      <stop offset="45%" stop-color="${c1}" stop-opacity="0.72"/>
+      <stop offset="100%" stop-color="${c0}" stop-opacity="0.92"/>
+    </linearGradient>
+    <linearGradient id="px_far2_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="${c1}" stop-opacity="0.82"/>
+      <stop offset="100%" stop-color="${c0}" stop-opacity="0.96"/>
+    </linearGradient>
+  </defs>
+  <path d="${farRidge1.fillPath}" fill="url(#px_far1_grad)"/>
+  <path d="${farRidge1.topStroke}" fill="none" stroke="${c3}" stroke-width="2" stroke-opacity="0.28"/>
+  ${farLandmarks}
+  <path d="${farRidge2.fillPath}" fill="url(#px_far2_grad)"/>
+  <path d="${farRidge2.topStroke}" fill="none" stroke="${c2}" stroke-width="2.5" stroke-opacity="0.38"/>
+</svg>`;
+
+  // ============================================================================
+  // LAYER 2: MID-GROUND HILLS, SWAYING FORESTS, WATERFALLS & PERGOLAS (0.66x)
+  // ============================================================================
+  const midRidge = buildSeamlessRidgePath(15, 64, 0.8, 36, 2.4, 18, 0.7);
+  let midScenery = "";
+  for (let x = 160; x < W - 120; x += 280) {
+    const idx = Math.round(x / 280);
+    const my = midRidge.evalY(x);
+    const swayDur = (3.0 + (idx % 4) * 0.55).toFixed(1);
+
+    // Every 3rd slot: Animated Multi-Arch Garden Viaduct & Cascading Waterfall
+    if (idx % 3 === 0) {
+      midScenery += `<g transform="translate(${x}, ${my.toFixed(1)})">
+        <rect x="-85" y="-55" width="170" height="18" rx="4" fill="${c2}" fill-opacity="0.72" stroke="${c3}" stroke-width="2"/>
+        <rect x="-72" y="-37" width="16" height="95" fill="${c1}"/>
+        <rect x="-8" y="-37" width="16" height="95" fill="${c1}"/>
+        <rect x="56" y="-37" width="16" height="95" fill="${c1}"/>
+        <!-- Animated Waterfall Stream -->
+        <line x1="-32" y1="-35" x2="-32" y2="85" stroke="#bae6fd" stroke-width="7" stroke-dasharray="14 10" stroke-opacity="0.65">
+          <animate attributeName="stroke-dashoffset" from="48" to="0" dur="1.1s" repeatCount="indefinite"/>
+        </line>
+        <line x1="32" y1="-35" x2="32" y2="85" stroke="#bae6fd" stroke-width="7" stroke-dasharray="14 10" stroke-opacity="0.65">
+          <animate attributeName="stroke-dashoffset" from="48" to="0" dur="1.1s" repeatCount="indefinite"/>
+        </line>
+      </g>`;
+    }
+
+    // Swaying Mid-ground Cypresses / Pines / Floral Trees
+    midScenery += `<g transform="translate(${x + 85}, ${my.toFixed(1)})">
+      <g>
+        <path d="M -22 35 C -38 -55 -28 -145 -10 -195 C 8 -145 18 -55 2 35 Z" fill="${c0}" fill-opacity="0.88" stroke="${c2}" stroke-width="1.8"/>
+        <circle cx="-10" cy="-130" r="5" fill="${c3}" fill-opacity="0.85"/>
+        <animateTransform attributeName="transform" type="rotate" values="-2.6 -10 35; 2.6 -10 35; -2.6 -10 35" dur="${swayDur}s" repeatCount="indefinite"/>
+      </g>
+      <g>
+        <path d="M 32 38 C 18 -40 26 -115 42 -158 C 58 -115 66 -40 52 38 Z" fill="${c1}" fill-opacity="0.86" stroke="${c3}" stroke-width="1.5"/>
+        <animateTransform attributeName="transform" type="rotate" values="2.4 42 38; -2.4 42 38; 2.4 42 38" dur="${swayDur}s" repeatCount="indefinite"/>
+      </g>
+    </g>`;
+  }
+
+  const midSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="px_mid_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="${c2}" stop-opacity="0.52"/>
+      <stop offset="38%" stop-color="${c1}" stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="${c0}" stop-opacity="0.97"/>
+    </linearGradient>
+  </defs>
+  ${midScenery}
+  <path d="${midRidge.fillPath}" fill="url(#px_mid_grad)"/>
+  <path d="${midRidge.topStroke}" fill="none" stroke="${c3}" stroke-width="3" stroke-opacity="0.52"/>
+  <!-- Animated Valley Mist Ribbon -->
+  <path d="M 0 65 Q 800 15 1600 65 T 3200 65" fill="none" stroke="#ffffff" stroke-width="26" stroke-opacity="0.14">
+    <animate attributeName="stroke-opacity" values="0.07;0.22;0.07" dur="3.8s" repeatCount="indefinite"/>
+  </path>
+</svg>`;
+
+  // ============================================================================
+  // LAYER 4: FOREGROUND PARALLAX OVERLAY — PETALS, FIREFLIES & FOLIAGE (1.26x)
+  // ============================================================================
+  let frontParticles = "";
+  for (let i = 0; i < 22; i++) {
+    const fx = ((i * 293 + 90) % (W - 100)) + 50;
+    const fy = -520 + ((i * 197) % 920);
+    const dur = (2.8 + (i % 5) * 0.55).toFixed(1);
+    const isPetal = i % 2 === 0;
+    if (isPetal) {
+      frontParticles += `<g transform="translate(${fx}, ${fy})">
+        <g>
+          <ellipse cx="0" cy="0" rx="8" ry="4.5" transform="rotate(28)" fill="${c3}" fill-opacity="0.72"/>
+          <animateTransform attributeName="transform" type="translate" values="-24,-18; 24,22; -24,-18" dur="${dur}s" repeatCount="indefinite"/>
+        </g>
+      </g>`;
+    } else {
+      frontParticles += `<g transform="translate(${fx}, ${fy})">
+        <circle cx="0" cy="0" r="5.5" fill="#ffffff" fill-opacity="0.75">
+          <animate attributeName="fill-opacity" values="0.2;0.9;0.2" dur="${dur}s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="0" cy="0" r="13" fill="${c2}" fill-opacity="0.22">
+          <animate attributeName="r" values="9;17;9" dur="${dur}s" repeatCount="indefinite"/>
+        </circle>
+      </g>`;
+    }
+  }
+
+  const frontSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ${MIN_Y} ${W} ${H}" width="2048" height="1216" preserveAspectRatio="none">
+  <g>${frontParticles}</g>
+</svg>`;
+
+  return {
+    sky: skySvg,
+    far: farSvg,
+    mid: midSvg,
+    front: frontSvg,
+  };
 };
 
 /**

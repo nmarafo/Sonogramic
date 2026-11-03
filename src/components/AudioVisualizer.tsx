@@ -20,6 +20,7 @@ import { OkfMusicogramaProject, OkfSliceSpec } from "../types/okf";
 import {
   compileDetailedSliceSvg,
   compileFullMasterSvg,
+  compileParallaxLayerSvgs,
   TrajectoryCompilerInput,
 } from "../utils/svgTrajectoryCompiler";
 
@@ -50,6 +51,7 @@ export interface AudioVisualizerHandle {
   exportProject: () => any;
   setBallConfig: (config: any) => void;
   setCameraSmoothness: (val: number) => void;
+  setParallaxIntensity: (val: number) => void;
   setExtraTrackConfig: (trackId: string, config: any) => void;
   setUserKeywords: (keywords: string) => void;
 }
@@ -285,9 +287,21 @@ export const AudioVisualizer = forwardRef<
   const platformOpacityRef = useRef<number>(0.85);
   const bgOffsetYRef = useRef<number>(0.0);
   const cameraSmoothnessRef = useRef<number>(0.82);
+  const parallaxIntensityRef = useRef<number>(1.0);
   const userKeywordsRef = useRef<string>("");
   const cameraPosRef = useRef<{ x: number; y: number } | null>(null);
   const cameraZoomRef = useRef<number | null>(null);
+  const parallaxLayersRef = useRef<{
+    sky: HTMLImageElement | null;
+    far: HTMLImageElement | null;
+    mid: HTMLImageElement | null;
+    front: HTMLImageElement | null;
+  }>({
+    sky: null,
+    far: null,
+    mid: null,
+    front: null,
+  });
 
   const ballConfigRef = useRef({
     shape: "circle",
@@ -2227,12 +2241,33 @@ export const AudioVisualizer = forwardRef<
         (extraTracksConfigRef.current?.[t.id]?.opacity ?? 1.0) > 0.01,
     );
 
+    // Compile & mount the 4 seamless animated SVG parallax backdrop/overlay layers (Sky 0.16x, Far 0.38x, Mid 0.66x, Front 1.28x)
+    const pSvgs = compileParallaxLayerSvgs({
+      spec: specs[0],
+      projectMetadata: okfProjectRef.current?.metadata,
+      projectTitle: okfProjectRef.current?.metadata?.title,
+      environmentConcept: environmentConceptRef.current,
+      userKeywords: userKeywordsRef.current,
+    });
+    (["sky", "far", "mid", "front"] as const).forEach((layerKey) => {
+      const prevImg = parallaxLayersRef.current[layerKey];
+      if (prevImg) {
+        if (prevImg.src?.startsWith("blob:")) URL.revokeObjectURL(prevImg.src);
+        if (prevImg.parentNode) prevImg.parentNode.removeChild(prevImg);
+      }
+      const bUrl = svgStringToBlobUrl(pSvgs[layerKey]);
+      parallaxLayersRef.current[layerKey] = createMountedSvgImage(bUrl, () =>
+        updateState(),
+      );
+    });
+
     if (slices === 1) {
       // Single Unified Panoramic SVG Mode (1 SVG covering the entire musicogram)
       const totalWidth = Math.max(800, data.bounds.maxX - data.bounds.minX);
       const duration = data.duration || totalWidth / 800;
       const sectionCount = Math.max(1, specs.length);
-      const sliceInputs: TrajectoryCompilerInput[] = [];
+      const sliceInputsExport: TrajectoryCompilerInput[] = [];
+      const sliceInputsLive: TrajectoryCompilerInput[] = [];
 
       for (let i = 0; i < sectionCount; i++) {
         const spec = specs[i];
@@ -2251,7 +2286,7 @@ export const AudioVisualizer = forwardRef<
               ? totalWidth
               : (spec.endTime / duration) * totalWidth;
         }
-        sliceInputs.push({
+        const baseSliceInput: TrajectoryCompilerInput = {
           sliceIndex: i,
           totalSlices: sectionCount,
           sliceMinX: sMinX,
@@ -2266,6 +2301,14 @@ export const AudioVisualizer = forwardRef<
           environmentConcept: environmentConceptRef.current,
           melodyColor,
           bassColor,
+        };
+        sliceInputsExport.push({
+          ...baseSliceInput,
+          transparentBackdrop: false,
+        });
+        sliceInputsLive.push({
+          ...baseSliceInput,
+          transparentBackdrop: true,
         });
       }
 
@@ -2273,16 +2316,23 @@ export const AudioVisualizer = forwardRef<
         !forceRebuild &&
         okfProjectRef.current?.config?.masterSceneSvg &&
         okfProjectRef.current.config.masterSceneSvg.includes(
-          'data-sonogramic-scenic-animated="v3"',
+          'data-sonogramic-scenic-animated="v4"',
         )
           ? okfProjectRef.current.config.masterSceneSvg
           : compileFullMasterSvg(
-              sliceInputs,
+              sliceInputsExport,
               data.bounds.minX,
               data.bounds.maxX,
               -960,
               640,
             );
+      const liveMasterSvgXml = compileFullMasterSvg(
+        sliceInputsLive,
+        data.bounds.minX,
+        data.bounds.maxX,
+        -960,
+        640,
+      );
 
       compiledSliceSvgsRef.current = [masterSvgXml];
       if (okfProjectRef.current?.config) {
@@ -2291,7 +2341,7 @@ export const AudioVisualizer = forwardRef<
       }
 
       if (forceRebuild || !data.bgImages[0]) {
-        const blobUrl = svgStringToBlobUrl(masterSvgXml);
+        const blobUrl = svgStringToBlobUrl(liveMasterSvgXml);
         if (blobUrl) {
           if (data.bgImages[0] && (data.bgImages[0] as any).parentNode) {
             (data.bgImages[0] as any).parentNode.removeChild(data.bgImages[0]);
@@ -2330,9 +2380,13 @@ export const AudioVisualizer = forwardRef<
       const svgXml =
         !forceRebuild &&
         spec?.backgroundSvg &&
-        spec.backgroundSvg.includes('data-sonogramic-scenic-animated="v3"')
+        spec.backgroundSvg.includes('data-sonogramic-scenic-animated="v4"')
           ? spec.backgroundSvg
-          : compileDetailedSliceSvg(input);
+          : compileDetailedSliceSvg({ ...input, transparentBackdrop: false });
+      const liveSvgXml = compileDetailedSliceSvg({
+        ...input,
+        transparentBackdrop: true,
+      });
       compiledList[i] = svgXml;
       if (spec) {
         spec.backgroundSvg = svgXml;
@@ -2340,7 +2394,7 @@ export const AudioVisualizer = forwardRef<
       }
 
       if (forceRebuild || !data.bgImages[i]) {
-        const blobUrl = svgStringToBlobUrl(svgXml);
+        const blobUrl = svgStringToBlobUrl(liveSvgXml);
         if (blobUrl) {
           if (data.bgImages[i] && (data.bgImages[i] as any).parentNode) {
             (data.bgImages[i] as any).parentNode.removeChild(data.bgImages[i]);
@@ -2928,6 +2982,9 @@ export const AudioVisualizer = forwardRef<
     setCameraSmoothness: (val: number) => {
       cameraSmoothnessRef.current = val;
     },
+    setParallaxIntensity: (val: number) => {
+      parallaxIntensityRef.current = Math.max(0, Math.min(1.5, val));
+    },
     setUserKeywords: (keywords: string) => {
       userKeywordsRef.current = keywords;
     },
@@ -3243,7 +3300,45 @@ export const AudioVisualizer = forwardRef<
       const viewMinX = topCamX - (width * 0.35) / zoom;
       const viewMaxX = topCamX + (width * 0.75) / zoom;
 
-      // Draw Trajectory-Aligned Vector SVG Background Slices
+      // Multi-Layer Animated SVG Parallax Helper:
+      // Renders seamless 3200x1900 animated SVG layers at distinct parallax speeds without ever exposing top/bottom black bars
+      const pStrength = parallaxIntensityRef.current ?? 1.0;
+      const drawParallaxSvgLayer = (
+        img: HTMLImageElement | null,
+        speedX: number,
+        speedY: number,
+        alpha: number = 1.0,
+      ) => {
+        if (!img || !isMediaReady(img)) return;
+        const TILE_W = 3200;
+        const TILE_Y = -1100 + bgOffsetYRef.current;
+        const TILE_H = 1900;
+        const effSpeedX = 1.0 - (1.0 - speedX) * pStrength;
+        const effSpeedY = 1.0 - (1.0 - speedY) * pStrength;
+        const originX = topCamX * (1.0 - effSpeedX);
+        const shiftY = Math.max(
+          -110,
+          Math.min(110, (topCamY - steadyHorizonY) * (1.0 - effSpeedY) * 0.45),
+        );
+        const startTile = Math.floor((viewMinX - originX) / TILE_W) - 1;
+        const endTile = Math.ceil((viewMaxX - originX) / TILE_W) + 1;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        for (let k = startTile; k <= endTile; k++) {
+          const drawX = originX + k * TILE_W;
+          ctx.drawImage(img, drawX, TILE_Y + shiftY, TILE_W + 1.5, TILE_H);
+        }
+        ctx.restore();
+      };
+
+      // Parallax Layer 0 (0.16x): Deep Sky, Celestial Corona, Twinkling Stars & Cirrus Clouds
+      drawParallaxSvgLayer(parallaxLayersRef.current.sky, 0.16, 0.12, 1.0);
+      // Parallax Layer 1 (0.38x): Distant Mountain Ranges, Horizon Villas/Spires & Bird Flocks
+      drawParallaxSvgLayer(parallaxLayersRef.current.far, 0.38, 0.28, 0.96);
+      // Parallax Layer 2 (0.66x): Mid-Ground Wooded Hills, Swaying Trees, Waterfalls & Pergolas
+      drawParallaxSvgLayer(parallaxLayersRef.current.mid, 0.66, 0.52, 0.96);
+
+      // Parallax Layer 3 (1.00x): Interactive Trajectory-Aligned Vector SVG Background Slices (1:1 collision alignment)
       if (data.bgImages && data.bgImages.length > 0 && data.bounds) {
         ctx.save();
         ctx.globalAlpha = 1.0;
@@ -3640,6 +3735,9 @@ export const AudioVisualizer = forwardRef<
           }
         }
       }
+
+      // Parallax Layer 4 (1.28x): Foreground Atmospheric Animated SVG Overlay (Drifting Petals, Golden Fireflies & Depth)
+      drawParallaxSvgLayer(parallaxLayersRef.current.front, 1.28, 1.15, 0.88);
 
       ctx.restore(); // camera restore
     }
